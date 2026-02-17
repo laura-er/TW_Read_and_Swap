@@ -1,0 +1,68 @@
+@import "tailwindcss";
+
+/* ─── Theme Variables ─────────────────────────────── */
+:root {
+  --color-bg: #faf8f5;
+  --color-surface: #f0ebe3;
+  --color-surface-alt: #e8e0d4;
+  --color-text: #1c1510;
+  --color-text-muted: #6b5f52;
+  --color-accent: #9a4a1e;
+  --color-accent-hover: #7a3a16;
+  --color-border: #ddd5c8;
+  --color-sidebar: #1c1510;
+  --color-sidebar-text: #faf8f5;
+  --color-sidebar-muted: #a89a8a;
+  --color-sidebar-active: #9a4a1e;
+}
+
+.dark {
+  --color-bg: #0e0b08;
+  --color-surface: #1a1510;
+  --color-surface-alt: #231e17;
+  --color-text: #f5f0e8;
+  --color-text-muted: #9a8a78;
+  --color-accent: #d4703a;
+  --color-accent-hover: #e8854f;
+  --color-border: #2e2518;
+  --color-sidebar: #111008;
+  --color-sidebar-text: #f5f0e8;
+  --color-sidebar-muted: #7a6a58;
+  --color-sidebar-active: #d4703a;
+}
+
+/* ─── Base ────────────────────────────────────────── */
+* {
+  box-sizing: border-box;
+}
+
+html {
+  font-family: 'DM Sans', sans-serif;
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Playfair Display', serif;
+}
+
+/* ─── Scrollbar ───────────────────────────────────── */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--color-surface);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-text-muted);
+}
