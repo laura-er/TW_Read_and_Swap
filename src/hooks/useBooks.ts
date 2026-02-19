@@ -1,22 +1,19 @@
-// useBooks.ts — hook for fetching and managing books
-// TODO: implement with your preferred data-fetching library (React Query recommended)
-
+import { mockBooks } from '@/data/mockBooks';
 import type { Book } from '@/types';
 
 export function useBooks() {
-  // TODO: fetch books list with filters (genre, condition, search, page)
   return {
-    books: [] as Book[],
+    books: mockBooks as Book[],
     isLoading: false,
     error: null as string | null,
-    totalPages: 0,
+    totalPages: 1,
   };
 }
 
 export function useBook(id: string) {
-  // TODO: fetch single book by id + reviews
+  const book = mockBooks.find((b) => b.id === id) ?? null;
   return {
-    book: null as Book | null,
+    book,
     isLoading: false,
     error: null as string | null,
   };
