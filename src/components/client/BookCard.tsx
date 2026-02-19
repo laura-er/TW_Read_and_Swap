@@ -1,11 +1,11 @@
-import { Link } from 'react-router-dom';
+import { useState } from 'react';
 import type { Book } from '@/types';
-import { Badge } from '@/components/ui/Badge';
 import { Card } from '@/components/ui/Card';
-
-interface BookCardProps {
-  book: Book;
-}
+import { Badge } from '@/components/ui/Badge';
+import { BookCoverImage } from './book-card/BookCoverImage';
+import { BookRating } from './book-card/BookRating';
+import { BookCardActions } from './book-card/BookCardActions';
+import { BookCardOwner } from './book-card/BookCardOwner';
 
 const conditionVariant: Record<Book['condition'], 'success' | 'info' | 'warning' | 'danger'> = {
   new: 'success',
@@ -14,50 +14,42 @@ const conditionVariant: Record<Book['condition'], 'success' | 'info' | 'warning'
   worn: 'danger',
 };
 
-export function BookCard({ book }: BookCardProps) {
-  return (
-    <Link to={`/books/${book.id}`} className="block group">
-      <Card hover padding="none" className="overflow-hidden">
-        {/* Book cover */}
-        <div className="relative aspect-[2/3] bg-[var(--color-surface-alt)] overflow-hidden">
-          {book.coverUrl ? (
-            <img
-              src={book.coverUrl}
-              alt={book.title}
-              className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-            />
-          ) : (
-            <div className="w-full h-full flex items-center justify-center text-[var(--color-text-muted)]">
-              {/* Placeholder book cover */}
-              <span className="text-4xl opacity-30">📖</span>
-            </div>
-          )}
-          {/* Availability badge */}
-          <div className="absolute top-2 right-2">
-            <Badge variant={book.isAvailable ? 'success' : 'default'}>
-              {book.isAvailable ? 'Available' : 'Swapped'}
-            </Badge>
-          </div>
-        </div>
+export function BookCard({ book }: { book: Book }) {
+  const [isFavorite, setIsFavorite] = useState(false);
 
-        {/* Book info */}
-        <div className="p-3">
-          <h3 className="font-semibold text-sm text-[var(--color-text)] line-clamp-2 mb-1">
-            {book.title}
-          </h3>
-          <p className="text-xs text-[var(--color-text-muted)] mb-2">{book.author}</p>
-          <div className="flex items-center justify-between">
-            <Badge variant={conditionVariant[book.condition]}>
-              {book.condition}
-            </Badge>
-            {book.rating !== undefined && (
-              <span className="text-xs text-[var(--color-text-muted)]">
-                ★ {book.rating.toFixed(1)}
-              </span>
-            )}
+  return (
+      <Card hover padding="none" className="overflow-hidden flex flex-col h-full">
+        <BookCoverImage
+            id={book.id}
+            title={book.title}
+            coverUrl={book.coverUrl}
+            isAvailable={book.isAvailable}
+            isFavorite={isFavorite}
+            onFavoriteToggle={() => setIsFavorite((prev) => !prev)}
+        />
+
+        <div className="p-4 flex flex-col gap-3 flex-1">
+          {/* Title & Author */}
+          <div>
+            <h3 className="font-bold text-base text-[var(--color-text)] line-clamp-1 mb-1">
+              {book.title}
+            </h3>
+            <p className="text-sm text-[var(--color-text-muted)]">{book.author}</p>
           </div>
+
+          {book.rating !== undefined && <BookRating rating={book.rating} />}
+
+          {/* Condition & Genre */}
+          <div className="flex items-center justify-between">
+            <Badge variant={conditionVariant[book.condition]}>{book.condition}</Badge>
+            <span className="text-xs font-semibold text-[var(--color-text-muted)] bg-[var(--color-surface-alt)] px-3 py-1 rounded-full capitalize">
+            {book.genre}
+          </span>
+          </div>
+
+          <BookCardActions id={book.id} isAvailable={book.isAvailable} />
+          <BookCardOwner ownerId={book.ownerId} />
         </div>
       </Card>
-    </Link>
   );
 }
