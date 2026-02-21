@@ -14,6 +14,7 @@ import { ShareProfilePage } from '@/pages/client/ShareProfilePage';
 import { AddBookPage } from '@/pages/client/AddBookPage';
 import { FavoritesPage } from '@/pages/client/FavoritesPage';
 import { SwapRequestPage } from '@/pages/client/SwapRequestPage';
+import { ForgotPasswordPage } from '@/pages/auth/ForgotPasswordPage';
 
 import { SignInPage } from '@/pages/auth/SignInPage';
 import { SignUpPage } from '@/pages/auth/SignUpPage';
@@ -54,15 +55,16 @@ export const router = createBrowserRouter([
     children: [
       { path: '/sign-in', element: <SignInPage /> },
       { path: '/sign-up', element: <SignUpPage /> },
+      { path: '/forgot-password', element: <ForgotPasswordPage /> },
     ],
   },
 
   // ─── Admin routes ────────────────────────────────────────
   {
-    element: <AdminLayout />,
+    element: <ProtectedRoute requiredRole="admin" />,
     children: [
       {
-        element: <ProtectedRoute requiredRole="admin" />,
+        element: <AdminLayout />,
         children: [
           { path: '/admin', element: <AdminDashboardPage /> },
         ],
