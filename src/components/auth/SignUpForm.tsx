@@ -20,6 +20,11 @@ export function SignUpForm() {
         e.preventDefault();
         setError('');
 
+        if (password.length < 8) {
+            setError('Password must be at least 8 characters.');
+            return;
+        }
+
         if (password !== confirmPassword) {
             setError('Passwords do not match.');
             return;
@@ -30,7 +35,7 @@ export function SignUpForm() {
         try {
             // TODO: replace with real API call
             login({ id: '1', name, email, role: 'user', username, avatarUrl: '', bio: '', location: '', joinedAt: new Date().toISOString() });
-            navigate('/');
+            navigate('/sign-in');
         } catch {
             setError('Something went wrong. Please try again.');
         } finally {
@@ -70,6 +75,7 @@ export function SignUpForm() {
                 placeholder="••••••••"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                minLength={8}
                 required
             />
             <Input
