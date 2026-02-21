@@ -22,7 +22,7 @@ export function BooksGrid({ books, onClearFilters }: BooksGridProps) {
     }
 
     return (
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 items-start">
             {books.map((book) => (
                 <BookCard key={book.id} book={book} />
             ))}
