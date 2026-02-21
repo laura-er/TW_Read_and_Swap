@@ -50,6 +50,7 @@ export function SignInForm() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 error={error}
+                minLength={8}
                 required
             />
             <div className="text-right">
