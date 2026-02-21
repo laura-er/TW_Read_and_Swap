@@ -55,27 +55,36 @@ export function Navbar() {
             className="p-2 rounded-lg text-[var(--color-text-muted)] hover:bg-[var(--color-surface)] transition-colors"
             aria-label="Toggle theme"
           >
-            {isDark ? '☀' : '☾'}
+            {isDark ? '☀️' : '🌙'}
           </button>
 
           {isAuthenticated && user ? (
-            <div className="flex items-center gap-3">
-              <Button variant="primary" size="sm" as={Link} to="/books/add">
-                + Add Book
-              </Button>
-              <Link to="/profile">
-                <Avatar src={user.avatarUrl} name={user.name} size="sm" />
-              </Link>
-            </div>
+              <div className="flex items-center gap-3">
+                <Link
+                    to="/books/add"
+                    className="inline-flex items-center gap-2 rounded-lg px-3 py-1.5 text-sm font-medium bg-[var(--color-accent)] text-white hover:bg-[var(--color-accent-hover)] transition-all shadow-sm"
+                >
+                  + Add Book
+                </Link>
+                <Link to="/profile">
+                  <Avatar src={user.avatarUrl} name={user.name} size="sm" />
+                </Link>
+              </div>
           ) : (
-            <div className="flex items-center gap-2">
-              <Button variant="ghost" size="sm" as={Link} to="/sign-in">
-                Sign In
-              </Button>
-              <Button variant="primary" size="sm" as={Link} to="/sign-up">
-                Sign Up
-              </Button>
-            </div>
+              <div className="flex items-center gap-2">
+                <Link
+                    to="/sign-in"
+                    className="inline-flex items-center gap-2 rounded-lg px-3 py-1.5 text-sm font-medium bg-transparent text-[var(--color-text)] hover:bg-[var(--color-surface)] transition-all"
+                >
+                  Sign In
+                </Link>
+                <Link
+                    to="/sign-up"
+                    className="inline-flex items-center gap-2 rounded-lg px-3 py-1.5 text-sm font-medium bg-[var(--color-accent)] text-white hover:bg-[var(--color-accent-hover)] transition-all shadow-sm"
+                >
+                  Sign Up
+                </Link>
+              </div>
           )}
         </div>
       </div>
