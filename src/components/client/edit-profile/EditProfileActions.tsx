@@ -1,20 +1,25 @@
 import { Link } from 'react-router-dom';
-import { ArrowLeft } from 'lucide-react';
+import { Button } from '@/components/ui/Button';
 
-export function EditProfileHeader() {
+interface EditProfileActionsProps {
+  isLoading: boolean;
+  saved: boolean;
+}
+
+export function EditProfileActions({ isLoading, saved }: EditProfileActionsProps) {
   return (
-    <div className="flex items-center gap-4 mb-8">
-      <Link
-        to="/profile"
-        className="flex items-center gap-2 text-sm text-[var(--color-text-muted)] hover:text-[var(--color-text)] transition-colors"
-      >
-        <ArrowLeft className="h-4 w-4" />
-        Back to profile
-      </Link>
-      <div className="h-4 w-px bg-[var(--color-border)]" />
-      <h1 className="font-['Playfair_Display'] text-2xl font-bold text-[var(--color-text)]">
-        Edit Profile
-      </h1>
+    <div className="flex items-center justify-between gap-3 pt-2">
+      {saved && (
+        <p className="text-sm text-green-500 font-medium">✓ Changes saved</p>
+      )}
+      <div className="flex items-center gap-3 ml-auto">
+        <Link to="/profile">
+          <Button variant="secondary">Cancel</Button>
+        </Link>
+        <Button type="submit" isLoading={isLoading}>
+          Save changes
+        </Button>
+      </div>
     </div>
   );
 }
