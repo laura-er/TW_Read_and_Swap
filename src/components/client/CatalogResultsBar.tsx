@@ -1,4 +1,3 @@
-import { Badge } from '@/components/ui/Badge';
 import type { Book } from '@/types';
 
 interface CatalogResultsBarProps {
@@ -13,16 +12,22 @@ export function CatalogResultsBar({ filtered, total, allBooks }: CatalogResultsB
 
     return (
         <div className="flex items-center justify-between flex-wrap gap-3 mb-6">
-            <p className="text-sm text-[var(--color-text-muted)]">
+            <p className="text-sm text-(--color-text-muted)">
                 Showing{' '}
-                <span className="font-bold text-lg text-[var(--color-text)]">{filtered}</span>
+                <span className="font-bold text-base text-(--color-text)">{filtered}</span>
                 {' '}of{' '}
-                <span className="font-semibold text-[var(--color-text)]">{total}</span> books
+                <span className="font-semibold text-(--color-text)">{total}</span> books
             </p>
-
-            <div className="flex gap-2">
-                <Badge variant="success">{availableCount} Available</Badge>
-                <Badge variant="default">{swappedCount} Swapped</Badge>
+            <div className="flex items-center gap-3">
+        <span className="flex items-center gap-1.5 text-xs font-semibold text-(--color-text-muted)">
+          <span className="w-2 h-2 rounded-full bg-green-500 inline-block" />
+            {availableCount} available
+        </span>
+                <span className="w-px h-3 bg-(--color-border)" />
+                <span className="flex items-center gap-1.5 text-xs font-semibold text-(--color-text-muted)">
+          <span className="w-2 h-2 rounded-full bg-(--color-border) inline-block" />
+                    {swappedCount} swapped
+        </span>
             </div>
         </div>
     );

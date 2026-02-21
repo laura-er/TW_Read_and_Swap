@@ -1,5 +1,3 @@
-import { Input } from '@/components/ui/Input';
-import { Button } from '@/components/ui/Button';
 import type { BookCondition, BookGenre } from '@/types';
 
 const GENRES: Array<'All' | BookGenre> = [
@@ -22,103 +20,100 @@ interface CatalogFiltersProps {
 }
 
 export function CatalogFilters({
-                                   searchTerm,
-                                   selectedGenre,
-                                   selectedCondition,
-                                   availableOnly,
-                                   onSearchChange,
-                                   onGenreChange,
-                                   onConditionChange,
-                                   onAvailableToggle,
-                                   onClearFilters,
+                                   searchTerm, selectedGenre, selectedCondition, availableOnly,
+                                   onSearchChange, onGenreChange, onConditionChange, onAvailableToggle, onClearFilters,
                                }: CatalogFiltersProps) {
     return (
-        <div className="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-2xl p-6 mb-8">
-            {/* Search */}
-            <div className="mb-5">
-                <Input
-                    placeholder="Search by title or author..."
+        <div className="mb-8 flex flex-col gap-4">
+
+            {/* Main search bar */}
+            <div className="flex shadow-md rounded-xl -space-x-px">
+
+                {/* Genre dropdown — stânga */}
+                <div className="relative flex-shrink-0">
+                    <select
+                        value={selectedGenre}
+                        onChange={(e) => onGenreChange(e.target.value)}
+                        className="h-full appearance-none rounded-l-xl border border-(--color-border) bg-(--color-surface) px-4 py-3 pr-8 text-sm font-medium text-(--color-text) outline-none transition-all focus:z-10 focus:border-(--color-accent) focus:ring-2 focus:ring-(--color-accent)/20 cursor-pointer capitalize hover:bg-(--color-surface-alt)"
+                    >
+                        {GENRES.map((g) => (
+                            <option key={g} value={g} className="capitalize">{g === 'All' ? 'All Genres' : g}</option>
+                        ))}
+                    </select>
+                    <span className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-(--color-text-muted)">
+            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+            </svg>
+          </span>
+                </div>
+
+                {/* Search input — centru */}
+                <input
+                    type="search"
                     value={searchTerm}
                     onChange={(e) => onSearchChange(e.target.value)}
-                    leftIcon={
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                        </svg>
-                    }
+                    placeholder="Search by title or author..."
+                    className="flex-1 border border-(--color-border) bg-(--color-surface) px-4 py-3 text-sm text-(--color-text) placeholder:text-(--color-text-muted) outline-none focus:z-10 focus:border-(--color-accent) focus:ring-2 focus:ring-(--color-accent)/20 transition-all min-w-0"
                 />
+
+                {/* Condition dropdown — dreapta inputului */}
+                <div className="relative flex-shrink-0">
+                    <select
+                        value={selectedCondition}
+                        onChange={(e) => onConditionChange(e.target.value)}
+                        className="h-full appearance-none border border-(--color-border) bg-(--color-surface) px-4 py-3 pr-8 text-sm font-medium text-(--color-text) outline-none transition-all focus:z-10 focus:border-(--color-accent) focus:ring-2 focus:ring-(--color-accent)/20 cursor-pointer capitalize hover:bg-(--color-surface-alt)"
+                    >
+                        {CONDITIONS.map((c) => (
+                            <option key={c} value={c} className="capitalize">{c === 'All' ? 'Any Condition' : c}</option>
+                        ))}
+                    </select>
+                    <span className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-(--color-text-muted)">
+            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+            </svg>
+          </span>
+                </div>
+
+                {/* Search button — far right */}
+                <button
+                    type="button"
+                    className="flex-shrink-0 inline-flex items-center gap-2 rounded-r-xl bg-(--color-accent) hover:bg-(--color-accent-hover) text-white px-5 py-3 text-sm font-semibold transition-all duration-200 shadow-sm focus:outline-none focus:ring-2 focus:ring-(--color-accent)/40"
+                >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                              d="M21 21l-3.5-3.5M17 10a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                    Search
+                </button>
             </div>
 
-            {/* Filters row */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                {/* Genre */}
-                <div className="flex flex-col gap-1.5">
-                    <label className="text-xs font-semibold uppercase tracking-wider text-[var(--color-text-muted)]">
-                        Genre
-                    </label>
-                    <div className="relative">
-                        <select
-                            value={selectedGenre}
-                            onChange={(e) => onGenreChange(e.target.value)}
-                            className="w-full appearance-none rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] px-3 py-2 text-sm text-[var(--color-text)] outline-none transition-all focus:border-[var(--color-accent)] focus:ring-2 focus:ring-[var(--color-accent)]/20 cursor-pointer capitalize"
-                        >
-                            {GENRES.map((g) => (
-                                <option key={g} value={g} className="capitalize">{g}</option>
-                            ))}
-                        </select>
-                        <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[var(--color-text-muted)]">
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-              </svg>
-            </span>
-                    </div>
-                </div>
+            {/* Secondary row: Available toggle + Clear */}
+            <div className="flex items-center gap-3">
+                <button
+                    onClick={onAvailableToggle}
+                    className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold border transition-all duration-200 ${
+                        availableOnly
+                            ? 'bg-(--color-accent) border-(--color-accent) text-white shadow-sm'
+                            : 'bg-(--color-surface) border-(--color-border) text-(--color-text-muted) hover:border-(--color-accent)/40 hover:text-(--color-text)'
+                    }`}
+                >
+                    <span className={`w-2 h-2 rounded-full transition-colors ${availableOnly ? 'bg-white' : 'bg-green-500'}`} />
+                    Available Only
+                </button>
 
-                {/* Condition */}
-                <div className="flex flex-col gap-1.5">
-                    <label className="text-xs font-semibold uppercase tracking-wider text-[var(--color-text-muted)]">
-                        Condition
-                    </label>
-                    <div className="relative">
-                        <select
-                            value={selectedCondition}
-                            onChange={(e) => onConditionChange(e.target.value)}
-                            className="w-full appearance-none rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] px-3 py-2 text-sm text-[var(--color-text)] outline-none transition-all focus:border-[var(--color-accent)] focus:ring-2 focus:ring-[var(--color-accent)]/20 cursor-pointer capitalize"
-                        >
-                            {CONDITIONS.map((c) => (
-                                <option key={c} value={c} className="capitalize">{c}</option>
-                            ))}
-                        </select>
-                        <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[var(--color-text-muted)]">
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-              </svg>
-            </span>
-                    </div>
-                </div>
-
-                {/* Available toggle */}
-                <div className="flex flex-col gap-1.5 justify-end">
-                    <Button
-                        variant={availableOnly ? 'primary' : 'secondary'}
-                        onClick={onAvailableToggle}
-                        className="w-full justify-center"
-                    >
-                        {availableOnly ? '✓ Available Only' : 'Show All'}
-                    </Button>
-                </div>
-
-                {/* Clear */}
-                <div className="flex flex-col gap-1.5 justify-end">
-                    <Button
-                        variant="ghost"
+                {(searchTerm || selectedGenre !== 'All' || selectedCondition !== 'All' || availableOnly) && (
+                    <button
                         onClick={onClearFilters}
-                        className="w-full justify-center border border-[var(--color-border)]"
+                        className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-semibold border border-(--color-border) text-(--color-text-muted) hover:text-(--color-text) bg-transparent transition-all duration-200"
                     >
-                        Clear Filters
-                    </Button>
-                </div>
+                        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                        Clear filters
+                    </button>
+                )}
             </div>
+
         </div>
     );
 }
