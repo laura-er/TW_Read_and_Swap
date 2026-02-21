@@ -17,8 +17,8 @@ export function BookCard({ book }: { book: Book }) {
     const [isFavorite, setIsFavorite] = useState(false);
 
     return (
-        <div className="group flex flex-row overflow-hidden rounded-2xl border border-(--color-border) bg-(--color-surface) hover:border-(--color-accent)/40 hover:shadow-lg hover:shadow-(--color-accent)/5 transition-all duration-300 h-[160px]">
-            <div className="relative w-28 flex-shrink-0">
+        <div className="group flex flex-row overflow-hidden rounded-2xl border border-(--color-border) bg-(--color-surface) hover:border-(--color-accent)/40 hover:shadow-lg hover:shadow-(--color-accent)/5 transition-all duration-300 min-h-[160px]">
+            <div className="relative w-32 flex-shrink-0 self-stretch">
                 <BookCoverImage
                     id={book.id}
                     title={book.title}
@@ -28,9 +28,9 @@ export function BookCard({ book }: { book: Book }) {
                     onFavoriteToggle={() => setIsFavorite((prev) => !prev)}
                 />
             </div>
-            <div className="flex flex-col flex-1 p-3 min-w-0 gap-1.5 overflow-hidden">
+            <div className="flex flex-col flex-1 p-3 min-w-0 gap-1.5">
                 <div>
-                    <h3 className="font-bold text-sm text-(--color-text) line-clamp-1 leading-snug mb-0.5 group-hover:text-(--color-accent) transition-colors duration-200">
+                    <h3 className="font-bold text-sm text-(--color-text) line-clamp-2 leading-snug mb-0.5 group-hover:text-(--color-accent) transition-colors duration-200">
                         {book.title}
                     </h3>
                     <p className="text-xs text-(--color-text-muted) font-medium">{book.author}</p>
@@ -39,8 +39,8 @@ export function BookCard({ book }: { book: Book }) {
                 <div className="flex items-center gap-1.5 flex-wrap">
                     <Badge variant={conditionVariant[book.condition]}>{book.condition}</Badge>
                     <span className="text-xs font-semibold text-(--color-text-muted) bg-(--color-surface-alt) px-2 py-0.5 rounded-full capitalize">
-            {book.genre}
-          </span>
+                        {book.genre}
+                    </span>
                 </div>
                 <BookCardOwner ownerId={book.ownerId} />
                 <div className="mt-auto">
@@ -50,3 +50,4 @@ export function BookCard({ book }: { book: Book }) {
         </div>
     );
 }
+
