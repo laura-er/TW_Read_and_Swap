@@ -108,4 +108,15 @@ export function FavoriteRow({ book, isLast, onRemove }: FavoriteRowProps) {
                             Swap
                         </Link>
                     )}
-                    
+                    <button
+                        onClick={() => onRemove(book.id)}
+                        className="rounded-lg p-2 text-[var(--color-text-muted)] transition-colors hover:bg-red-50 hover:text-red-500 dark:hover:bg-red-900/20"
+                        title="Remove from favorites"
+                    >
+                        <Trash2 className="h-4 w-4" />
+                    </button>
+                </div>
+            </td>
+        </tr>
+    );
+}
