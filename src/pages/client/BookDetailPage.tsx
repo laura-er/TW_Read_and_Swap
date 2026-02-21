@@ -3,6 +3,8 @@ import { useParams, Link } from 'react-router-dom';
 import { useBook } from '@/hooks/useBooks';
 import { useAuth } from '@/context/AuthContext';
 import type { Review } from '@/types';
+import { BookDetailSimilarBooks } from '@/components/client/book-detail/BookDetailSimilarBooks';
+import { useBooks } from '@/hooks/useBooks';
 import { BookDetailCover } from '@/components/client/book-detail/BookDetailCover';
 import { BookDetailInfo } from '@/components/client/book-detail/BookDetailInfo';
 import { BookDetailReviewStats } from '@/components/client/book-detail/BookDetailReviewStats';
@@ -13,6 +15,7 @@ import { BookDetailNotFound } from '@/components/client/book-detail/BookDetailNo
 export function BookDetailPage() {
   const { id } = useParams<{ id: string }>();
   const { book } = useBook(id ?? '');
+  const { books } = useBooks();
   const { isAuthenticated } = useAuth();
   const [reviews, setReviews] = useState<Review[]>([]);
   const [showReviewForm, setShowReviewForm] = useState(false);
@@ -125,6 +128,8 @@ export function BookDetailPage() {
               )}
             </div>
           </div>
+          {/* Similar Books */}
+          <BookDetailSimilarBooks currentBook={book} allBooks={books} />
         </div>
       </div>
   );
