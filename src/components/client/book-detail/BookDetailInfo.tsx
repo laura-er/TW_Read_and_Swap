@@ -9,58 +9,54 @@ interface BookDetailInfoProps {
 
 export function BookDetailInfo({ book, averageRating, reviewCount }: BookDetailInfoProps) {
     return (
-        <div className="space-y-6">
+        <div className="flex flex-col gap-4">
 
-            {/* Title, Author, Rating */}
-            <div className="bg-(--color-surface) rounded-2xl p-6 shadow-xl border border-(--color-border)">
-                <h1 className="text-3xl md:text-4xl font-bold text-(--color-text) mb-3 leading-tight">
+            {/* Title + Author + Rating */}
+            <div className="rounded-2xl border border-(--color-border) bg-(--color-surface) p-4">
+                <h1 className="font-bold text-xl text-(--color-text) leading-snug mb-0.5">
                     {book.title}
                 </h1>
-                <p className="text-xl text-(--color-accent) font-semibold mb-4">
-                    by {book.author}
-                </p>
+                <p className="text-sm text-(--color-accent) font-semibold mb-3">by {book.author}</p>
 
-                {/* Rating + Genre row */}
-                <div className="flex items-center gap-4 flex-wrap bg-(--color-surface-alt) p-4 rounded-xl">
-                    <div className="flex items-center gap-2 px-3 py-2 bg-yellow-400/10 rounded-lg border border-yellow-400/20">
-                        <div className="flex">
+                <div className="flex items-center gap-2 flex-wrap p-3 bg-(--color-surface-alt) rounded-xl">
+                    <div className="flex items-center gap-1.5 px-2.5 py-1 bg-yellow-400/10 rounded-lg border border-yellow-400/20">
+                        <div className="flex gap-0.5">
                             {Array.from({ length: 5 }).map((_, i) => (
-                                <svg key={i} className="w-4 h-4 fill-yellow-400" viewBox="0 0 24 24">
+                                <svg key={i} className="w-3.5 h-3.5 fill-yellow-400" viewBox="0 0 24 24">
                                     <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
                                 </svg>
                             ))}
                         </div>
-                        <div className="flex items-baseline gap-1">
-                            <span className="text-lg font-bold text-(--color-text)">{averageRating}</span>
-                            <span className="text-sm text-(--color-text-muted)">({reviewCount})</span>
-                        </div>
+                        <span className="text-sm font-bold text-(--color-text)">{averageRating}</span>
+                        <span className="text-xs text-(--color-text-muted)">({reviewCount})</span>
                     </div>
 
-                    <span className="bg-(--color-accent)/10 text-(--color-accent) px-4 py-2 rounded-lg font-semibold border border-(--color-accent)/20 text-sm capitalize">
+                    <span className="bg-(--color-accent)/10 text-(--color-accent) px-2.5 py-1 rounded-full font-semibold border border-(--color-accent)/20 text-xs capitalize">
             {book.genre}
           </span>
                 </div>
             </div>
 
             {/* Description */}
-            <div className="bg-(--color-surface) p-6 rounded-2xl shadow-xl border border-(--color-border)">
-                <h2 className="text-2xl font-bold text-(--color-text) mb-4">About this Book</h2>
-                <p className="text-base text-(--color-text-muted) leading-relaxed">
+            <div className="rounded-2xl border border-(--color-border) bg-(--color-surface) p-4">
+                <h2 className="text-sm font-bold uppercase tracking-widest text-(--color-text-muted) mb-2">About this Book</h2>
+                <p className="text-sm text-(--color-text-muted) leading-relaxed">
                     {book.description}
                 </p>
             </div>
 
             {/* Owner */}
-            <div className="bg-(--color-surface) p-6 rounded-2xl shadow-xl border border-(--color-border)">
-                <h2 className="text-2xl font-bold text-(--color-text) mb-4">Owner</h2>
-                <div className="flex items-center gap-4 p-4 bg-(--color-surface-alt) rounded-xl">
-                    <Avatar name={book.ownerId} size="lg" />
+            <div className="rounded-2xl border border-(--color-border) bg-(--color-surface) p-4">
+                <h2 className="text-sm font-bold uppercase tracking-widest text-(--color-text-muted) mb-3">Owner</h2>
+                <div className="flex items-center gap-3 p-3 bg-(--color-surface-alt) rounded-xl">
+                    <Avatar name={book.ownerId} size="sm" />
                     <div>
-                        <p className="text-xl font-bold text-(--color-text)">{book.ownerId}</p>
-                        <p className="text-sm text-(--color-text-muted)">Member of Read &amp; Swap</p>
+                        <p className="text-sm font-bold text-(--color-text)">{book.ownerId}</p>
+                        <p className="text-xs text-(--color-text-muted)">Member of Read &amp; Swap</p>
                     </div>
                 </div>
             </div>
         </div>
     );
 }
+
