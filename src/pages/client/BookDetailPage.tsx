@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import { useBook } from '@/hooks/useBooks';
 import { useAuth } from '@/context/AuthContext';
 import type { Review } from '@/types';
@@ -53,6 +53,18 @@ export function BookDetailPage() {
       <main className="min-h-screen bg-(--color-bg) px-6 py-12 pt-20">
         <div className="container mx-auto max-w-3xl flex flex-col gap-5">
 
+          {/* Back link — sus stânga, în afara cardului */}
+          <Link
+              to="/books"
+              className="inline-flex items-center gap-1.5 text-xs font-semibold text-(--color-text-muted) hover:text-(--color-accent) transition-colors w-fit"
+          >
+            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            </svg>
+            Back to Catalog
+          </Link>
+
+          {/* Central card */}
           <div className="rounded-2xl border border-(--color-border) bg-(--color-surface) shadow-sm p-6 md:p-8">
             <BookDetailHero book={book} />
             <BookDetailActions
@@ -63,6 +75,7 @@ export function BookDetailPage() {
             />
           </div>
 
+          {/* Reviews card */}
           <div className="rounded-2xl border border-(--color-border) bg-(--color-surface) shadow-sm p-6 md:p-8">
             <BookDetailReviews reviews={reviews} book={book} />
           </div>
@@ -72,9 +85,9 @@ export function BookDetailPage() {
           ) : (
               <div className="rounded-2xl border border-dashed border-(--color-border) p-5 text-center">
                 <p className="text-sm text-(--color-text-muted)">
-                  <a href="/sign-in" className="font-semibold text-(--color-accent) hover:underline">
+                  <Link to="/sign-in" className="font-semibold text-(--color-accent) hover:underline">
                     Sign in
-                  </a>
+                  </Link>
                   {' '}to leave a review
                 </p>
               </div>
@@ -84,6 +97,3 @@ export function BookDetailPage() {
       </main>
   );
 }
-
-
-  

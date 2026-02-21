@@ -2,7 +2,9 @@ import { Link } from 'react-router-dom';
 import type { Book } from '@/types';
 import { Badge } from '@/components/ui/Badge';
 
-const conditionVariant: Record<Book['condition'], 'success' | 'info' | 'warning' | 'danger'> = {
+type ConditionVariant = 'success' | 'info' | 'warning' | 'danger';
+
+const conditionVariant: Record<Book['condition'], ConditionVariant> = {
     new: 'success',
     good: 'info',
     fair: 'warning',
@@ -15,17 +17,23 @@ interface BookDetailHeroProps {
 
 export function BookDetailHero({ book }: BookDetailHeroProps) {
     return (
-        <div className="flex flex-col sm:flex-row gap-8">
-            {/* Cover */}
-            <div className="flex-shrink-0 mx-auto sm:mx-0 w-48 md:w-56">
-                <div className="relative rounded-xl overflow-hidden shadow-2xl border border-(--color-border) aspect-[2/3]">
+        <div className="flex flex-col">
+
+            {/* Cover image — full width top, ca în referință */}
+            <Link to={`/books/${book.id}`} className="block mb-6">
+                <div className="relative rounded-xl overflow-hidden border border-(--color-border) w-full h-64 md:h-80">
                     {book.coverUrl ? (
-                        <img src={book.coverUrl} alt={book.title} className="w-full h-full object-cover" />
+                        <img
+                            src={book.coverUrl}
+                            alt={book.title}
+                            className="w-full h-full object-cover"
+                        />
                     ) : (
                         <div className="w-full h-full flex items-center justify-center bg-(--color-surface-alt)">
                             <span className="text-6xl opacity-20">📖</span>
                         </div>
                     )}
+                    {/* Availability badge peste imagine */}
                     <div className="absolute top-3 left-3">
                         {book.isAvailable ? (
                             <span className="flex items-center gap-1.5 bg-green-500 text-white px-2.5 py-1 rounded-full text-[10px] font-bold shadow">
@@ -39,20 +47,43 @@ export function BookDetailHero({ book }: BookDetailHeroProps) {
                         )}
                     </div>
                 </div>
-            </div>
+            </Link>
 
-            {/* Info */}
-            <div className="flex flex-col gap-3 flex-1 justify-center">
-                <Link
-                    to="/books"
-                    className="inline-flex items-center gap-1.5 text-xs font-semibold text-(--color-text-muted) hover:text-(--color-accent) transition-colors w-fit"
-                >
-                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                    </svg>
-                    Back to Catalog
-                </Link>
+            {/* Content sub imagine */}
+            <div className="flex flex-col gap-4">
 
+                {/* Rating + score — ca în referință */}
+                <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-1">
+                        {Array.from({ length: 5 }).map((_, i) => (
+                            <svg
+                                key={i}
+                                className={`w-5 h-5 ${book.rating !== undefined && i < Math.floor(book.rating) ? 'fill-yellow-400 text-yellow-400' : 'fill-(--color-border) text-(--color-border)'}`}
+                                viewBox="0 0 24 24"
+                            >
+                                <path d="M13.849 4.22c-.684-1.626-3.014-1.626-3.698 0L8.397 8.387l-4.552.361c-1.775.14-2.495 2.331-1.142 3.477l3.468 2.937-1.06 4.392c-.413 1.713 1.472 3.067 2.992 2.149L12 19.35l3.897 2.354c1.52.918 3.405-.436 2.992-2.15l-1.06-4.39 3.468-2.938c1.353-1.146.633-3.336-1.142-3.477l-4.552-.36-1.754-4.17Z" />
+                            </svg>
+                        ))}
+                    </div>
+                    {book.rating !== undefined && (
+                        <span className="bg-(--color-accent)/10 border border-(--color-accent)/20 text-(--color-accent) text-xs font-semibold px-2 py-0.5 rounded-md">
+              {book.rating.toFixed(1)} out of 5
+            </span>
+                    )}
+                    {book.reviewCount !== undefined && (
+                        <span className="text-xs text-(--color-text-muted)">({book.reviewCount} reviews)</span>
+                    )}
+                </div>
+
+                {/* Title */}
+                <h1 className="text-2xl md:text-3xl font-semibold tracking-tight text-(--color-text) leading-snug">
+                    {book.title}
+                </h1>
+
+                {/* Author */}
+                <p className="text-sm text-(--color-text-muted) font-medium -mt-2">by {book.author}</p>
+
+                {/* Genre + Condition */}
                 <div className="flex items-center gap-2 flex-wrap">
           <span className="inline-flex items-center bg-(--color-accent)/10 border border-(--color-accent)/20 text-(--color-accent) text-xs font-semibold px-2.5 py-0.5 rounded-full capitalize">
             {book.genre}
@@ -60,41 +91,20 @@ export function BookDetailHero({ book }: BookDetailHeroProps) {
                     <Badge variant={conditionVariant[book.condition]}>{book.condition}</Badge>
                 </div>
 
-                <div>
-                    <h1 className="text-3xl md:text-4xl font-bold text-(--color-text) leading-tight mb-1">
-                        {book.title}
-                    </h1>
-                    <p className="text-base text-(--color-text-muted) font-medium">by {book.author}</p>
-                </div>
-
-                {book.rating !== undefined && (
-                    <div className="flex items-center gap-2">
-                        <div className="flex items-center gap-0.5">
-                            {Array.from({ length: 5 }).map((_, i) => (
-                                <svg
-                                    key={i}
-                                    className={`w-5 h-5 ${i < Math.floor(book.rating!) ? 'fill-yellow-400 text-yellow-400' : 'fill-(--color-border) text-(--color-border)'}`}
-                                    viewBox="0 0 24 24"
-                                >
-                                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                                </svg>
-                            ))}
-                        </div>
-                        <span className="text-sm font-bold text-(--color-text)">{book.rating.toFixed(1)}</span>
-                        {book.reviewCount !== undefined && (
-                            <span className="text-sm text-(--color-text-muted)">({book.reviewCount} reviews)</span>
-                        )}
-                    </div>
-                )}
-
-                <p className="text-sm text-(--color-text-muted) leading-relaxed max-w-lg">
+                {/* Description */}
+                <p className="text-sm text-(--color-text-muted) leading-relaxed">
                     {book.description}
                 </p>
 
+                {/* Added date */}
                 <p className="text-xs text-(--color-text-muted)">
                     Added{' '}
                     <span className="font-semibold text-(--color-text)">
-            {new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }).format(new Date(book.createdAt))}
+            {new Intl.DateTimeFormat('en-GB', {
+                day: 'numeric',
+                month: 'short',
+                year: 'numeric',
+            }).format(new Date(book.createdAt))}
           </span>
                 </p>
             </div>
