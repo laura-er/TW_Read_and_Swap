@@ -54,7 +54,7 @@ export function BookDetailPage() {
 
   return (
       <div className="bg-(--color-bg) min-h-screen">
-        <div className="container mx-auto px-4 sm:px-6 py-8 pt-24 md:pt-32">
+        <div className="container mx-auto px-4 sm:px-6 py-8 pt-24 md:pt-10">
 
           {/* Back Button */}
           <Link
