@@ -23,7 +23,7 @@ export function BookCatalogPage() {
   } = useBooksFilter(books);
 
   return (
-      <main className="min-h-screen bg-[var(--color-bg)] px-6 py-12 pt-32">
+      <main className="min-h-screen bg-[var(--color-bg)] px-6 py-12 pt-10">
         <div className="container mx-auto max-w-7xl">
           <CatalogHeader totalBooks={books.length} />
           <CatalogFilters
