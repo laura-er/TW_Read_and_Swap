@@ -14,10 +14,12 @@ import { ShareProfilePage } from '@/pages/client/ShareProfilePage';
 import { AddBookPage } from '@/pages/client/AddBookPage';
 import { FavoritesPage } from '@/pages/client/FavoritesPage';
 import { SwapRequestPage } from '@/pages/client/SwapRequestPage';
-import { ForgotPasswordPage } from '@/pages/auth/ForgotPasswordPage';
+import { RequestSwapPage } from '@/pages/client/RequestSwapPage';
+import { SwapSuccessPage } from '@/pages/client/SwapSuccessPage';
 
 import { SignInPage } from '@/pages/auth/SignInPage';
 import { SignUpPage } from '@/pages/auth/SignUpPage';
+import { ForgotPasswordPage } from '@/pages/auth/ForgotPasswordPage';
 
 import { AdminDashboardPage } from '@/pages/admin/AdminDashboardPage';
 
@@ -44,6 +46,8 @@ export const router = createBrowserRouter([
           { path: '/profile/:username', element: <ProfilePage /> },
           { path: '/favorites', element: <FavoritesPage /> },
           { path: '/swaps', element: <SwapRequestPage /> },
+          { path: '/swap/:id', element: <RequestSwapPage /> },
+          { path: '/swap/:id/success', element: <SwapSuccessPage /> },
         ],
       },
     ],
