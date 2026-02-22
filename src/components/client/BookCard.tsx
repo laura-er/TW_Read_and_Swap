@@ -1,10 +1,10 @@
-import { useState } from 'react';
 import type { Book } from '@/types';
 import { Badge } from '@/components/ui/Badge';
 import { BookCoverImage } from './book-card/BookCoverImage';
 import { BookRating } from './book-card/BookRating';
 import { BookCardActions } from './book-card/BookCardActions';
 import { BookCardOwner } from './book-card/BookCardOwner';
+import { useFavorites } from '@/context/FavoritesContext';
 
 const conditionVariant: Record<Book['condition'], 'success' | 'info' | 'warning' | 'danger'> = {
     new: 'success',
@@ -14,7 +14,7 @@ const conditionVariant: Record<Book['condition'], 'success' | 'info' | 'warning'
 };
 
 export function BookCard({ book }: { book: Book }) {
-    const [isFavorite, setIsFavorite] = useState(false);
+    const { isFavorite, toggleFavorite } = useFavorites();
 
     return (
         <div className="group flex flex-row overflow-hidden rounded-2xl border border-(--color-border) bg-(--color-surface) hover:border-(--color-accent)/40 hover:shadow-lg hover:shadow-(--color-accent)/5 transition-all duration-300 min-h-[160px]">
@@ -24,8 +24,8 @@ export function BookCard({ book }: { book: Book }) {
                     title={book.title}
                     coverUrl={book.coverUrl}
                     isAvailable={book.isAvailable}
-                    isFavorite={isFavorite}
-                    onFavoriteToggle={() => setIsFavorite((prev) => !prev)}
+                    isFavorite={isFavorite(book.id)}
+                    onFavoriteToggle={() => toggleFavorite(book.id)}
                 />
             </div>
             <div className="flex flex-col flex-1 p-3 min-w-0 gap-1.5">
