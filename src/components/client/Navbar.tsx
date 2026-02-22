@@ -4,21 +4,25 @@ import { useAuth } from '@/context/AuthContext';
 import { useTheme } from '@/context/ThemeContext';
 import { Avatar } from '@/components/ui/Avatar';
 
-const navLinks = [
+const clientLinks = [
   { to: '/', label: 'Home' },
   { to: '/books', label: 'Browse Books' },
   { to: '/swaps', label: 'My Swaps' },
   { to: '/favorites', label: 'Favorites' },
 ];
 
+const adminLinks = [
+  { to: '/', label: 'Home' },
+  { to: '/books', label: 'Browse Books' },
+];
+
 export function Navbar() {
-  const { user, isAuthenticated, logout } = useAuth();
+  const { user, isAuthenticated, isAdmin, logout } = useAuth();
   const { toggleTheme, isDark } = useTheme();
   const navigate = useNavigate();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  // Închide dropdown când dai click în afară
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
@@ -35,6 +39,8 @@ export function Navbar() {
     navigate('/');
   }
 
+  const navLinks = isAdmin ? adminLinks : clientLinks;
+
   return (
       <header className="sticky top-0 z-40 border-b border-[var(--color-border)] bg-[var(--color-bg)]/90 backdrop-blur-md">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6">
@@ -46,7 +52,7 @@ export function Navbar() {
             Read & Swap
           </Link>
 
-          {/* Nav links - desktop */}
+          {/* Nav links */}
           <nav className="hidden md:flex items-center gap-1">
             {navLinks.map(({ to, label }) => (
                 <NavLink
@@ -80,12 +86,15 @@ export function Navbar() {
 
             {isAuthenticated && user ? (
                 <div className="flex items-center gap-3">
-                  <Link
-                      to="/books/add"
-                      className="inline-flex items-center gap-2 rounded-lg px-3 py-1.5 text-sm font-medium bg-[var(--color-accent)] text-white hover:bg-[var(--color-accent-hover)] transition-all shadow-sm"
-                  >
-                    + Add Book
-                  </Link>
+                  {/* + Add Book — doar pentru useri normali */}
+                  {!isAdmin && (
+                      <Link
+                          to="/books/add"
+                          className="inline-flex items-center gap-2 rounded-lg px-3 py-1.5 text-sm font-medium bg-[var(--color-accent)] text-white hover:bg-[var(--color-accent-hover)] transition-all shadow-sm"
+                      >
+                        + Add Book
+                      </Link>
+                  )}
 
                   {/* Avatar cu dropdown */}
                   <div className="relative" ref={dropdownRef}>
@@ -106,9 +115,14 @@ export function Navbar() {
                             <p className="text-xs text-[var(--color-text-muted)] truncate">
                               @{user.username}
                             </p>
+                            {isAdmin && (
+                                <span className="mt-1 inline-block text-xs bg-[var(--color-accent)] text-white px-1.5 py-0.5 rounded font-medium">
+                          Admin
+                        </span>
+                            )}
                           </div>
 
-                          {/* Linkuri */}
+                          {/* Linkuri comune */}
                           <div className="py-1">
                             <Link
                                 to="/profile"
@@ -124,27 +138,44 @@ export function Navbar() {
                             >
                               <span>✏️</span> Edit Profile
                             </Link>
-                            <Link
-                                to="/favorites"
-                                onClick={() => setDropdownOpen(false)}
-                                className="flex items-center gap-3 px-4 py-2 text-sm text-[var(--color-text)] hover:bg-[var(--color-surface-alt)] transition-colors"
-                            >
-                              <span>❤️</span> Favorites
-                            </Link>
-                            <Link
-                                to="/swaps"
-                                onClick={() => setDropdownOpen(false)}
-                                className="flex items-center gap-3 px-4 py-2 text-sm text-[var(--color-text)] hover:bg-[var(--color-surface-alt)] transition-colors"
-                            >
-                              <span>🔄</span> My Swaps
-                            </Link>
-                            <Link
-                                to="/profile/share"
-                                onClick={() => setDropdownOpen(false)}
-                                className="flex items-center gap-3 px-4 py-2 text-sm text-[var(--color-text)] hover:bg-[var(--color-surface-alt)] transition-colors"
-                            >
-                              <span>🔗</span> Share Profile
-                            </Link>
+
+                            {/* Doar pentru useri normali */}
+                            {!isAdmin && (
+                                <>
+                                  <Link
+                                      to="/favorites"
+                                      onClick={() => setDropdownOpen(false)}
+                                      className="flex items-center gap-3 px-4 py-2 text-sm text-[var(--color-text)] hover:bg-[var(--color-surface-alt)] transition-colors"
+                                  >
+                                    <span>❤️</span> Favorites
+                                  </Link>
+                                  <Link
+                                      to="/swaps"
+                                      onClick={() => setDropdownOpen(false)}
+                                      className="flex items-center gap-3 px-4 py-2 text-sm text-[var(--color-text)] hover:bg-[var(--color-surface-alt)] transition-colors"
+                                  >
+                                    <span>🔄</span> My Swaps
+                                  </Link>
+                                  <Link
+                                      to="/profile/share"
+                                      onClick={() => setDropdownOpen(false)}
+                                      className="flex items-center gap-3 px-4 py-2 text-sm text-[var(--color-text)] hover:bg-[var(--color-surface-alt)] transition-colors"
+                                  >
+                                    <span>🔗</span> Share Profile
+                                  </Link>
+                                </>
+                            )}
+
+                            {/* Doar pentru admin */}
+                            {isAdmin && (
+                                <Link
+                                    to="/admin"
+                                    onClick={() => setDropdownOpen(false)}
+                                    className="flex items-center gap-3 px-4 py-2 text-sm text-[var(--color-accent)] font-medium hover:bg-[var(--color-surface-alt)] transition-colors"
+                                >
+                                  <span>🔧</span> Admin Dashboard
+                                </Link>
+                            )}
                           </div>
 
                           {/* Logout */}
