@@ -1,5 +1,7 @@
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/Button';
+import { useAuth } from '@/context/AuthContext';
+import { useFavorites } from '@/context/FavoritesContext';
 
 interface BookCardActionsProps {
     id: string;
@@ -7,14 +9,35 @@ interface BookCardActionsProps {
 }
 
 export function BookCardActions({ id, isAvailable }: BookCardActionsProps) {
+    const { isAuthenticated } = useAuth();
+    const { closeLoginModal } = useFavorites();
+    const navigate = useNavigate();
+
+    const handleViewDetails = () => {
+        if (!isAuthenticated) {
+            closeLoginModal();
+            // refolosim același modal din FavoritesContext
+            // dar avem nevoie să-l deschidem — facem asta prin toggleFavorite cu un id fals
+        }
+    };
+
     return (
         <div className="flex gap-2 mt-auto pt-2">
-            <Link
-                to={`/books/${id}`}
-                className="flex-1 text-center py-2 px-3 rounded-lg border border-[var(--color-border)] text-[var(--color-text)] text-sm font-semibold hover:bg-[var(--color-surface-alt)] transition-all duration-200"
-            >
-                View Details
-            </Link>
+            {isAuthenticated ? (
+                <Link
+                    to={`/books/${id}`}
+                    className="flex-1 text-center py-2 px-3 rounded-lg border border-[var(--color-border)] text-[var(--color-text)] text-sm font-semibold hover:bg-[var(--color-surface-alt)] transition-all duration-200"
+                >
+                    View Details
+                </Link>
+            ) : (
+                <button
+                    onClick={() => navigate('/sign-in')}
+                    className="flex-1 text-center py-2 px-3 rounded-lg border border-[var(--color-border)] text-[var(--color-text)] text-sm font-semibold hover:bg-[var(--color-surface-alt)] transition-all duration-200"
+                >
+                    View Details
+                </button>
+            )}
 
             {isAvailable ? (
                 <Link

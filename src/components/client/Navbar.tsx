@@ -4,7 +4,12 @@ import { useAuth } from '@/context/AuthContext';
 import { useTheme } from '@/context/ThemeContext';
 import { Avatar } from '@/components/ui/Avatar';
 
-const clientLinks = [
+const publicLinks = [
+  { to: '/', label: 'Home' },
+  { to: '/books', label: 'Browse Books' },
+];
+
+const authLinks = [
   { to: '/', label: 'Home' },
   { to: '/books', label: 'Browse Books' },
   { to: '/swaps', label: 'My Swaps' },
@@ -39,7 +44,7 @@ export function Navbar() {
     navigate('/');
   }
 
-  const navLinks = isAdmin ? adminLinks : clientLinks;
+  const navLinks = isAdmin ? adminLinks : isAuthenticated ? authLinks : publicLinks;
 
   return (
       <header className="sticky top-0 z-40 border-b border-[var(--color-border)] bg-[var(--color-bg)]/90 backdrop-blur-md">
@@ -86,7 +91,6 @@ export function Navbar() {
 
             {isAuthenticated && user ? (
                 <div className="flex items-center gap-3">
-                  {/* + Add Book — doar pentru useri normali */}
                   {!isAdmin && (
                       <Link
                           to="/books/add"
@@ -96,7 +100,6 @@ export function Navbar() {
                       </Link>
                   )}
 
-                  {/* Avatar cu dropdown */}
                   <div className="relative" ref={dropdownRef}>
                     <button
                         onClick={() => setDropdownOpen((prev) => !prev)}
@@ -107,7 +110,6 @@ export function Navbar() {
 
                     {dropdownOpen && (
                         <div className="absolute right-0 mt-2 w-52 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] shadow-xl py-1 z-50">
-                          {/* Info user */}
                           <div className="px-4 py-3 border-b border-[var(--color-border)]">
                             <p className="text-sm font-semibold text-[var(--color-text)] truncate">
                               {user.name}
@@ -122,7 +124,6 @@ export function Navbar() {
                             )}
                           </div>
 
-                          {/* Linkuri comune */}
                           <div className="py-1">
                             <Link
                                 to="/profile"
@@ -139,7 +140,6 @@ export function Navbar() {
                               <span>✏️</span> Edit Profile
                             </Link>
 
-                            {/* Doar pentru useri normali */}
                             {!isAdmin && (
                                 <>
                                   <Link
@@ -166,7 +166,6 @@ export function Navbar() {
                                 </>
                             )}
 
-                            {/* Doar pentru admin */}
                             {isAdmin && (
                                 <Link
                                     to="/admin"
@@ -178,7 +177,6 @@ export function Navbar() {
                             )}
                           </div>
 
-                          {/* Logout */}
                           <div className="border-t border-[var(--color-border)] py-1">
                             <button
                                 onClick={handleLogout}
