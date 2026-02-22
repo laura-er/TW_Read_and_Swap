@@ -1,20 +1,20 @@
-import { Card } from '@/components/ui/Card';
-import { Badge } from '@/components/ui/Badge';
+import { mockAdminStats, mockActivityFeed } from '@/data/mockAdminData';
+import { DashboardStats } from '@/components/admin/dashboard/DashboardStats';
+import { ActivityFeed } from '@/components/admin/dashboard/ActivityFeed';
 
-// TODO: Wrap with ProtectedRoute — requires role: 'admin'
 export function AdminDashboardPage() {
-  return (
-    <main>
-      {/* Page header */}
-      <h1 className="font-['Playfair_Display'] text-2xl font-bold text-[var(--color-text)] mb-6">
-        Dashboard
-      </h1>
-
-      {/* Stats cards: total books, active users, pending swaps, completed swaps */}
-
-      {/* Recent activity table */}
-
-      {/* Quick actions */}
-    </main>
-  );
+    return (
+        <main>
+            <div className="mb-6">
+                <h1 className="font-['Playfair_Display'] text-2xl font-bold text-[var(--color-text)]">
+                    Dashboard
+                </h1>
+                <p className="text-sm text-[var(--color-text-muted)] mt-1">
+                    Overview of platform activity
+                </p>
+            </div>
+            <DashboardStats stats={mockAdminStats} />
+            <ActivityFeed items={mockActivityFeed} />
+        </main>
+    );
 }
