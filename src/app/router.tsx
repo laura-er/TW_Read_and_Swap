@@ -22,6 +22,8 @@ import { SignUpPage } from '@/pages/auth/SignUpPage';
 import { ForgotPasswordPage } from '@/pages/auth/ForgotPasswordPage';
 
 import { AdminDashboardPage } from '@/pages/admin/AdminDashboardPage';
+import { AdminBooksUsersPage } from '@/pages/admin/AdminBooksUsersPage';
+import { AdminReportsPage } from '@/pages/admin/AdminReportsPage';
 
 export const router = createBrowserRouter([
 
@@ -29,13 +31,9 @@ export const router = createBrowserRouter([
   {
     element: <ClientLayout />,
     children: [
-
-      // Publice
       { path: '/', element: <HomePage /> },
       { path: '/books', element: <BookCatalogPage /> },
       { path: '/books/:id', element: <BookDetailPage /> },
-
-      // Protejate — doar utilizatori autentificați
       {
         element: <ProtectedRoute />,
         children: [
@@ -71,6 +69,8 @@ export const router = createBrowserRouter([
         element: <AdminLayout />,
         children: [
           { path: '/admin', element: <AdminDashboardPage /> },
+          { path: '/admin/books-users', element: <AdminBooksUsersPage /> },
+          { path: '/admin/reports', element: <AdminReportsPage /> },
         ],
       },
     ],

@@ -33,7 +33,7 @@ export function ProfileBanner({ user, isOwnProfile }: ProfileBannerProps) {
                                 )}
                                 <span className="flex items-center gap-1.5">
                                     <Calendar className="h-3.5 w-3.5" />
-                                    Joined {user.joinedAt}
+                                    Joined {new Date(user.joinedAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}
                                 </span>
                             </div>
                         </div>
