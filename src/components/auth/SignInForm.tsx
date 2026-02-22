@@ -19,10 +19,20 @@ export function SignInForm() {
         setIsLoading(true);
 
         try {
-            // TODO: replace with real API call
             if (email && password) {
-                login({ id: '1', name: 'User', email, role: 'user', username: 'user', avatarUrl: '', bio: '', location: '', joinedAt: new Date().toISOString() });
-                navigate('/');
+                const isAdmin = email === 'admin@test.com';
+                login({
+                    id: isAdmin ? 'admin1' : 'user1',
+                    name: isAdmin ? 'Admin' : 'User',
+                    email,
+                    role: isAdmin ? 'admin' : 'user',
+                    username: isAdmin ? 'admin' : 'user',
+                    avatarUrl: '',
+                    bio: '',
+                    location: '',
+                    joinedAt: new Date().toISOString(),
+                });
+                navigate(isAdmin ? '/admin' : '/');
             } else {
                 setError('Please fill in all fields.');
             }
@@ -64,6 +74,27 @@ export function SignInForm() {
             <Button type="submit" isLoading={isLoading} className="w-full justify-center">
                 Sign in
             </Button>
+
+            <button
+                type="button"
+                onClick={() => {
+                    login({
+                        id: 'admin1',
+                        name: 'Admin',
+                        email: 'admin@readandswap.com',
+                        role: 'admin',
+                        username: 'admin',
+                        avatarUrl: '',
+                        bio: '',
+                        location: '',
+                        joinedAt: new Date().toISOString(),
+                    });
+                    navigate('/admin');
+                }}
+                className="w-full text-center text-xs text-[var(--color-text-muted)] hover:text-[var(--color-accent)] py-2 border border-dashed border-[var(--color-border)] rounded-lg transition-colors"
+            >
+                🔧 Login as Admin (dev only)
+            </button>
         </form>
     );
 }
