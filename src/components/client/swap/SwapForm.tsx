@@ -27,7 +27,7 @@ export function SwapForm({ book }: SwapFormProps) {
     const [errors, setErrors] = useState<Partial<SwapFormData>>({});
 
     // TODO: replace with current user's books from API
-    const userBooks = mockBooks.filter((b) => b.id !== book.id).slice(0, 5);
+    const userBooks = mockBooks.filter((b) => b.ownerId === 'user1' && b.id !== book.id);
 
     const validate = (): boolean => {
         const newErrors: Partial<SwapFormData> = {};

@@ -13,7 +13,6 @@ const authLinks = [
   { to: '/', label: 'Home' },
   { to: '/books', label: 'Browse Books' },
   { to: '/swaps', label: 'My Swaps' },
-  { to: '/favorites', label: 'Favorites' },
 ];
 
 const adminLinks = [
@@ -143,7 +142,7 @@ export function Navbar() {
                             {!isAdmin && (
                                 <>
                                   <Link
-                                      to="/favorites"
+                                      to="/profile?tab=favorites#favorites-section"
                                       onClick={() => setDropdownOpen(false)}
                                       className="flex items-center gap-3 px-4 py-2 text-sm text-[var(--color-text)] hover:bg-[var(--color-surface-alt)] transition-colors"
                                   >

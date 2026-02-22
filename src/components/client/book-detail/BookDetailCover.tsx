@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useFavorites } from '@/context/FavoritesContext';
 import { Link } from 'react-router-dom';
 import type { Book } from '@/types';
 import { Badge } from '@/components/ui/Badge';
@@ -17,7 +17,8 @@ interface BookDetailCoverProps {
 }
 
 export function BookDetailCover({ book }: BookDetailCoverProps) {
-    const [isFavorite, setIsFavorite] = useState(false);
+    const { isFavorite: checkFavorite, toggleFavorite } = useFavorites();
+    const isFavorite = checkFavorite(book.id);
 
     return (
         <div className="lg:col-span-1">
@@ -54,7 +55,7 @@ export function BookDetailCover({ book }: BookDetailCoverProps) {
                 <div className="p-4 flex flex-col gap-3">
 
                     <button
-                        onClick={() => setIsFavorite(!isFavorite)}
+                        onClick={() => toggleFavorite(book.id)}
                         className="w-full flex items-center justify-center gap-2 py-2 px-3 rounded-lg border border-(--color-border) text-(--color-text) text-sm font-semibold hover:bg-(--color-surface-alt) transition-all duration-200"
                     >
                         <svg

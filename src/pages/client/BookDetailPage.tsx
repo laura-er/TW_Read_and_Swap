@@ -84,7 +84,7 @@ export function BookDetailPage() {
                   averageRating={averageRating}
                   reviewCount={reviewCount}
               />
-
+              
               {/* Review stats */}
               <BookDetailReviewStats
                   reviews={reviews}
