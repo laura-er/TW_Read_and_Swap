@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useState, useEffect, useRef } from 'react';
+import { Link, useSearchParams } from 'react-router-dom';
 import { BookOpen, Plus } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { useSwaps } from '@/context/SwapContext';
@@ -20,7 +20,21 @@ const CURRENT_USER_ID = 'user1';
 export function ProfilePage() {
     const { user } = useAuth();
     const { swaps } = useSwaps();
-    const [activeTab, setActiveTab] = useState<ProfileTab>('Favorites');
+    const [searchParams] = useSearchParams();
+    const tabParam = searchParams.get('tab');
+    const initialTab: ProfileTab = tabParam
+        ? ((tabParam.charAt(0).toUpperCase() + tabParam.slice(1)) as ProfileTab)
+        : 'Favorites';
+    const [activeTab, setActiveTab] = useState<ProfileTab>(initialTab);
+    const tabsRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        if (tabParam === 'favorites' && tabsRef.current) {
+            setTimeout(() => {
+                tabsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 150);
+        }
+    }, [tabParam]);
     const [favorites, setFavorites] = useState<Book[]>(initialFavorites);
 
     if (!user) return null;
@@ -36,12 +50,14 @@ export function ProfilePage() {
                 </div>
             </div>
 
-            <div className="mb-6">
+            <div className="mb-6" ref={tabsRef}>
                 <ProfileTabs active={activeTab} onChange={setActiveTab} />
             </div>
 
             {activeTab === 'Favorites' && (
-                <FavoritesTab favorites={favorites} onRemove={(id) => setFavorites((p) => p.filter((b) => b.id !== id))} />
+                <div id="favorites-section">
+                    <FavoritesTab favorites={favorites} onRemove={(id) => setFavorites((p) => p.filter((b) => b.id !== id))} />
+                </div>
             )}
 
             {activeTab === 'My Books' && (
