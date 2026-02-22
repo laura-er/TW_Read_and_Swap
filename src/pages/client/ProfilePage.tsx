@@ -4,7 +4,6 @@ import { BookOpen, Plus } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { useSwaps } from '@/context/SwapContext';
 import { mockBooks } from '@/data/mockBooks';
-import type { Book } from '@/types';
 import { ProfileBanner } from '@/components/client/profile/ProfileBanner';
 import { ProfileStats } from '@/components/client/profile/ProfileStats';
 import { ProfileTabs } from '@/components/client/profile/ProfileTabs';
@@ -13,8 +12,9 @@ import { ProfileEmptyState } from '@/components/client/profile/ProfileEmptyState
 import { SwapHistoryTab } from '@/components/client/profile/SwapHistoryTab';
 import { BookCard } from '@/components/client/BookCard';
 import type { ProfileTab } from '@/components/client/profile/ProfileTabs';
+import { useFavorites } from '@/context/FavoritesContext';
+import { useMemo } from 'react';
 
-const initialFavorites: Book[] = mockBooks.slice(0, 6);
 const CURRENT_USER_ID = 'user1';
 
 export function ProfilePage() {
@@ -35,7 +35,13 @@ export function ProfilePage() {
             }, 150);
         }
     }, [tabParam]);
-    const [favorites, setFavorites] = useState<Book[]>(initialFavorites);
+    const { favorites: favoriteIds, toggleFavorite } = useFavorites();
+
+// convertești id-urile în Book[]
+    const favorites = useMemo(
+        () => mockBooks.filter((b) => favoriteIds.includes(b.id)),
+        [favoriteIds]
+    );
 
     if (!user) return null;
 
@@ -56,7 +62,10 @@ export function ProfilePage() {
 
             {activeTab === 'Favorites' && (
                 <div id="favorites-section">
-                    <FavoritesTab favorites={favorites} onRemove={(id) => setFavorites((p) => p.filter((b) => b.id !== id))} />
+                    <FavoritesTab
+                        favorites={favorites}
+                        onRemove={(id) => toggleFavorite(id)}
+                    />
                 </div>
             )}
 
