@@ -91,7 +91,6 @@ export function BookDetailPage() {
                   baseRating={book.rating}
                   baseReviewCount={book.reviewCount}
               />
-
               {/* Add Review button */}
               {isAuthenticated && (
                   <div className="bg-(--color-surface) p-6 rounded-2xl shadow-xl border border-(--color-border)">
