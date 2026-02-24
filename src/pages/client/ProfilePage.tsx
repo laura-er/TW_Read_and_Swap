@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { BookOpen, Plus } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
@@ -13,7 +13,7 @@ import { SwapHistoryTab } from '@/components/client/profile/SwapHistoryTab';
 import { BookCard } from '@/components/client/BookCard';
 import type { ProfileTab } from '@/components/client/profile/ProfileTabs';
 import { useFavorites } from '@/context/FavoritesContext';
-import { useMemo } from 'react';
+import type { Book } from '@/types';
 
 const CURRENT_USER_ID = 'user1';
 
@@ -28,6 +28,11 @@ export function ProfilePage() {
     const [activeTab, setActiveTab] = useState<ProfileTab>(initialTab);
     const tabsRef = useRef<HTMLDivElement>(null);
 
+    // State local pentru cărțile userului (permite ștergerea fără backend)
+    const [userBooks, setUserBooks] = useState<Book[]>(
+        mockBooks.filter((b) => b.ownerId === (user?.id ?? CURRENT_USER_ID))
+    );
+
     useEffect(() => {
         if (tabParam === 'favorites' && tabsRef.current) {
             setTimeout(() => {
@@ -35,17 +40,20 @@ export function ProfilePage() {
             }, 150);
         }
     }, [tabParam]);
+
     const { favorites: favoriteIds, toggleFavorite } = useFavorites();
 
-// convertești id-urile în Book[]
     const favorites = useMemo(
         () => mockBooks.filter((b) => favoriteIds.includes(b.id)),
         [favoriteIds]
     );
 
-    if (!user) return null;
+    const handleDeleteBook = (id: string) => {
+        // TODO: apel la backend pentru ștergere
+        setUserBooks((prev) => prev.filter((b) => b.id !== id));
+    };
 
-    const myBooks = mockBooks.filter((b) => b.ownerId === user.id);
+    if (!user) return null;
 
     return (
         <main className="container mx-auto px-4 py-8 max-w-6xl">
@@ -70,7 +78,7 @@ export function ProfilePage() {
             )}
 
             {activeTab === 'My Books' && (
-                myBooks.length === 0 ? (
+                userBooks.length === 0 ? (
                     <ProfileEmptyState
                         icon={<BookOpen className="h-12 w-12" />}
                         title="No books listed yet"
@@ -88,7 +96,9 @@ export function ProfilePage() {
                 ) : (
                     <div className="flex flex-col gap-4">
                         <div className="flex items-center justify-between">
-                            <p className="text-sm text-[var(--color-text-muted)]">{myBooks.length} book{myBooks.length !== 1 ? 's' : ''} listed</p>
+                            <p className="text-sm text-[var(--color-text-muted)]">
+                                {userBooks.length} book{userBooks.length !== 1 ? 's' : ''} listed
+                            </p>
                             <Link
                                 to="/books/add"
                                 className="inline-flex items-center gap-2 rounded-lg bg-[var(--color-accent)] px-3 py-1.5 text-sm font-medium text-white hover:bg-[var(--color-accent-hover)] transition-colors"
@@ -98,8 +108,8 @@ export function ProfilePage() {
                             </Link>
                         </div>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            {myBooks.map((book) => (
-                                <BookCard key={book.id} book={book} />
+                            {userBooks.map((book) => (
+                                <BookCard key={book.id} book={book} onDelete={handleDeleteBook} />
                             ))}
                         </div>
                     </div>

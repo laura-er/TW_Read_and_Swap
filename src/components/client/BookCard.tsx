@@ -15,7 +15,12 @@ const conditionVariant: Record<Book['condition'], 'success' | 'info' | 'warning'
     worn: 'danger',
 };
 
-export function BookCard({ book }: { book: Book }) {
+interface BookCardProps {
+    book: Book;
+    onDelete?: (id: string) => void;
+}
+
+export function BookCard({ book, onDelete }: BookCardProps) {
     const { isFavorite, toggleFavorite } = useFavorites();
     const { isAuthenticated, user } = useAuth();
     const navigate = useNavigate();
@@ -66,7 +71,7 @@ export function BookCard({ book }: { book: Book }) {
 
                 <div className="mt-auto">
                     {isAuthenticated ? (
-                        <BookCardActions book={book} isOwner={isOwner} />
+                        <BookCardActions book={book} isOwner={isOwner} onDelete={onDelete} />
                     ) : (
                         <button
                             onClick={() => navigate('/sign-in')}
