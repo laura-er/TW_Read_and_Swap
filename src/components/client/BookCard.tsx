@@ -17,8 +17,10 @@ const conditionVariant: Record<Book['condition'], 'success' | 'info' | 'warning'
 
 export function BookCard({ book }: { book: Book }) {
     const { isFavorite, toggleFavorite } = useFavorites();
-    const { isAuthenticated } = useAuth();
+    const { isAuthenticated, user } = useAuth();
     const navigate = useNavigate();
+
+    const isOwner = !!user && user.id === book.ownerId;
 
     return (
         <div className="group flex flex-row overflow-hidden rounded-2xl border border-(--color-border) bg-(--color-surface) hover:border-(--color-accent)/40 hover:shadow-lg hover:shadow-(--color-accent)/5 transition-all duration-300 min-h-[160px]">
@@ -41,13 +43,11 @@ export function BookCard({ book }: { book: Book }) {
                     <p className="text-xs text-(--color-text-muted) font-medium">{book.author}</p>
                 </div>
 
-                {/* Vizibil doar logat */}
                 {isAuthenticated && book.rating !== undefined && (
                     <BookRating rating={book.rating} />
                 )}
 
                 <div className="flex items-center gap-1.5 flex-wrap">
-                    {/* Condition doar logat */}
                     {isAuthenticated && (
                         <Badge variant={conditionVariant[book.condition]}>{book.condition}</Badge>
                     )}
@@ -56,10 +56,8 @@ export function BookCard({ book }: { book: Book }) {
                     </span>
                 </div>
 
-                {/* Owner doar logat */}
                 {isAuthenticated && <BookCardOwner ownerId={book.ownerId} />}
 
-                {/* Nelogat — mesaj subtil */}
                 {!isAuthenticated && (
                     <p className="text-xs text-(--color-text-muted) italic">
                         Sign in to see more details
@@ -68,7 +66,7 @@ export function BookCard({ book }: { book: Book }) {
 
                 <div className="mt-auto">
                     {isAuthenticated ? (
-                        <BookCardActions id={book.id} isAvailable={book.isAvailable} />
+                        <BookCardActions book={book} isOwner={isOwner} />
                     ) : (
                         <button
                             onClick={() => navigate('/sign-in')}
@@ -82,4 +80,3 @@ export function BookCard({ book }: { book: Book }) {
         </div>
     );
 }
-
