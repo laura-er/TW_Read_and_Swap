@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/Button';
 import type { ReportedIssue } from '@/types/admin';
-import { useNotifications } from '@/context/NotificationsContext';
 
 interface ResolveIssueModalProps {
     report: ReportedIssue;
@@ -20,29 +19,10 @@ export function ResolveIssueModal({ report, onConfirm, onClose }: ResolveIssueMo
     const [note, setNote] = useState('');
     const [action, setAction] = useState('');
     const [error, setError] = useState('');
-    const { addNotification } = useNotifications();
 
     function handleConfirm() {
         if (!action) { setError('Please select an action.'); return; }
         if (!note.trim()) { setError('Please add a resolution note.'); return; }
-
-        // Trimite notificare userului daca actiunea e warning sau ban
-        if (action === 'warning') {
-            addNotification({
-                userId: report.targetId,
-                type: 'warning',
-                title: 'You have received a warning',
-                message: note.trim(),
-            });
-        } else if (action === 'ban_user') {
-            addNotification({
-                userId: report.targetId,
-                type: 'ban',
-                title: 'Your account has been banned',
-                message: note.trim(),
-            });
-        }
-
         onConfirm(report.id, note.trim(), action);
         onClose();
     }
@@ -50,7 +30,6 @@ export function ResolveIssueModal({ report, onConfirm, onClose }: ResolveIssueMo
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
             <div className="bg-[var(--color-surface)] rounded-2xl shadow-xl w-full max-w-md mx-4 p-6 flex flex-col gap-4">
-
                 <div>
                     <h2 className="text-lg font-bold text-[var(--color-text)]">Resolve Report</h2>
                     <p className="text-sm text-[var(--color-text-muted)] mt-1">

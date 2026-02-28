@@ -1,4 +1,4 @@
-import { createContext, useContext, useState } from 'react';
+import { createContext, useContext, useState, useEffect } from 'react';
 import type { ReactNode } from 'react';
 
 export interface Notification {
@@ -20,10 +20,26 @@ interface NotificationsContextType {
     getUserNotifications: (userId: string) => Notification[];
 }
 
+const STORAGE_KEY = 'app_notifications';
+
 const NotificationsContext = createContext<NotificationsContextType | null>(null);
 
 export function NotificationsProvider({ children }: { children: ReactNode }) {
-    const [notifications, setNotifications] = useState<Notification[]>([]);
+    const [notifications, setNotifications] = useState<Notification[]>(() => {
+        try {
+            const stored = localStorage.getItem(STORAGE_KEY);
+            const parsed = stored ? (JSON.parse(stored) as Notification[]) : [];
+            console.log('[Notifications] Loaded from localStorage:', parsed);
+            return parsed;
+        } catch {
+            return [];
+        }
+    });
+
+    useEffect(() => {
+        console.log('[Notifications] Saving to localStorage:', notifications);
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(notifications));
+    }, [notifications]);
 
     function addNotification(notification: Omit<Notification, 'id' | 'createdAt' | 'isRead'>) {
         const newNotification: Notification = {
@@ -32,6 +48,7 @@ export function NotificationsProvider({ children }: { children: ReactNode }) {
             createdAt: new Date().toISOString(),
             isRead: false,
         };
+        console.log('[Notifications] Adding notification:', newNotification);
         setNotifications((prev) => [newNotification, ...prev]);
     }
 
@@ -52,6 +69,7 @@ export function NotificationsProvider({ children }: { children: ReactNode }) {
     }
 
     function getUserNotifications(userId: string) {
+        console.log('[Notifications] Getting for userId:', userId, 'all:', notifications);
         return notifications.filter((n) => n.userId === userId);
     }
 
@@ -74,4 +92,3 @@ export function useNotifications() {
     if (!ctx) throw new Error('useNotifications must be used within NotificationsProvider');
     return ctx;
 }
-

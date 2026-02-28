@@ -1,20 +1,30 @@
 import { Bell, CheckCheck } from 'lucide-react';
 import { useNotifications } from '@/context/NotificationsContext';
+import { useAuth } from '@/context/AuthContext';
 import { Button } from '@/components/ui/Button';
+
+const typeStyles = {
+    warning: { bg: 'bg-yellow-50 border-yellow-200', icon: '⚠️', label: 'Warning', labelColor: 'text-yellow-700' },
+    info:    { bg: 'bg-blue-50 border-blue-200',     icon: 'ℹ️', label: 'Info',    labelColor: 'text-blue-700'   },
+    ban:     { bg: 'bg-red-50 border-red-200',       icon: '🚫', label: 'Ban',     labelColor: 'text-red-700'    },
+};
 
 interface MessagesTabProps {
     userId: string;
 }
 
-const typeStyles = {
-    warning: { bg: 'bg-yellow-50 border-yellow-200', icon: '⚠️', label: 'Warning', labelColor: 'text-yellow-700' },
-    info:    { bg: 'bg-blue-50 border-blue-200',   icon: 'ℹ️', label: 'Info',    labelColor: 'text-blue-700'   },
-    ban:     { bg: 'bg-red-50 border-red-200',     icon: '🚫', label: 'Ban',     labelColor: 'text-red-700'    },
-};
-
 export function MessagesTab({ userId }: MessagesTabProps) {
-    const { getUserNotifications, markAsRead, markAllAsRead } = useNotifications();
-    const messages = getUserNotifications(userId);
+    const { notifications, markAsRead, markAllAsRead } = useNotifications();
+    const { user } = useAuth();
+
+    // Matching flexibil: user1 == 1, user2 == 2 etc
+    const messages = notifications.filter((n) => {
+        return n.userId === userId
+            || n.userId === user?.id
+            || n.userId === userId.replace('user', '')
+            || `user${n.userId}` === userId;
+    });
+
     const hasUnread = messages.some((m) => !m.isRead);
 
     if (messages.length === 0) {
@@ -66,4 +76,3 @@ export function MessagesTab({ userId }: MessagesTabProps) {
         </div>
     );
 }
-

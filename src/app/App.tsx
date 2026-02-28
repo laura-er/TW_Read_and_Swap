@@ -4,6 +4,7 @@ import { ThemeProvider } from '@/context/ThemeContext';
 import { SwapProvider } from '@/context/SwapContext';
 import { FavoritesProvider } from '@/context/FavoritesContext';
 import { NotificationsProvider } from '@/context/NotificationsContext';
+import { ReportsProvider } from '@/context/ReportsContext';
 import { router } from './router';
 
 export function App() {
@@ -11,11 +12,13 @@ export function App() {
         <ThemeProvider>
             <AuthProvider>
                 <NotificationsProvider>
-                    <FavoritesProvider>
-                        <SwapProvider>
-                            <RouterProvider router={router} />
-                        </SwapProvider>
-                    </FavoritesProvider>
+                    <ReportsProvider>
+                        <FavoritesProvider>
+                            <SwapProvider>
+                                <RouterProvider router={router} />
+                            </SwapProvider>
+                        </FavoritesProvider>
+                    </ReportsProvider>
                 </NotificationsProvider>
             </AuthProvider>
         </ThemeProvider>
