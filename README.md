@@ -57,12 +57,4 @@ src/
 ## Theme
 
 Two themes (light/dark) via CSS variables on `:root` and `.dark` class on `<html>`.
-Toggle is available in Navbar (client) and Sidebar (admin).
-Preference is persisted in `localStorage`.
 
-## Next Steps
-
-- Implement `ProtectedRoute` component for auth-gated and role-gated routes
-- Connect hooks (`useBooks`, `useSwapRequests`, `useAuth`) to your API
-- Add React Query or SWR for server state management
-- Build out page content using existing component primitives
