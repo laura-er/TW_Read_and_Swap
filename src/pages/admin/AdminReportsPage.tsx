@@ -1,18 +1,43 @@
 import { useState } from 'react';
-import { mockReports } from '@/data/mockAdminData';
-import type { ReportedIssue, ReportType, ReportStatus } from '@/types/admin';
+import type { ReportType, ReportStatus } from '@/types/admin';
 import { ReportsTable } from '@/components/admin/reports/ReportsTable';
 import { ReportsFilterTabs } from '@/components/admin/reports/ReportsFilterTabs';
+import { useReports } from '@/context/ReportsContext';
+import { useNotifications } from '@/context/NotificationsContext';
 
 type FilterTab = 'all' | ReportType;
 
+// Normalizeaza userId: "2" -> "user2", "user2" -> "user2"
+function normalizeUserId(id: string): string {
+    return id.startsWith('user') ? id : `user${id}`;
+}
+
 export function AdminReportsPage() {
-    const [reports, setReports] = useState<ReportedIssue[]>(mockReports);
+    const { reports, updateStatus } = useReports();
+    const { addNotification } = useNotifications();
     const [filterTab, setFilterTab] = useState<FilterTab>('all');
     const [statusFilter, setStatusFilter] = useState<ReportStatus | 'all'>('all');
 
-    function updateStatus(id: string, status: ReportStatus) {
-        setReports((prev) => prev.map((r) => (r.id === id ? { ...r, status } : r)));
+    function handleResolve(id: string, note: string, action: string) {
+        const report = reports.find((r) => r.id === id);
+        if (!report) return;
+
+        if (report.type === 'user' && (action === 'warning' || action === 'ban_user')) {
+            const userId = normalizeUserId(report.targetId);
+            console.log('[Admin] Sending notification to userId:', userId);
+            addNotification({
+                userId,
+                type: action === 'warning' ? 'warning' : 'ban',
+                title: action === 'warning' ? 'You have received a warning' : 'Your account has been banned',
+                message: note,
+            });
+        }
+
+        updateStatus(id, 'resolved', note, action);
+    }
+
+    function handleDismiss(id: string) {
+        updateStatus(id, 'dismissed');
     }
 
     const counts = {
@@ -62,8 +87,8 @@ export function AdminReportsPage() {
 
             <ReportsTable
                 reports={filtered}
-                onResolve={(id) => updateStatus(id, 'resolved')}
-                onDismiss={(id) => updateStatus(id, 'dismissed')}
+                onResolve={handleResolve}
+                onDismiss={handleDismiss}
             />
         </main>
     );

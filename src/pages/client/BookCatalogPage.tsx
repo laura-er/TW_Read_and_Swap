@@ -7,7 +7,7 @@ import { CatalogResultsBar } from '@/components/client/CatalogResultsBar';
 import { BooksGrid } from '@/components/client/BooksGrid';
 import { Pagination } from '@/components/client/Pagination';
 
-const PAGE_SIZE = 8;
+const PAGE_SIZE = 9;
 
 export function BookCatalogPage() {
   const { books } = useBooks();

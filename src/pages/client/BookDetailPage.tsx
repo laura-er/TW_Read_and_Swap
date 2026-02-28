@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
+import { Flag } from 'lucide-react';
 import { useBook } from '@/hooks/useBooks';
 import { useAuth } from '@/context/AuthContext';
 import type { Review } from '@/types';
@@ -11,6 +12,7 @@ import { BookDetailReviewStats } from '@/components/client/book-detail/BookDetai
 import { BookDetailReviewList } from '@/components/client/book-detail/BookDetailReviewList';
 import { BookDetailAddReview } from '@/components/client/book-detail/BookDetailAddReview';
 import { BookDetailNotFound } from '@/components/client/book-detail/BookDetailNotFound';
+import { ReportModal } from '@/components/shared/ReportModal';
 
 export function BookDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -19,6 +21,7 @@ export function BookDetailPage() {
   const { isAuthenticated } = useAuth();
   const [reviews, setReviews] = useState<Review[]>([]);
   const [showReviewForm, setShowReviewForm] = useState(false);
+  const [showReport, setShowReport] = useState(false);
 
   function handleAddReview(rating: number, comment: string) {
     if (!book) return;
@@ -57,41 +60,53 @@ export function BookDetailPage() {
 
   return (
       <div className="bg-(--color-bg) min-h-screen">
+        {showReport && (
+            <ReportModal
+                targetId={book.id}
+                targetName={book.title}
+                type="book"
+                onClose={() => setShowReport(false)}
+            />
+        )}
+
         <div className="container mx-auto px-4 sm:px-6 py-8 pt-24 md:pt-10">
 
-          {/* Back Button */}
-          <Link
-              to="/books"
-              className="inline-flex items-center gap-2 text-(--color-text) hover:text-(--color-accent) mb-8 px-4 py-3 bg-(--color-surface) backdrop-blur-xl rounded-xl shadow-lg hover:shadow-xl border border-(--color-border) transition-all duration-300 hover:-translate-y-0.5 group"
-          >
-            <svg className="w-4 h-4 group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-            </svg>
-            <span className="font-semibold">Back to Books</span>
-          </Link>
+          <div className="flex items-center justify-between mb-8">
+            <Link
+                to="/books"
+                className="inline-flex items-center gap-2 text-(--color-text) hover:text-(--color-accent) px-4 py-3 bg-(--color-surface) backdrop-blur-xl rounded-xl shadow-lg hover:shadow-xl border border-(--color-border) transition-all duration-300 hover:-translate-y-0.5 group"
+            >
+              <svg className="w-4 h-4 group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+              </svg>
+              <span className="font-semibold">Back to Books</span>
+            </Link>
 
-          {/* Main 3-column grid */}
+            {isAuthenticated && (
+                <button
+                    onClick={() => setShowReport(true)}
+                    className="flex items-center gap-2 rounded-xl border border-red-200 px-4 py-3 text-sm font-medium text-red-500 hover:bg-red-50 transition-colors"
+                >
+                  <Flag className="h-4 w-4" />
+                  Report Book
+                </button>
+            )}
+          </div>
+
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
-
-            {/* Left — sticky cover */}
             <BookDetailCover book={book} />
 
-            {/* Right — info + reviews */}
             <div className="lg:col-span-2 space-y-6">
-
               <BookDetailInfo
                   book={book}
                   averageRating={averageRating}
                   reviewCount={reviewCount}
               />
-              
-              {/* Review stats */}
               <BookDetailReviewStats
                   reviews={reviews}
                   baseRating={book.rating}
                   baseReviewCount={book.reviewCount}
               />
-              {/* Add Review button */}
               {isAuthenticated && (
                   <div className="bg-(--color-surface) p-6 rounded-2xl shadow-xl border border-(--color-border)">
                     <button
@@ -106,15 +121,12 @@ export function BookDetailPage() {
                   </div>
               )}
 
-              {/* Review form */}
               {showReviewForm && isAuthenticated && (
                   <BookDetailAddReview onSubmit={handleAddReview} />
               )}
 
-              {/* Reviews list */}
               <BookDetailReviewList reviews={reviews} />
 
-              {/* Sign in prompt */}
               {!isAuthenticated && (
                   <div className="bg-(--color-surface) rounded-2xl border border-dashed border-(--color-border) p-5 text-center">
                     <p className="text-sm text-(--color-text-muted)">
@@ -127,7 +139,6 @@ export function BookDetailPage() {
               )}
             </div>
           </div>
-          {/* Similar Books */}
           <BookDetailSimilarBooks currentBook={book} allBooks={books} />
         </div>
       </div>

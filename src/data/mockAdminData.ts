@@ -20,11 +20,12 @@ export const mockActivityFeed: ActivityItem[] = [
     { id: 'a8', type: 'report_filed', description: 'User reported for harassment', user: 'grace_b', timestamp: '2025-02-21T12:00:00Z' },
 ];
 
+// targetId pentru reports de tip 'user' e 'user1' — userul logat in demo
 export const mockReports: ReportedIssue[] = [
     { id: 'r1', type: 'book', status: 'open', reason: 'Book condition is much worse than described', reportedBy: 'alice_reads', targetId: '3', targetName: 'To Kill a Mockingbird', createdAt: '2025-02-21T22:10:00Z' },
-    { id: 'r2', type: 'user', status: 'open', reason: 'Sending unsolicited messages', reportedBy: 'carol_books', targetId: 'user5', targetName: 'dan_reader', createdAt: '2025-02-21T12:00:00Z' },
+    { id: 'r2', type: 'user', status: 'open', reason: 'Sending unsolicited messages', reportedBy: 'carol_books', targetId: 'user1', targetName: 'user (alice_reads)', createdAt: '2025-02-21T12:00:00Z' },
     { id: 'r3', type: 'book', status: 'resolved', reason: 'Spam listing — duplicate book', reportedBy: 'bob_pages', targetId: '7', targetName: 'The Alchemist', createdAt: '2025-02-20T09:00:00Z' },
-    { id: 'r4', type: 'user', status: 'dismissed', reason: 'Did not complete agreed swap', reportedBy: 'eva_lit', targetId: 'user8', targetName: 'frank_reads', createdAt: '2025-02-19T14:20:00Z' },
+    { id: 'r4', type: 'user', status: 'open', reason: 'Did not complete agreed swap', reportedBy: 'eva_lit', targetId: 'user1', targetName: 'user (alice_reads)', createdAt: '2025-02-19T14:20:00Z' },
     { id: 'r5', type: 'book', status: 'open', reason: 'Inappropriate cover image', reportedBy: 'grace_b', targetId: '12', targetName: 'Mystery Novel', createdAt: '2025-02-18T11:30:00Z' },
 ];
 

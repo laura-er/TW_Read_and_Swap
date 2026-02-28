@@ -28,9 +28,10 @@ export function BookCoverImage({
                 )}
             </Link>
 
+            {/* Favorite button — top-left of image */}
             <button
                 onClick={onFavoriteToggle}
-                className="absolute top-2 right-2 bg-(--color-surface)/90 backdrop-blur-sm p-1.5 rounded-full shadow-md hover:scale-110 transition-transform z-10"
+                className="absolute top-2 left-2 bg-(--color-surface)/90 backdrop-blur-sm p-1.5 rounded-full shadow-md hover:scale-110 transition-transform z-10"
             >
                 <svg
                     className={`w-4 h-4 ${isFavorite ? 'fill-red-500 text-red-500' : 'text-(--color-text-muted)'}`}
@@ -46,18 +47,6 @@ export function BookCoverImage({
                     />
                 </svg>
             </button>
-
-            <div className="absolute bottom-2 left-0 right-0 flex justify-center">
-                {isAvailable ? (
-                    <span className="bg-green-500 text-white px-2 py-0.5 rounded-full text-[10px] font-bold shadow">
-                        Available
-                    </span>
-                ) : (
-                    <span className="bg-(--color-surface-alt) text-(--color-text-muted) px-2 py-0.5 rounded-full text-[10px] font-bold shadow">
-                        Unavailable
-                    </span>
-                )}
-            </div>
         </div>
     );
 }

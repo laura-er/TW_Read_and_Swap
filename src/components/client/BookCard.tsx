@@ -28,7 +28,21 @@ export function BookCard({ book, onDelete }: BookCardProps) {
     const isOwner = !!user && user.id === book.ownerId;
 
     return (
-        <div className="group flex flex-row overflow-hidden rounded-2xl border border-(--color-border) bg-(--color-surface) hover:border-(--color-accent)/40 hover:shadow-lg hover:shadow-(--color-accent)/5 transition-all duration-300 min-h-[160px]">
+        <div className="group relative flex flex-row overflow-hidden rounded-2xl border border-(--color-border) bg-(--color-surface) hover:border-(--color-accent)/40 hover:shadow-lg hover:shadow-(--color-accent)/5 transition-all duration-300 min-h-[160px]">
+
+            {/* Available badge — top-right corner of the entire card */}
+            <div className="absolute top-2 right-2 z-20">
+                {book.isAvailable ? (
+                    <span className="bg-green-500 text-white px-2 py-0.5 rounded-full text-[10px] font-bold shadow">
+                        Available
+                    </span>
+                ) : (
+                    <span className="bg-red-500 text-white px-2 py-0.5 rounded-full text-[10px] font-bold shadow">
+                        Unavailable
+                    </span>
+                )}
+            </div>
+
             <div className="relative w-32 flex-shrink-0 self-stretch">
                 <BookCoverImage
                     id={book.id}
@@ -85,3 +99,4 @@ export function BookCard({ book, onDelete }: BookCardProps) {
         </div>
     );
 }
+
