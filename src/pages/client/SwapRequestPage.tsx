@@ -17,8 +17,8 @@ export function SwapRequestPage() {
     const [activeTab, setActiveTab] = useState<Tab>('received');
     const [filterStatus, setFilterStatus] = useState<FilterStatus>('all');
 
-    const received = swaps.filter((s) => s.ownerId === CURRENT_USER_ID);
-    const sent = swaps.filter((s) => s.requesterId === CURRENT_USER_ID);
+    const received = swaps.filter((s) => s.ownerId === CURRENT_USER_ID && s.status !== 'completed');
+    const sent = swaps.filter((s) => s.requesterId === CURRENT_USER_ID && s.status !== 'completed');
     const pendingCount = swaps.filter((s) => s.status === 'pending').length;
 
     const activeList = activeTab === 'received' ? received : sent;
@@ -48,7 +48,6 @@ export function SwapRequestPage() {
                             currentUserId={CURRENT_USER_ID}
                             onAccept={(id) => updateStatus(id, 'accepted')}
                             onDecline={(id) => updateStatus(id, 'declined')}
-                            onComplete={(id) => updateStatus(id, 'completed')}
                             onCancel={removeSwap}
                         />
                     ))

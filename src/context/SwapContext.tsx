@@ -15,7 +15,7 @@ export function SwapProvider({ children }: { children: ReactNode }) {
     const [swaps, setSwaps] = useState<SwapRequestPopulated[]>(mockSwapRequests);
 
     const updateStatus = (id: string, status: SwapStatus) =>
-        setSwaps((prev) => prev.map((s) => (s.id === id ? { ...s, status } : s)));
+        setSwaps((prev) => prev.map((s) => (s.id === id ? { ...s, status: status === 'accepted' ? 'completed' : status } : s)));
 
     const removeSwap = (id: string) =>
         setSwaps((prev) => prev.filter((s) => s.id !== id));
