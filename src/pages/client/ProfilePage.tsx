@@ -61,7 +61,7 @@ export function ProfilePage() {
             <div className="mb-8 overflow-hidden rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)]">
                 <ProfileBanner user={user} isOwnProfile={true} />
                 <div className="px-6 pb-6">
-                    <ProfileStats user={user} favoritesCount={favorites.length} />
+                    <ProfileStats favoritesCount={favorites.length} swapsCount={swaps.filter((s) => s.status === 'completed').length} booksCount={userBooks.length} />
                 </div>
             </div>
 

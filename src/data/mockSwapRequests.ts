@@ -35,7 +35,7 @@ export const mockSwapRequests: SwapRequestPopulated[] = [
         ownerId: 'user1',
         bookOfferedId: '4',
         bookRequestedId: '3',
-        status: 'accepted',
+        status: 'pending',
         message: 'Would you be interested in swapping?',
         createdAt: '2024-02-10T08:00:00Z',
         updatedAt: '2024-02-11T09:00:00Z',

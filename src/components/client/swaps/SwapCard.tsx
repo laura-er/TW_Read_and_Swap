@@ -20,10 +20,9 @@ interface SwapCardProps {
     onAccept?: (id: string) => void;
     onDecline?: (id: string) => void;
     onCancel?: (id: string) => void;
-    onComplete?: (id: string) => void;
 }
 
-export function SwapCard({ swap, currentUserId, onAccept, onDecline, onCancel, onComplete }: SwapCardProps) {
+export function SwapCard({ swap, currentUserId, onAccept, onDecline, onCancel }: SwapCardProps) {
     const isOwner = swap.ownerId === currentUserId;
     const otherUser = isOwner ? swap.requester : swap.owner;
 
@@ -93,12 +92,7 @@ export function SwapCard({ swap, currentUserId, onAccept, onDecline, onCancel, o
                 </div>
             )}
 
-            {/* Actions — accepted */}
-            {swap.status === 'accepted' && (
-                <Button size="sm" variant="primary" className="w-full justify-center" onClick={() => onComplete?.(swap.id)}>
-                    ✓ Mark as Completed
-                </Button>
-            )}
+
         </div>
     );
 }
