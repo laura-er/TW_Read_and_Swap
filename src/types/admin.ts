@@ -27,6 +27,8 @@ export interface ReportedIssue {
     targetId: string;
     targetName: string;
     createdAt: string;
+    resolveNote?: string;
+    resolveAction?: string;
 }
 
 export interface AdminUser {

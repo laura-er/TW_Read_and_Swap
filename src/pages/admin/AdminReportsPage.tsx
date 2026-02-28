@@ -11,8 +11,18 @@ export function AdminReportsPage() {
     const [filterTab, setFilterTab] = useState<FilterTab>('all');
     const [statusFilter, setStatusFilter] = useState<ReportStatus | 'all'>('all');
 
-    function updateStatus(id: string, status: ReportStatus) {
-        setReports((prev) => prev.map((r) => (r.id === id ? { ...r, status } : r)));
+    function handleResolve(id: string, note: string, action: string) {
+        setReports((prev) =>
+            prev.map((r) =>
+                r.id === id
+                    ? { ...r, status: 'resolved' as ReportStatus, resolveNote: note, resolveAction: action }
+                    : r,
+            ),
+        );
+    }
+
+    function handleDismiss(id: string) {
+        setReports((prev) => prev.map((r) => (r.id === id ? { ...r, status: 'dismissed' as ReportStatus } : r)));
     }
 
     const counts = {
@@ -62,8 +72,8 @@ export function AdminReportsPage() {
 
             <ReportsTable
                 reports={filtered}
-                onResolve={(id) => updateStatus(id, 'resolved')}
-                onDismiss={(id) => updateStatus(id, 'dismissed')}
+                onResolve={handleResolve}
+                onDismiss={handleDismiss}
             />
         </main>
     );
