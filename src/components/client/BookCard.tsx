@@ -37,7 +37,7 @@ export function BookCard({ book, onDelete }: BookCardProps) {
                         Available
                     </span>
                 ) : (
-                    <span className="bg-(--color-surface-alt) text-(--color-text-muted) px-2 py-0.5 rounded-full text-[10px] font-bold shadow">
+                    <span className="bg-red-500 text-white px-2 py-0.5 rounded-full text-[10px] font-bold shadow">
                         Unavailable
                     </span>
                 )}
@@ -99,3 +99,4 @@ export function BookCard({ book, onDelete }: BookCardProps) {
         </div>
     );
 }
+
