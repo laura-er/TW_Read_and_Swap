@@ -9,9 +9,10 @@ interface BookCardActionsProps {
     book: Book;
     isOwner: boolean;
     onDelete?: (id: string) => void;
+    showOwnerActions?: boolean;
 }
 
-export function BookCardActions({ book, isOwner, onDelete }: BookCardActionsProps) {
+export function BookCardActions({ book, isOwner, onDelete, showOwnerActions = false }: BookCardActionsProps) {
     const { isAuthenticated } = useAuth();
     const navigate = useNavigate();
     const [showEditModal, setShowEditModal] = useState(false);
@@ -41,7 +42,7 @@ export function BookCardActions({ book, isOwner, onDelete }: BookCardActionsProp
                     </button>
                 )}
 
-                {isOwner ? (
+                {isOwner && showOwnerActions ? (
                     <div className="flex gap-2 flex-1">
                         <button
                             onClick={() => setShowEditModal(true)}
@@ -56,7 +57,7 @@ export function BookCardActions({ book, isOwner, onDelete }: BookCardActionsProp
                             Delete
                         </button>
                     </div>
-                ) : book.isAvailable ? (
+                ) : isOwner ? null : book.isAvailable ? (
                     <Link
                         to={`/swap/${book.id}`}
                         className="flex-1 text-center py-2 px-3 rounded-lg bg-[var(--color-accent)] hover:bg-[var(--color-accent-hover)] text-white text-sm font-semibold transition-all duration-200 shadow-sm"

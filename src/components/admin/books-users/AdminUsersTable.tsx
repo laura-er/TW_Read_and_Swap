@@ -20,7 +20,8 @@ export function AdminUsersTable({ users, onBan, onUnban, onDelete }: AdminUsersT
                     <th className="text-left px-4 py-3 text-xs font-medium text-[var(--color-text-muted)] uppercase tracking-wide">Books</th>
                     <th className="text-left px-4 py-3 text-xs font-medium text-[var(--color-text-muted)] uppercase tracking-wide">Swaps</th>
                     <th className="text-left px-4 py-3 text-xs font-medium text-[var(--color-text-muted)] uppercase tracking-wide">Status</th>
-                    <th className="px-4 py-3"></th>
+                    <th className="w-24 px-4 py-3"></th>
+                    <th className="w-24 px-4 py-3"></th>
                 </tr>
                 </thead>
                 <tbody>
@@ -42,15 +43,15 @@ export function AdminUsersTable({ users, onBan, onUnban, onDelete }: AdminUsersT
                                 {user.isBanned ? 'Banned' : 'Active'}
                             </Badge>
                         </td>
-                        <td className="px-4 py-3">
-                            <div className="flex items-center gap-2">
-                                {user.isBanned ? (
-                                    <Button size="sm" variant="secondary" onClick={() => onUnban(user.id)}>Unban</Button>
-                                ) : (
-                                    <Button size="sm" variant="ghost" onClick={() => onBan(user.id)}>Ban</Button>
-                                )}
-                                <Button size="sm" variant="danger" onClick={() => onDelete(user.id)}>Delete</Button>
-                            </div>
+                        <td className="w-24 px-4 py-3">
+                            {user.isBanned ? (
+                                <Button size="sm" variant="secondary" onClick={() => onUnban(user.id)}>Unban</Button>
+                            ) : (
+                                <Button size="sm" variant="secondary" onClick={() => onBan(user.id)}>Ban</Button>
+                            )}
+                        </td>
+                        <td className="w-24 px-4 py-3">
+                            <Button size="sm" variant="danger" onClick={() => onDelete(user.id)}>Delete</Button>
                         </td>
                     </tr>
                 ))}

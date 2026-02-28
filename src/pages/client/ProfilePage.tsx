@@ -10,7 +10,6 @@ import { ProfileTabs } from '@/components/client/profile/ProfileTabs';
 import { FavoritesTab } from '@/components/client/profile/FavoritesTab';
 import { ProfileEmptyState } from '@/components/client/profile/ProfileEmptyState';
 import { SwapHistoryTab } from '@/components/client/profile/SwapHistoryTab';
-import { MessagesTab } from '@/components/client/profile/MessagesTab';
 import { BookCard } from '@/components/client/BookCard';
 import type { ProfileTab } from '@/components/client/profile/ProfileTabs';
 import { useFavorites } from '@/context/FavoritesContext';
@@ -28,7 +27,7 @@ export function ProfilePage() {
         : 'Favorites';
     const [activeTab, setActiveTab] = useState<ProfileTab>(initialTab);
     const tabsRef = useRef<HTMLDivElement>(null);
-
+    
     const [userBooks, setUserBooks] = useState<Book[]>(
         mockBooks.filter((b) => b.ownerId === (user?.id ?? CURRENT_USER_ID))
     );
@@ -49,12 +48,11 @@ export function ProfilePage() {
     );
 
     const handleDeleteBook = (id: string) => {
+        // TODO: apel la backend pentru ștergere
         setUserBooks((prev) => prev.filter((b) => b.id !== id));
     };
 
     if (!user) return null;
-
-    const userId = user.id ?? CURRENT_USER_ID;
 
     return (
         <main className="container mx-auto px-4 py-8 max-w-6xl">
@@ -66,7 +64,7 @@ export function ProfilePage() {
             </div>
 
             <div className="mb-6" ref={tabsRef}>
-                <ProfileTabs active={activeTab} onChange={setActiveTab} userId={userId} />
+                <ProfileTabs active={activeTab} onChange={setActiveTab} userId={user.id} />
             </div>
 
             {activeTab === 'Favorites' && (
@@ -110,7 +108,7 @@ export function ProfilePage() {
                         </div>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             {userBooks.map((book) => (
-                                <BookCard key={book.id} book={book} onDelete={handleDeleteBook} />
+                                <BookCard key={book.id} book={book} onDelete={handleDeleteBook} showOwnerActions={true} />
                             ))}
                         </div>
                     </div>
@@ -119,10 +117,6 @@ export function ProfilePage() {
 
             {activeTab === 'Swap History' && (
                 <SwapHistoryTab swaps={swaps} currentUserId={CURRENT_USER_ID} />
-            )}
-
-            {activeTab === 'Messages' && (
-                <MessagesTab userId={userId} />
             )}
         </main>
     );
