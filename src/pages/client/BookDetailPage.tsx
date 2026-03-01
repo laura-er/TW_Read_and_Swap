@@ -19,6 +19,7 @@ export function BookDetailPage() {
   const { isAuthenticated } = useAuth();
   const [reviews, setReviews] = useState<Review[]>([]);
   const [showReviewForm, setShowReviewForm] = useState(false);
+
   function handleAddReview(rating: number, comment: string) {
     if (!book) return;
     const newReview: Review = {
@@ -58,7 +59,7 @@ export function BookDetailPage() {
       <div className="bg-(--color-bg) min-h-screen">
         <div className="container mx-auto px-4 sm:px-6 py-8 pt-24 md:pt-10">
 
-          <div className="mb-8">
+          <div className="flex items-center justify-between mb-8">
             <Link
                 to="/books"
                 className="inline-flex items-center gap-2 text-(--color-text) hover:text-(--color-accent) px-4 py-3 bg-(--color-surface) backdrop-blur-xl rounded-xl shadow-lg hover:shadow-xl border border-(--color-border) transition-all duration-300 hover:-translate-y-0.5 group"
@@ -68,6 +69,7 @@ export function BookDetailPage() {
               </svg>
               <span className="font-semibold">Back to Books</span>
             </Link>
+
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
