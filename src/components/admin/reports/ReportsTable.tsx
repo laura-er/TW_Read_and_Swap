@@ -6,7 +6,7 @@ import { formatDate } from '@/utils/formatDate';
 import { ResolveIssueModal } from '@/components/admin/reports/ResolveIssueModal';
 
 const statusVariant: Record<ReportStatus, 'warning' | 'success' | 'default'> = {
-    open: 'warning',
+    open: 'success',
     resolved: 'success',
     dismissed: 'default',
 };
