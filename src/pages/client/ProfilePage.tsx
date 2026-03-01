@@ -10,6 +10,7 @@ import { ProfileTabs } from '@/components/client/profile/ProfileTabs';
 import { FavoritesTab } from '@/components/client/profile/FavoritesTab';
 import { ProfileEmptyState } from '@/components/client/profile/ProfileEmptyState';
 import { SwapHistoryTab } from '@/components/client/profile/SwapHistoryTab';
+import { MessagesTab } from '@/components/client/profile/MessagesTab';
 import { BookCard } from '@/components/client/BookCard';
 import type { ProfileTab } from '@/components/client/profile/ProfileTabs';
 import { useFavorites } from '@/context/FavoritesContext';
@@ -27,7 +28,7 @@ export function ProfilePage() {
         : 'Favorites';
     const [activeTab, setActiveTab] = useState<ProfileTab>(initialTab);
     const tabsRef = useRef<HTMLDivElement>(null);
-    
+
     const [userBooks, setUserBooks] = useState<Book[]>(
         mockBooks.filter((b) => b.ownerId === (user?.id ?? CURRENT_USER_ID))
     );
@@ -48,7 +49,6 @@ export function ProfilePage() {
     );
 
     const handleDeleteBook = (id: string) => {
-        // TODO: apel la backend pentru ștergere
         setUserBooks((prev) => prev.filter((b) => b.id !== id));
     };
 
@@ -59,20 +59,21 @@ export function ProfilePage() {
             <div className="mb-8 overflow-hidden rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)]">
                 <ProfileBanner user={user} isOwnProfile={true} />
                 <div className="px-6 pb-6">
-                    <ProfileStats favoritesCount={favorites.length} swapsCount={swaps.filter((s) => s.status === 'completed').length} booksCount={userBooks.length} />
+                    <ProfileStats
+                        favoritesCount={favorites.length}
+                        swapsCount={swaps.filter((s) => s.status === 'completed').length}
+                        booksCount={userBooks.length}
+                    />
                 </div>
             </div>
 
             <div className="mb-6" ref={tabsRef}>
-                <ProfileTabs active={activeTab} onChange={setActiveTab} userId={user.id} />
+                <ProfileTabs active={activeTab} onChange={setActiveTab} />
             </div>
 
             {activeTab === 'Favorites' && (
                 <div id="favorites-section">
-                    <FavoritesTab
-                        favorites={favorites}
-                        onRemove={(id) => toggleFavorite(id)}
-                    />
+                    <FavoritesTab favorites={favorites} onRemove={(id) => toggleFavorite(id)} />
                 </div>
             )}
 
@@ -117,6 +118,10 @@ export function ProfilePage() {
 
             {activeTab === 'Swap History' && (
                 <SwapHistoryTab swaps={swaps} currentUserId={CURRENT_USER_ID} />
+            )}
+
+            {activeTab === 'Messages' && (
+                <MessagesTab />
             )}
         </main>
     );

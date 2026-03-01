@@ -7,10 +7,10 @@ import { SwapStatusFilter } from '@/components/client/swaps/SwapStatusFilter';
 import { SwapCard } from '@/components/client/swaps/SwapCard';
 import { SwapEmptyState } from '@/components/client/swaps/SwapEmptyState';
 
-type Tab = 'received' | 'sent';
+type Tab = 'received' | 'sent' | 'completed';
 type FilterStatus = 'all' | SwapStatus;
 
-const CURRENT_USER_ID = 'user1'; // TODO: replace with useAuth
+const CURRENT_USER_ID = 'user1';
 
 export function SwapRequestPage() {
     const { swaps, updateStatus, removeSwap } = useSwaps();
@@ -19,10 +19,19 @@ export function SwapRequestPage() {
 
     const received = swaps.filter((s) => s.ownerId === CURRENT_USER_ID && s.status !== 'completed');
     const sent = swaps.filter((s) => s.requesterId === CURRENT_USER_ID && s.status !== 'completed');
+    const completed = swaps.filter(
+        (s) => s.status === 'completed' &&
+            (s.ownerId === CURRENT_USER_ID || s.requesterId === CURRENT_USER_ID)
+    );
     const pendingCount = swaps.filter((s) => s.status === 'pending').length;
 
-    const activeList = activeTab === 'received' ? received : sent;
-    const filtered = activeList.filter((s) => filterStatus === 'all' || s.status === filterStatus);
+    const activeList = activeTab === 'received' ? received
+        : activeTab === 'sent' ? sent
+            : completed;
+
+    const filtered = activeTab === 'completed'
+        ? completed
+        : activeList.filter((s) => filterStatus === 'all' || s.status === filterStatus);
 
     return (
         <div className="mx-auto max-w-4xl px-4 py-10 sm:px-6">
@@ -34,12 +43,21 @@ export function SwapRequestPage() {
             </div>
 
             <SwapStatsBar receivedCount={received.length} sentCount={sent.length} pendingCount={pendingCount} />
-            <SwapTabs activeTab={activeTab} onTabChange={setActiveTab} receivedCount={received.length} sentCount={sent.length} />
-            <SwapStatusFilter active={filterStatus} onChange={setFilterStatus} />
+            <SwapTabs
+                activeTab={activeTab}
+                onTabChange={setActiveTab}
+                receivedCount={received.length}
+                sentCount={sent.length}
+                completedCount={completed.length}
+            />
+
+            {activeTab !== 'completed' && (
+                <SwapStatusFilter active={filterStatus} onChange={setFilterStatus} />
+            )}
 
             <div className="flex flex-col gap-4">
                 {filtered.length === 0 ? (
-                    <SwapEmptyState tab={activeTab} />
+                    <SwapEmptyState tab={activeTab === 'completed' ? 'received' : activeTab} />
                 ) : (
                     filtered.map((swap) => (
                         <SwapCard

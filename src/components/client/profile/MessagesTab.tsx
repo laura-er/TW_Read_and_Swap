@@ -9,22 +9,12 @@ const typeStyles = {
     ban:     { bg: 'bg-red-50 border-red-200',       icon: '🚫', label: 'Ban',     labelColor: 'text-red-700'    },
 };
 
-interface MessagesTabProps {
-    userId: string;
-}
-
-export function MessagesTab({ userId }: MessagesTabProps) {
-    const { notifications, markAsRead, markAllAsRead } = useNotifications();
+export function MessagesTab() {
     const { user } = useAuth();
+    const { notifications, markAsRead, markAllAsRead } = useNotifications();
 
-    // Matching flexibil: user1 == 1, user2 == 2 etc
-    const messages = notifications.filter((n) => {
-        return n.userId === userId
-            || n.userId === user?.id
-            || n.userId === userId.replace('user', '')
-            || `user${n.userId}` === userId;
-    });
-
+    const userId = user?.id ?? 'user1';
+    const messages = notifications.filter((n) => n.userId === userId);
     const hasUnread = messages.some((m) => !m.isRead);
 
     if (messages.length === 0) {
@@ -63,7 +53,7 @@ export function MessagesTab({ userId }: MessagesTabProps) {
                                 <span className={`text-xs font-bold uppercase ${style.labelColor}`}>{style.label}</span>
                                 <span className="text-xs text-[var(--color-text-muted)]">
                                     {new Date(msg.createdAt).toLocaleDateString('en-US', {
-                                        day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit'
+                                        day: 'numeric', month: 'short', year: 'numeric',
                                     })}
                                 </span>
                             </div>

@@ -8,10 +8,10 @@ interface SwapStatusFilterProps {
 }
 
 const filters: { key: FilterStatus; label: string; activeClass: string }[] = [
-    { key: 'all', label: 'All', activeClass: 'bg-[var(--color-accent)] text-white' },
-    { key: 'pending', label: 'Pending', activeClass: 'bg-yellow-500 text-white' },
-    { key: 'accepted', label: 'Accepted', activeClass: 'bg-green-500 text-white' },
-    { key: 'declined', label: 'Declined', activeClass: 'bg-red-500 text-white' },
+    { key: 'all',      label: 'All',      activeClass: 'bg-[var(--color-accent)] text-white' },
+    { key: 'pending',  label: 'Pending',  activeClass: 'bg-orange-400 text-white' },
+    { key: 'accepted', label: 'Accepted', activeClass: 'bg-[#40916c] text-white' },
+    { key: 'declined', label: 'Declined', activeClass: 'bg-red-400 text-white' },
 ];
 
 export function SwapStatusFilter({ active, onChange }: SwapStatusFilterProps) {

@@ -13,19 +13,19 @@ const ratingLabels: Record<number, string> = {
 };
 
 export function BookDetailAddReview({ onSubmit }: BookDetailAddReviewProps) {
-    const [rating, setRating] = useState(5);
+    const [rating, setRating] = useState(0);
     const [comment, setComment] = useState('');
 
     function handleSubmit() {
-        if (!comment.trim()) return;
+        if (rating === 0) return;
         onSubmit(rating, comment.trim());
         setRating(5);
         setComment('');
     }
 
     return (
-        <div className="bg-(--color-surface) p-6 rounded-2xl shadow-xl border border-(--color-border)">
-            <h3 className="text-2xl font-bold text-center mb-6 text-(--color-accent)">
+        <div className="bg-(--color-surface) p-4 rounded-xl border border-(--color-border)">
+            <h3 className="text-base font-bold text-center mb-4 text-(--color-accent)">
                 Write a Review
             </h3>
 
@@ -64,15 +64,15 @@ export function BookDetailAddReview({ onSubmit }: BookDetailAddReviewProps) {
                 <button
                     type="button"
                     onClick={handleSubmit}
-                    disabled={!comment.trim()}
-                    className="flex-1 bg-green-600 hover:bg-green-700 text-white py-3 px-6 rounded-xl font-bold shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0"
+                    disabled={rating === 0}
+                    className="flex-1 bg-[#40916c] hover:bg-[#2d6a4f] text-white py-2 px-4 rounded-lg text-sm font-semibold transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                     Publish Review
                 </button>
                 <button
                     type="button"
-                    onClick={() => { setComment(''); setRating(5); }}
-                    className="px-6 py-3 bg-(--color-surface-alt) hover:bg-(--color-border) text-(--color-text-muted) font-bold rounded-xl transition-all duration-300"
+                    onClick={() => { setComment(''); setRating(0); }}
+                    className="px-4 py-2 bg-(--color-surface-alt) hover:bg-(--color-border) text-(--color-text-muted) text-sm font-semibold rounded-lg transition-all duration-200"
                 >
                     Cancel
                 </button>

@@ -1,8 +1,11 @@
-﻿import { Link } from 'react-router-dom';
+﻿import { useState } from 'react';
+import { Link } from 'react-router-dom';
+import { Flag } from 'lucide-react';
 import type { SwapRequestPopulated } from '@/types';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { Avatar } from '@/components/ui/Avatar';
+import { ReportModal } from '@/components/shared/ReportModal';
 import { formatRelativeDate } from '@/utils/formatDate';
 
 type StatusVariant = 'warning' | 'success' | 'danger' | 'default';
@@ -25,9 +28,19 @@ interface SwapCardProps {
 export function SwapCard({ swap, currentUserId, onAccept, onDecline, onCancel }: SwapCardProps) {
     const isOwner = swap.ownerId === currentUserId;
     const otherUser = isOwner ? swap.requester : swap.owner;
+    const [showReport, setShowReport] = useState(false);
 
     return (
         <div className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)] p-6">
+            {showReport && (
+                <ReportModal
+                    targetId={otherUser.id}
+                    targetName={otherUser.name}
+                    type="user"
+                    onClose={() => setShowReport(false)}
+                />
+            )}
+
             {/* User + status */}
             <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-3">
@@ -37,7 +50,9 @@ export function SwapCard({ swap, currentUserId, onAccept, onDecline, onCancel }:
                         <p className="text-xs text-[var(--color-text-muted)]">{formatRelativeDate(swap.createdAt)}</p>
                     </div>
                 </div>
-                <Badge variant={statusVariant[swap.status]}>{swap.status}</Badge>
+                <div className="flex items-center gap-2">
+                    <Badge variant={statusVariant[swap.status]}>{swap.status}</Badge>
+                </div>
             </div>
 
             {/* Books exchange */}
@@ -92,7 +107,19 @@ export function SwapCard({ swap, currentUserId, onAccept, onDecline, onCancel }:
                 </div>
             )}
 
-
+            {/* Actions — completed */}
+            {swap.status === 'completed' && (
+                <div className="flex justify-end pt-2 border-t border-[var(--color-border)]">
+                    <button
+                        onClick={() => setShowReport(true)}
+                        className="flex items-center gap-1.5 text-xs text-red-500 hover:text-red-600 font-medium transition-colors"
+                    >
+                        <Flag className="w-3.5 h-3.5" />
+                        Report User
+                    </button>
+                </div>
+            )}
         </div>
     );
 }
+

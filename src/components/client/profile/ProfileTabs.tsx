@@ -1,4 +1,5 @@
 import { useNotifications } from '@/context/NotificationsContext';
+import { useAuth } from '@/context/AuthContext';
 
 export const PROFILE_TABS = ['Favorites', 'My Books', 'Swap History', 'Messages'] as const;
 export type ProfileTab = typeof PROFILE_TABS[number];
@@ -6,12 +7,12 @@ export type ProfileTab = typeof PROFILE_TABS[number];
 interface ProfileTabsProps {
     active: ProfileTab;
     onChange: (tab: ProfileTab) => void;
-    userId: string;
 }
 
-export function ProfileTabs({ active, onChange, userId }: ProfileTabsProps) {
+export function ProfileTabs({ active, onChange }: ProfileTabsProps) {
+    const { user } = useAuth();
     const { getUnreadCount } = useNotifications();
-    const unread = getUnreadCount(userId);
+    const unread = getUnreadCount(user?.id ?? 'user1');
 
     return (
         <div className="flex items-center gap-1 border-b border-[var(--color-border)]">
