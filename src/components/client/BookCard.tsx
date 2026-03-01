@@ -29,7 +29,14 @@ export function BookCard({ book, onDelete, showOwnerActions = false }: BookCardP
     const isOwner = !!user && user.id === book.ownerId;
 
     return (
-        <div className="group flex flex-row overflow-hidden rounded-2xl border border-(--color-border) bg-(--color-surface) hover:border-(--color-accent)/40 hover:shadow-lg hover:shadow-(--color-accent)/5 transition-all duration-300 min-h-[160px]">
+        <div className="group relative flex flex-row overflow-hidden rounded-2xl border border-(--color-border) bg-(--color-surface) hover:border-(--color-accent)/40 hover:shadow-lg hover:shadow-(--color-accent)/5 transition-all duration-300 min-h-[160px]">
+            {!isOwner && (
+                <span className={`absolute top-2 right-2 z-20 text-xs font-bold px-2.5 py-1 rounded-full ${
+                    book.isAvailable ? 'bg-[#40916c] text-white' : 'bg-red-500 text-white'
+                }`}>
+                    {book.isAvailable ? 'Available' : 'Unavailable'}
+                </span>
+            )}
             <div className="relative w-32 flex-shrink-0 self-stretch">
                 <BookCoverImage
                     id={book.id}
