@@ -9,6 +9,7 @@ import { HomePage } from '@/pages/client/HomePage';
 import { BookCatalogPage } from '@/pages/client/BookCatalogPage';
 import { BookDetailPage } from '@/pages/client/BookDetailPage';
 import { ProfilePage } from '@/pages/client/ProfilePage';
+import { PublicProfilePage } from '@/pages/client/PublicProfilePage';
 import { EditProfilePage } from '@/pages/client/EditProfilePage';
 import { ShareProfilePage } from '@/pages/client/ShareProfilePage';
 import { AddBookPage } from '@/pages/client/AddBookPage';
@@ -41,7 +42,7 @@ export const router = createBrowserRouter([
           { path: '/profile', element: <ProfilePage /> },
           { path: '/profile/edit', element: <EditProfilePage /> },
           { path: '/profile/share', element: <ShareProfilePage /> },
-          { path: '/profile/:username', element: <ProfilePage /> },
+          { path: '/profile/:username', element: <PublicProfilePage /> },
           { path: '/favorites', element: <FavoritesPage /> },
           { path: '/swaps', element: <SwapRequestPage /> },
           { path: '/swap/:id', element: <RequestSwapPage /> },
