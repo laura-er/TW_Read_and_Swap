@@ -1,4 +1,5 @@
-import { createBrowserRouter } from 'react-router-dom';
+import { createBrowserRouter, Outlet } from 'react-router-dom';
+import { ApiProvider } from '@/api/ApiProvider';
 
 import { ClientLayout } from '@/layouts/ClientLayout';
 import { AdminLayout } from '@/layouts/AdminLayout';
@@ -26,54 +27,64 @@ import { AdminDashboardPage } from '@/pages/admin/AdminDashboardPage';
 import { AdminBooksUsersPage } from '@/pages/admin/AdminBooksUsersPage';
 import { AdminReportsPage } from '@/pages/admin/AdminReportsPage';
 
+import { Page500 } from '@/pages/errors/Page500';
+
 export const router = createBrowserRouter([
-
-  // ─── Client routes ───────────────────────────────────────
   {
-    element: <ClientLayout />,
+    element: <ApiProvider><Outlet /></ApiProvider>,
     children: [
-      { path: '/', element: <HomePage /> },
-      { path: '/books', element: <BookCatalogPage /> },
-      { path: '/books/:id', element: <BookDetailPage /> },
+
+      // ─── Client routes ───────────────────────────────────────
       {
-        element: <ProtectedRoute />,
+        element: <ClientLayout />,
         children: [
-          { path: '/books/add', element: <AddBookPage /> },
-          { path: '/profile', element: <ProfilePage /> },
-          { path: '/profile/edit', element: <EditProfilePage /> },
-          { path: '/profile/share', element: <ShareProfilePage /> },
-          { path: '/profile/:username', element: <PublicProfilePage /> },
-          { path: '/favorites', element: <FavoritesPage /> },
-          { path: '/swaps', element: <SwapRequestPage /> },
-          { path: '/swap/:id', element: <RequestSwapPage /> },
-          { path: '/swap/:id/success', element: <SwapSuccessPage /> },
+          { path: '/', element: <HomePage /> },
+          { path: '/books', element: <BookCatalogPage /> },
+          { path: '/books/:id', element: <BookDetailPage /> },
+          {
+            element: <ProtectedRoute />,
+            children: [
+              { path: '/books/add', element: <AddBookPage /> },
+              { path: '/profile', element: <ProfilePage /> },
+              { path: '/profile/edit', element: <EditProfilePage /> },
+              { path: '/profile/share', element: <ShareProfilePage /> },
+              { path: '/profile/:username', element: <PublicProfilePage /> },
+              { path: '/favorites', element: <FavoritesPage /> },
+              { path: '/swaps', element: <SwapRequestPage /> },
+              { path: '/swap/:id', element: <RequestSwapPage /> },
+              { path: '/swap/:id/success', element: <SwapSuccessPage /> },
+            ],
+          },
         ],
       },
-    ],
-  },
 
-  // ─── Auth routes ─────────────────────────────────────────
-  {
-    element: <AuthLayout />,
-    children: [
-      { path: '/sign-in', element: <SignInPage /> },
-      { path: '/sign-up', element: <SignUpPage /> },
-      { path: '/forgot-password', element: <ForgotPasswordPage /> },
-    ],
-  },
-
-  // ─── Admin routes ────────────────────────────────────────
-  {
-    element: <ProtectedRoute requiredRole="admin" />,
-    children: [
+      // ─── Auth routes ─────────────────────────────────────────
       {
-        element: <AdminLayout />,
+        element: <AuthLayout />,
         children: [
-          { path: '/admin', element: <AdminDashboardPage /> },
-          { path: '/admin/books-users', element: <AdminBooksUsersPage /> },
-          { path: '/admin/reports', element: <AdminReportsPage /> },
+          { path: '/sign-in', element: <SignInPage /> },
+          { path: '/sign-up', element: <SignUpPage /> },
+          { path: '/forgot-password', element: <ForgotPasswordPage /> },
         ],
       },
+
+      // ─── Admin routes ────────────────────────────────────────
+      {
+        element: <ProtectedRoute requiredRole="admin" />,
+        children: [
+          {
+            element: <AdminLayout />,
+            children: [
+              { path: '/admin', element: <AdminDashboardPage /> },
+              { path: '/admin/books-users', element: <AdminBooksUsersPage /> },
+              { path: '/admin/reports', element: <AdminReportsPage /> },
+            ],
+          },
+        ],
+      },
+
+      { path: '/500', element: <Page500 /> },
     ],
   },
 ]);
+
