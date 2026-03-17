@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 
 interface BookDetailAddReviewProps {
     onSubmit: (rating: number, comment: string) => void;
@@ -14,13 +14,19 @@ const ratingLabels: Record<number, string> = {
 
 export function BookDetailAddReview({ onSubmit }: BookDetailAddReviewProps) {
     const [rating, setRating] = useState(0);
-    const [comment, setComment] = useState('');
+    const commentRef = useRef<HTMLTextAreaElement>(null);
 
     function handleSubmit() {
         if (rating === 0) return;
-        onSubmit(rating, comment.trim());
-        setRating(5);
-        setComment('');
+        const comment = commentRef.current?.value.trim() ?? '';
+        onSubmit(rating, comment);
+        setRating(0);
+        if (commentRef.current) commentRef.current.value = '';
+    }
+
+    function handleCancel() {
+        setRating(0);
+        if (commentRef.current) commentRef.current.value = '';
     }
 
     return (
@@ -48,13 +54,12 @@ export function BookDetailAddReview({ onSubmit }: BookDetailAddReviewProps) {
                     </button>
                 ))}
                 <span className="ml-2 text-sm font-semibold text-(--color-accent)">
-          {ratingLabels[rating]}
-        </span>
+                    {ratingLabels[rating]}
+                </span>
             </div>
 
             <textarea
-                value={comment}
-                onChange={(e) => setComment(e.target.value)}
+                ref={commentRef}
                 placeholder="Share your thoughts about this book..."
                 rows={4}
                 className="w-full p-4 text-base bg-(--color-surface-alt) border-2 border-(--color-border) text-(--color-text) placeholder:text-(--color-text-muted) rounded-xl focus:border-(--color-accent) focus:outline-none focus:ring-2 focus:ring-(--color-accent)/20 resize-none shadow-sm transition-all duration-300 mb-4"
@@ -71,7 +76,7 @@ export function BookDetailAddReview({ onSubmit }: BookDetailAddReviewProps) {
                 </button>
                 <button
                     type="button"
-                    onClick={() => { setComment(''); setRating(0); }}
+                    onClick={handleCancel}
                     className="px-4 py-2 bg-(--color-surface-alt) hover:bg-(--color-border) text-(--color-text-muted) text-sm font-semibold rounded-lg transition-all duration-200"
                 >
                     Cancel
