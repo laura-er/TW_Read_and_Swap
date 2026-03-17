@@ -15,19 +15,35 @@ const GENRES: BookGenre[] = [
     'romance', 'biography', 'history', 'self-help', 'other',
 ];
 
+interface BookDraft {
+    title: string;
+    author: string;
+    genre: BookGenre;
+    condition: BookCondition;
+    description: string;
+    isAvailable: boolean;
+}
+
 export function EditBookModal({ book, onClose, onSave }: EditBookModalProps) {
-    const [title, setTitle] = useState(book.title);
-    const [author, setAuthor] = useState(book.author);
-    const [genre, setGenre] = useState<BookGenre>(book.genre as BookGenre);
-    const [condition, setCondition] = useState<BookCondition>(book.condition);
-    const [description, setDescription] = useState(book.description);
-    const [isAvailable, setIsAvailable] = useState(book.isAvailable);
+    const [draft, setDraft] = useState<BookDraft>({
+        title: book.title,
+        author: book.author,
+        genre: book.genre as BookGenre,
+        condition: book.condition,
+        description: book.description,
+        isAvailable: book.isAvailable,
+    });
 
     const inputClass =
         'w-full rounded-lg border border-[var(--color-border)] bg-[var(--color-surface-alt)] px-3 py-2 text-sm text-[var(--color-text)] focus:outline-none focus:border-[var(--color-accent)]';
 
+    const handleBlur = (field: keyof Pick<BookDraft, 'title' | 'author' | 'description'>) =>
+        (e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+            setDraft((prev) => ({ ...prev, [field]: e.target.value }));
+        };
+
     const handleSubmit = () => {
-        onSave({ title, author, genre, condition, description, isAvailable });
+        onSave(draft);
         onClose();
     };
 
@@ -44,15 +60,27 @@ export function EditBookModal({ book, onClose, onSave }: EditBookModalProps) {
                 <div className="flex flex-col gap-3">
                     <div>
                         <label className="text-xs font-semibold text-[var(--color-text-muted)] mb-1 block">Title</label>
-                        <input className={inputClass} value={title} onChange={(e) => setTitle(e.target.value)} />
+                        <input
+                            className={inputClass}
+                            defaultValue={draft.title}
+                            onBlur={handleBlur('title')}
+                        />
                     </div>
                     <div>
                         <label className="text-xs font-semibold text-[var(--color-text-muted)] mb-1 block">Author</label>
-                        <input className={inputClass} value={author} onChange={(e) => setAuthor(e.target.value)} />
+                        <input
+                            className={inputClass}
+                            defaultValue={draft.author}
+                            onBlur={handleBlur('author')}
+                        />
                     </div>
                     <div>
                         <label className="text-xs font-semibold text-[var(--color-text-muted)] mb-1 block">Genre</label>
-                        <select className={inputClass} value={genre} onChange={(e) => setGenre(e.target.value as BookGenre)}>
+                        <select
+                            className={inputClass}
+                            value={draft.genre}
+                            onChange={(e) => setDraft((prev) => ({ ...prev, genre: e.target.value as BookGenre }))}
+                        >
                             {GENRES.map((g) => (
                                 <option key={g} value={g}>{g}</option>
                             ))}
@@ -60,7 +88,11 @@ export function EditBookModal({ book, onClose, onSave }: EditBookModalProps) {
                     </div>
                     <div>
                         <label className="text-xs font-semibold text-[var(--color-text-muted)] mb-1 block">Condition</label>
-                        <select className={inputClass} value={condition} onChange={(e) => setCondition(e.target.value as BookCondition)}>
+                        <select
+                            className={inputClass}
+                            value={draft.condition}
+                            onChange={(e) => setDraft((prev) => ({ ...prev, condition: e.target.value as BookCondition }))}
+                        >
                             {CONDITIONS.map((c) => (
                                 <option key={c} value={c}>{c}</option>
                             ))}
@@ -71,15 +103,15 @@ export function EditBookModal({ book, onClose, onSave }: EditBookModalProps) {
                         <textarea
                             className={`${inputClass} resize-none`}
                             rows={3}
-                            value={description}
-                            onChange={(e) => setDescription(e.target.value)}
+                            defaultValue={draft.description}
+                            onBlur={handleBlur('description')}
                         />
                     </div>
                     <label className="flex items-center gap-2 cursor-pointer">
                         <input
                             type="checkbox"
-                            checked={isAvailable}
-                            onChange={(e) => setIsAvailable(e.target.checked)}
+                            checked={draft.isAvailable}
+                            onChange={(e) => setDraft((prev) => ({ ...prev, isAvailable: e.target.checked }))}
                             className="accent-[var(--color-accent)] h-4 w-4"
                         />
                         <span className="text-sm text-[var(--color-text)]">Available for swap</span>

@@ -1,4 +1,4 @@
-﻿import { useState } from 'react';
+﻿import { useRef, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
@@ -8,13 +8,15 @@ export function SignInForm() {
     const { login } = useAuth();
     const navigate = useNavigate();
 
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
+    const emailRef = useRef<HTMLInputElement>(null);
+    const passwordRef = useRef<HTMLInputElement>(null);
     const [error, setError] = useState('');
     const [isLoading, setIsLoading] = useState(false);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        const email = emailRef.current?.value ?? '';
+        const password = passwordRef.current?.value ?? '';
         setError('');
         setIsLoading(true);
 
@@ -49,16 +51,14 @@ export function SignInForm() {
                 label="Email"
                 type="email"
                 placeholder="you@example.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                ref={emailRef}
                 required
             />
             <Input
                 label="Password"
                 type="password"
                 placeholder="••••••••"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                ref={passwordRef}
                 error={error}
                 minLength={8}
                 required
@@ -98,3 +98,4 @@ export function SignInForm() {
         </form>
     );
 }
+
