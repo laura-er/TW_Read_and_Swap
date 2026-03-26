@@ -24,62 +24,90 @@ export function ProfileBanner({ user, isOwnProfile }: ProfileBannerProps) {
                 />
             )}
 
-            <div className="overflow-hidden rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)]">
-                <div className="h-28 bg-gradient-to-r from-[var(--color-accent)]/80 to-[var(--color-accent)]/30" />
-                <div className="relative px-6 pb-6">
-                    <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-                        <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:gap-6">
-                            <div className="-mt-12 flex-shrink-0 ring-4 ring-[var(--color-surface)] rounded-full">
+            {/* Banner top — warm gradient */}
+            <div style={{
+                height: '100px',
+                background: 'linear-gradient(135deg, var(--color-accent) 0%, rgba(154,74,30,0.4) 60%, rgba(200,150,60,0.2) 100%)',
+                backdropFilter: 'blur(8px)',
+            }} />
+
+            {/* Content */}
+            <div style={{ padding: '0 24px 20px', background: 'var(--lib-card)' }}>
+                <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+                    <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:gap-5">
+                        {/* Avatar */}
+                        <div style={{ marginTop: '-40px', flexShrink: 0 }}>
+                            <div style={{
+                                borderRadius: '50%',
+                                padding: '3px',
+                                background: 'var(--lib-card)',
+                                display: 'inline-block',
+                            }}>
                                 <Avatar src={user.avatarUrl} name={user.name} size="xl" />
-                            </div>
-                            <div className="pb-1">
-                                <h1 className="text-2xl font-bold text-[var(--color-text)]">{user.name}</h1>
-                                <p className="text-sm text-[var(--color-text-muted)]">@{user.username}</p>
-                                {user.bio && (
-                                    <p className="mt-1 text-sm text-[var(--color-text-muted)] max-w-md">{user.bio}</p>
-                                )}
-                                <div className="mt-2 flex flex-wrap items-center gap-4 text-sm text-[var(--color-text-muted)]">
-                                    {user.location && (
-                                        <span className="flex items-center gap-1.5">
-                                            <MapPin className="h-3.5 w-3.5" />
-                                            {user.location}
-                                        </span>
-                                    )}
-                                    <span className="flex items-center gap-1.5">
-                                        <Calendar className="h-3.5 w-3.5" />
-                                        Joined {new Date(user.joinedAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}
-                                    </span>
-                                </div>
                             </div>
                         </div>
 
-                        <div className="flex items-center gap-2 sm:self-end sm:pb-1">
-                            {isOwnProfile ? (
-                                <>
-                                    <Link
-                                        to="/profile/edit"
-                                        className="flex items-center gap-2 rounded-lg border border-[var(--color-border)] px-4 py-2 text-sm font-medium text-[var(--color-text)] hover:bg-[var(--color-surface-alt)] transition-colors"
-                                    >
-                                        <Edit className="h-4 w-4" />
-                                        Edit Profile
-                                    </Link>
-                                    <Link
-                                        to="/profile/share"
-                                        className="flex items-center gap-2 rounded-lg bg-[var(--color-accent)] px-4 py-2 text-sm font-medium text-white hover:bg-[var(--color-accent-hover)] transition-colors"
-                                    >
-                                        Share
-                                    </Link>
-                                </>
-                            ) : (
-                                <button
-                                    onClick={() => setShowReport(true)}
-                                    className="flex items-center gap-2 rounded-lg border border-red-200 px-4 py-2 text-sm font-medium text-red-500 hover:bg-red-50 transition-colors"
-                                >
-                                    <Flag className="h-4 w-4" />
-                                    Report User
-                                </button>
+                        {/* Info */}
+                        <div style={{ paddingBottom: '4px' }}>
+                            <h1 className="font-['Playfair_Display'] text-xl font-bold"
+                                style={{ color: 'var(--lib-text)' }}>{user.name}</h1>
+                            <p style={{ fontSize: '12px', color: 'var(--lib-text-muted)' }}>@{user.username}</p>
+                            {user.bio && (
+                                <p style={{ marginTop: '4px', fontSize: '12px', color: 'var(--lib-text-muted)', maxWidth: '360px' }}>
+                                    {user.bio}
+                                </p>
                             )}
+                            <div style={{ marginTop: '6px', display: 'flex', flexWrap: 'wrap', gap: '12px' }}>
+                                {user.location && (
+                                    <span style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '12px', color: 'var(--lib-text-faint)' }}>
+                                        <MapPin size={12} /> {user.location}
+                                    </span>
+                                )}
+                                <span style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '12px', color: 'var(--lib-text-faint)' }}>
+                                    <Calendar size={12} />
+                                    Joined {new Date(user.joinedAt).toLocaleDateString('en-GB', { month: 'long', year: 'numeric' })}
+                                </span>
+                            </div>
                         </div>
+                    </div>
+
+                    {/* Actions */}
+                    <div style={{ display: 'flex', gap: '8px', paddingBottom: '4px' }}>
+                        {isOwnProfile ? (
+                            <>
+                                <Link to="/profile/edit" style={{
+                                    display: 'flex', alignItems: 'center', gap: '6px',
+                                    padding: '7px 14px', borderRadius: '14px',
+                                    border: '1px solid var(--lib-border)',
+                                    background: 'transparent',
+                                    color: 'var(--lib-text-muted)',
+                                    fontSize: '12px', fontWeight: 500,
+                                    textDecoration: 'none', transition: 'opacity 0.15s',
+                                }}>
+                                    <Edit size={13} /> Edit Profile
+                                </Link>
+                                <Link to="/profile/share" style={{
+                                    display: 'flex', alignItems: 'center', gap: '6px',
+                                    padding: '7px 14px', borderRadius: '14px',
+                                    background: 'var(--color-accent)',
+                                    color: 'white',
+                                    fontSize: '12px', fontWeight: 500,
+                                    textDecoration: 'none',
+                                }}>
+                                    Share
+                                </Link>
+                            </>
+                        ) : (
+                            <button onClick={() => setShowReport(true)} style={{
+                                display: 'flex', alignItems: 'center', gap: '6px',
+                                padding: '7px 14px', borderRadius: '14px',
+                                border: '1px solid rgba(192,57,43,0.3)',
+                                background: 'transparent', color: '#c0392b',
+                                fontSize: '12px', fontWeight: 500, cursor: 'pointer',
+                            }}>
+                                <Flag size={13} /> Report
+                            </button>
+                        )}
                     </div>
                 </div>
             </div>
