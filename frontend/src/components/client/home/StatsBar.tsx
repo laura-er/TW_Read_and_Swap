@@ -1,21 +1,28 @@
 const stats = [
-  { value: '2,400+', label: 'Books Available' },
-  { value: '800+', label: 'Active Readers' },
-  { value: '1,200+', label: 'Swaps Completed' },
-  { value: '15+', label: 'Genres' },
+    { value: '2,400+', label: 'Books Available', icon: '📚' },
+    { value: '800+',   label: 'Active Readers',  icon: '👥' },
+    { value: '1,200+', label: 'Swaps Completed', icon: '🔄' },
+    { value: '15+',    label: 'Genres',           icon: '🏷️' },
 ];
 
 export function StatsBar() {
-  return (
-    <section className="border-y border-[var(--color-border)] bg-[var(--color-surface)]">
-      <div className="mx-auto max-w-7xl px-4 py-8 grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
-        {stats.map(({ value, label }) => (
-          <div key={label}>
-            <p className="font-['Playfair_Display'] text-2xl font-bold text-[var(--color-accent)]">{value}</p>
-            <p className="text-sm text-[var(--color-text-muted)] mt-0.5">{label}</p>
-          </div>
-        ))}
-      </div>
-    </section>
-  );
+    return (
+        <section style={{
+            background: 'var(--lib-stats)',
+            backdropFilter: 'blur(14px)',
+            borderTop: '1px solid var(--lib-border)',
+            borderBottom: '1px solid var(--lib-border)',
+        }}>
+            <div className="mx-auto max-w-7xl px-4 py-8 grid grid-cols-2 md:grid-cols-4">
+                {stats.map(({ value, label, icon }, i) => (
+                    <div key={label} className="flex flex-col items-center text-center px-6 py-2"
+                         style={{ borderLeft: i > 0 ? '1px solid var(--lib-border)' : 'none' }}>
+                        <span className="text-xl mb-1">{icon}</span>
+                        <p className="font-['Playfair_Display'] text-3xl font-bold" style={{ color: 'var(--color-accent)' }}>{value}</p>
+                        <p className="text-xs mt-1 tracking-wide uppercase" style={{ color: 'var(--lib-text-faint)' }}>{label}</p>
+                    </div>
+                ))}
+            </div>
+        </section>
+    );
 }

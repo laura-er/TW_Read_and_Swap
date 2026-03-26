@@ -29,7 +29,11 @@ export function BookCard({ book, onDelete, showOwnerActions = false }: BookCardP
     const isOwner = !!user && user.id === book.ownerId;
 
     return (
-        <div className="group relative flex flex-row overflow-hidden rounded-2xl border border-(--color-border) bg-(--color-surface) hover:border-(--color-accent)/40 hover:shadow-lg hover:shadow-(--color-accent)/5 transition-all duration-300 min-h-[160px]">
+        <div className="group relative flex flex-row overflow-hidden rounded-[24px] hover:shadow-lg transition-all duration-300 min-h-[160px] h-full"
+             style={{
+                 background: 'var(--color-surface)',
+                 border: '1px solid var(--color-border)',
+             }}>
             {!isOwner && (
                 <span className={`absolute top-2 right-2 z-20 text-xs font-bold px-2.5 py-1 rounded-full ${
                     book.isAvailable ? 'bg-[#40916c] text-white' : 'bg-red-500 text-white'
@@ -64,7 +68,7 @@ export function BookCard({ book, onDelete, showOwnerActions = false }: BookCardP
                     {isAuthenticated && (
                         <Badge variant={conditionVariant[book.condition]}>{book.condition}</Badge>
                     )}
-                    <span className="text-xs font-semibold text-(--color-text-muted) bg-(--color-surface-alt) px-2 py-0.5 rounded-full capitalize">
+                    <span className="text-xs font-semibold px-2 py-0.5 rounded-full capitalize" style={{ color: 'var(--color-text-muted)', background: 'var(--color-surface-alt)' }}>
                         {book.genre}
                     </span>
                 </div>
@@ -83,7 +87,7 @@ export function BookCard({ book, onDelete, showOwnerActions = false }: BookCardP
                     ) : (
                         <button
                             onClick={() => navigate('/sign-in')}
-                            className="w-full text-center py-2 px-3 rounded-lg bg-[var(--color-accent)] hover:bg-[var(--color-accent-hover)] text-white text-sm font-semibold transition-all duration-200"
+                            className="w-full text-center py-2 px-3 rounded-[14px] bg-[var(--color-accent)] hover:bg-[var(--color-accent-hover)] text-white text-sm font-semibold transition-all duration-200"
                         >
                             Sign in to view
                         </button>

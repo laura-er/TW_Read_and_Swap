@@ -6,12 +6,12 @@ import { Footer } from '@/components/client/home/Footer';
 
 export function HomePage() {
     return (
-        <main>
+        <div style={{ marginTop: '-32px', marginLeft: '0', marginRight: '0', overflowX: 'hidden' }}>
             <HeroSection />
             <StatsBar />
             <FeaturedBooks />
             <HowItWorks />
             <Footer />
-        </main>
+        </div>
     );
 }
