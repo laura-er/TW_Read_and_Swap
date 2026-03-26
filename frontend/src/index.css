@@ -3,6 +3,7 @@
 /* ─── Theme Variables ─────────────────────────────── */
 :root {
   --color-bg: #faf8f5;
+  --color-bg-gradient: linear-gradient(160deg, #f5e8cc 0%, #faf8f5 45%, #f8f4ee 100%);
   --color-surface: #f0ebe3;
   --color-surface-alt: #e8e0d4;
   --color-text: #1c1510;
@@ -21,6 +22,22 @@
   --navbar-text:        #1c1510;
   --navbar-text-muted:  #5a4a3a;
 
+
+  /* ── Auth pages light — warm vintage galbui ── */
+  --auth-bg:                #f2e8d5;
+  --auth-texture-opacity:   0.06;
+  --auth-card-bg:           #fdf6e8;
+  --auth-card-border:       rgba(180, 140, 70, 0.30);
+  --auth-logo-color:        #2a1f0e;
+  --auth-control-bg:        rgba(253, 246, 232, 0.90);
+  --auth-control-text:      #5a4a2a;
+  --auth-control-border:    rgba(180, 140, 70, 0.25);
+  --auth-label-color:       #7a6540;
+  --auth-input-bg:          #fffbf0;
+  --auth-input-border:      #d4bc88;
+  --auth-input-text:        #2a1f0e;
+  --auth-input-placeholder: #b09a6a;
+
   /* ── Library overlay light ── */
   --lib-img-filter:   blur(1.5px) brightness(0.88) sepia(0.12);
   --lib-overlay:      rgba(250, 242, 228, 0.46);
@@ -28,7 +45,7 @@
   --lib-featured:     rgba(248, 239, 222, 0.84);
   --lib-how:          rgba(244, 234, 214, 0.82);
   --lib-footer:       rgba(240, 229, 208, 0.95);
-  --lib-card:         rgba(255, 251, 243, 0.90);
+  --lib-card:         rgba(242, 231, 210, 0.88);
   --lib-border:       rgba(160, 120, 70, 0.22);
   --lib-text:         #1c1510;
   --lib-text-muted:   #3a2e22;
@@ -37,6 +54,7 @@
 
 .dark {
   --color-bg: #0e0b08;
+  --color-bg-gradient: linear-gradient(160deg, #1a0e04 0%, #0e0b08 45%, #120d06 100%);
   --color-surface: #1a1510;
   --color-surface-alt: #231e17;
   --color-text: #f5f0e8;
@@ -54,6 +72,22 @@
   --navbar-border:      rgba(210, 150, 60, 0.20);
   --navbar-text:        #f0e8dc;
   --navbar-text-muted:  #b0987e;
+
+
+  /* ── Auth pages dark ── */
+  --auth-bg:                #0e0b08;
+  --auth-texture-opacity:   0.06;
+  --auth-card-bg:           #1a1510;
+  --auth-card-border:       rgba(210, 155, 70, 0.18);
+  --auth-logo-color:        #f0e8dc;
+  --auth-control-bg:        rgba(35, 22, 10, 0.90);
+  --auth-control-text:      #b0987e;
+  --auth-control-border:    rgba(210, 155, 70, 0.18);
+  --auth-label-color:       #9a8a78;
+  --auth-input-bg:          #231e17;
+  --auth-input-border:      #2e2518;
+  --auth-input-text:        #f0e8dc;
+  --auth-input-placeholder: #6b5f52;
 
   /* ── Library overlay dark ── */
   --lib-img-filter:   blur(1.5px) brightness(0.45) saturate(0.88);
@@ -73,8 +107,10 @@
 * { box-sizing: border-box; }
 
 html {
+  font-size: 13px;
   font-family: 'DM Sans', sans-serif;
-  background-color: var(--color-bg);
+  background: var(--color-bg-gradient);
+  background-attachment: fixed;
   color: var(--color-text);
   transition: background-color 0.2s ease, color 0.2s ease;
 }

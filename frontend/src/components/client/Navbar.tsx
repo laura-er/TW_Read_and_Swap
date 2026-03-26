@@ -71,7 +71,7 @@ export function Navbar() {
                       to={to}
                       end={to === '/'}
                       className={({ isActive }) => [
-                        'px-4 py-1.5 rounded-2xl text-sm font-medium transition-all',
+                        'px-3 py-1.5 rounded-2xl text-sm font-medium transition-all',
                         isActive
                             ? 'text-white'
                             : 'hover:bg-white/10 transition-all',

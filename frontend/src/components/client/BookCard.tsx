@@ -31,8 +31,9 @@ export function BookCard({ book, onDelete, showOwnerActions = false }: BookCardP
     return (
         <div className="group relative flex flex-row overflow-hidden rounded-[24px] hover:shadow-lg transition-all duration-300 min-h-[160px] h-full"
              style={{
-                 background: 'var(--color-surface)',
-                 border: '1px solid var(--color-border)',
+                 background: 'var(--navbar-bg)',
+                 border: '1px solid var(--navbar-border)',
+                 backdropFilter: 'blur(12px)',
              }}>
             {!isOwner && (
                 <span className={`absolute top-2 right-2 z-20 text-xs font-bold px-2.5 py-1 rounded-full ${
@@ -68,7 +69,7 @@ export function BookCard({ book, onDelete, showOwnerActions = false }: BookCardP
                     {isAuthenticated && (
                         <Badge variant={conditionVariant[book.condition]}>{book.condition}</Badge>
                     )}
-                    <span className="text-xs font-semibold px-2 py-0.5 rounded-full capitalize" style={{ color: 'var(--color-text-muted)', background: 'var(--color-surface-alt)' }}>
+                    <span className="text-xs font-semibold px-2 py-0.5 rounded-full capitalize" style={{ color: 'var(--navbar-text-muted)', background: 'var(--color-surface-alt)' }}>
                         {book.genre}
                     </span>
                 </div>

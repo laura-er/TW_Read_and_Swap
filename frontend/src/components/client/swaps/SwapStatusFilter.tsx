@@ -7,27 +7,35 @@ interface SwapStatusFilterProps {
     onChange: (status: FilterStatus) => void;
 }
 
-const filters: { key: FilterStatus; label: string; activeClass: string }[] = [
-    { key: 'all',      label: 'All',      activeClass: 'bg-[var(--color-accent)] text-white' },
-    { key: 'pending',  label: 'Pending',  activeClass: 'bg-orange-400 text-white' },
-    { key: 'accepted', label: 'Accepted', activeClass: 'bg-[#40916c] text-white' },
-    { key: 'declined', label: 'Declined', activeClass: 'bg-red-400 text-white' },
+const filters: { key: FilterStatus; label: string; activeColor: string }[] = [
+    { key: 'all',      label: 'All',      activeColor: 'var(--color-accent)' },
+    { key: 'pending',  label: 'Pending',  activeColor: '#e8924a' },
+    { key: 'accepted', label: 'Accepted', activeColor: '#40916c' },
+    { key: 'declined', label: 'Declined', activeColor: '#c0392b' },
 ];
 
 export function SwapStatusFilter({ active, onChange }: SwapStatusFilterProps) {
     return (
-        <div className="flex flex-wrap items-center gap-2 p-4 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] mb-6">
-            <span className="text-sm font-medium text-[var(--color-text-muted)] mr-1">Filter:</span>
-            {filters.map(({ key, label, activeClass }) => (
+        <div style={{
+            display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '6px',
+            padding: '10px 14px', marginBottom: '20px',
+            borderRadius: '16px', border: '1px solid var(--navbar-border)',
+            background: 'var(--navbar-bg)', backdropFilter: 'blur(12px)',
+        }}>
+      <span style={{ fontSize: '11px', fontWeight: 600, color: 'var(--navbar-text-muted)',
+          textTransform: 'uppercase', letterSpacing: '0.08em', marginRight: '4px' }}>
+        Filter:
+      </span>
+            {filters.map(({ key, label, activeColor }) => (
                 <button
                     key={key}
                     onClick={() => onChange(key)}
-                    className={[
-                        'px-3 py-1.5 rounded-lg text-sm font-medium transition-all',
-                        active === key
-                            ? activeClass
-                            : 'bg-[var(--color-surface-alt)] text-[var(--color-text-muted)] hover:text-[var(--color-text)]',
-                    ].join(' ')}
+                    style={{
+                        padding: '5px 12px', borderRadius: '10px', fontSize: '12px',
+                        fontWeight: 600, border: 'none', cursor: 'pointer', transition: 'all 0.15s',
+                        background: active === key ? activeColor : 'transparent',
+                        color: active === key ? 'white' : 'var(--navbar-text-muted)',
+                    }}
                 >
                     {label}
                 </button>

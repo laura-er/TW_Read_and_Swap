@@ -7,7 +7,7 @@ export function ClientLayout() {
     const { showLoginModal, closeLoginModal } = useFavorites();
 
     return (
-        <div className="min-h-screen flex flex-col bg-[var(--color-bg)]">
+        <div className="min-h-screen flex flex-col" style={{ background: "transparent" }}>
             <Navbar />
             <main className="flex-1 w-full">
                 <Outlet />
