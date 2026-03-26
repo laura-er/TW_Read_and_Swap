@@ -11,10 +11,8 @@ import { formatRelativeDate } from '@/utils/formatDate';
 type StatusVariant = 'warning' | 'success' | 'danger' | 'default';
 
 const statusVariant: Record<string, StatusVariant> = {
-    pending: 'warning',
-    accepted: 'success',
-    declined: 'danger',
-    completed: 'default',
+    pending: 'warning', accepted: 'success',
+    declined: 'danger', completed: 'default',
 };
 
 interface SwapCardProps {
@@ -30,96 +28,122 @@ export function SwapCard({ swap, currentUserId, onAccept, onDecline, onCancel }:
     const otherUser = isOwner ? swap.requester : swap.owner;
     const [showReport, setShowReport] = useState(false);
 
+    const bookPanelStyle: React.CSSProperties = {
+        flex: 1, display: 'flex', alignItems: 'center', gap: '10px',
+        padding: '10px 12px', borderRadius: '14px',
+        background: 'var(--color-surface-alt)',
+        border: '1px solid transparent', transition: 'border-color 0.15s',
+        textDecoration: 'none',
+    };
+
     return (
-        <div className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)] p-6">
+        <div style={{
+            borderRadius: '20px',
+            border: '1px solid var(--navbar-border)',
+            background: 'var(--navbar-bg)',
+            backdropFilter: 'blur(12px)',
+            padding: '20px',
+        }}>
             {showReport && (
-                <ReportModal
-                    targetId={otherUser.id}
-                    targetName={otherUser.name}
-                    type="user"
-                    onClose={() => setShowReport(false)}
-                />
+                <ReportModal targetId={otherUser.id} targetName={otherUser.name}
+                             type="user" onClose={() => setShowReport(false)} />
             )}
 
             {/* User + status */}
-            <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center gap-3">
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '14px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                     <Avatar src={otherUser.avatarUrl} name={otherUser.name} size="sm" />
                     <div>
-                        <p className="text-sm font-semibold text-[var(--color-text)]">{otherUser.name}</p>
-                        <p className="text-xs text-[var(--color-text-muted)]">{formatRelativeDate(swap.createdAt)}</p>
+                        <p style={{ fontSize: '13px', fontWeight: 600, color: 'var(--navbar-text)' }}>
+                            {otherUser.name}
+                        </p>
+                        <p style={{ fontSize: '11px', color: 'var(--navbar-text-muted)' }}>
+                            {formatRelativeDate(swap.createdAt)}
+                        </p>
                     </div>
                 </div>
-                <div className="flex items-center gap-2">
-                    <Badge variant={statusVariant[swap.status]}>{swap.status}</Badge>
-                </div>
+                <Badge variant={statusVariant[swap.status]}>{swap.status}</Badge>
             </div>
 
             {/* Books exchange */}
-            <div className="flex items-center gap-3 mb-4">
-                <Link to={`/books/${swap.bookRequested.id}`} className="flex-1 flex items-center gap-3 p-3 rounded-xl bg-[var(--color-surface-alt)] hover:border-[var(--color-accent)] border border-transparent transition-all">
-                    <img src={swap.bookRequested.coverUrl} alt={swap.bookRequested.title} className="w-10 h-14 object-cover rounded-lg" />
-                    <div className="min-w-0">
-                        <p className="text-xs text-[var(--color-text-muted)] mb-0.5">{isOwner ? 'They want:' : 'You requested:'}</p>
-                        <p className="text-sm font-semibold text-[var(--color-text)] truncate">{swap.bookRequested.title}</p>
-                        <p className="text-xs text-[var(--color-text-muted)] truncate">{swap.bookRequested.author}</p>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '14px' }}>
+                <Link to={`/books/${swap.bookRequested.id}`} style={bookPanelStyle}
+                      onMouseEnter={e => (e.currentTarget.style.borderColor = 'var(--color-accent)')}
+                      onMouseLeave={e => (e.currentTarget.style.borderColor = 'transparent')}>
+                    <img src={swap.bookRequested.coverUrl} alt={swap.bookRequested.title}
+                         style={{ width: '36px', height: '50px', objectFit: 'cover', borderRadius: '8px' }} />
+                    <div style={{ minWidth: 0 }}>
+                        <p style={{ fontSize: '11px', color: 'var(--navbar-text-muted)', marginBottom: '2px' }}>
+                            {isOwner ? 'They want:' : 'You requested:'}
+                        </p>
+                        <p style={{ fontSize: '12px', fontWeight: 600, color: 'var(--navbar-text)',
+                            overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                            {swap.bookRequested.title}
+                        </p>
                     </div>
                 </Link>
 
-                <svg className="w-5 h-5 shrink-0 text-[var(--color-accent)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+                <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                     style={{ flexShrink: 0, color: 'var(--color-accent)' }}>
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                          d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
                 </svg>
 
-                <Link to={`/books/${swap.bookOffered.id}`} className="flex-1 flex items-center gap-3 p-3 rounded-xl bg-[var(--color-surface-alt)] hover:border-[var(--color-accent)] border border-transparent transition-all">
-                    <img src={swap.bookOffered.coverUrl} alt={swap.bookOffered.title} className="w-10 h-14 object-cover rounded-lg" />
-                    <div className="min-w-0">
-                        <p className="text-xs text-[var(--color-text-muted)] mb-0.5">{isOwner ? 'They offered:' : 'You offered:'}</p>
-                        <p className="text-sm font-semibold text-[var(--color-text)] truncate">{swap.bookOffered.title}</p>
-                        <p className="text-xs text-[var(--color-text-muted)] truncate">{swap.bookOffered.author}</p>
+                <Link to={`/books/${swap.bookOffered.id}`} style={bookPanelStyle}
+                      onMouseEnter={e => (e.currentTarget.style.borderColor = 'var(--color-accent)')}
+                      onMouseLeave={e => (e.currentTarget.style.borderColor = 'transparent')}>
+                    <img src={swap.bookOffered.coverUrl} alt={swap.bookOffered.title}
+                         style={{ width: '36px', height: '50px', objectFit: 'cover', borderRadius: '8px' }} />
+                    <div style={{ minWidth: 0 }}>
+                        <p style={{ fontSize: '11px', color: 'var(--navbar-text-muted)', marginBottom: '2px' }}>
+                            {isOwner ? 'They offered:' : 'You offered:'}
+                        </p>
+                        <p style={{ fontSize: '12px', fontWeight: 600, color: 'var(--navbar-text)',
+                            overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                            {swap.bookOffered.title}
+                        </p>
                     </div>
                 </Link>
             </div>
 
             {/* Message */}
             {swap.message && (
-                <div className="rounded-xl border border-blue-200 dark:border-blue-800 bg-blue-50 dark:bg-blue-900/20 p-3 mb-4">
-                    <p className="text-xs text-[var(--color-text-muted)]">{swap.message}</p>
+                <div style={{
+                    borderRadius: '12px', padding: '10px 12px', marginBottom: '12px',
+                    background: 'var(--color-surface)', border: '1px solid var(--navbar-border)',
+                }}>
+                    <p style={{ fontSize: '12px', color: 'var(--navbar-text-muted)' }}>{swap.message}</p>
                 </div>
             )}
 
-            {/* Actions — pending */}
+            {/* Actions */}
             {swap.status === 'pending' && (
-                <div className="flex gap-2">
+                <div style={{ display: 'flex', gap: '8px' }}>
                     {isOwner ? (
                         <>
-                            <Button size="sm" variant="primary" className="flex-1 justify-center" onClick={() => onAccept?.(swap.id)}>
-                                Accept
-                            </Button>
-                            <Button size="sm" variant="secondary" className="flex-1 justify-center" onClick={() => onDecline?.(swap.id)}>
-                                Decline
-                            </Button>
+                            <Button size="sm" variant="primary" className="flex-1 justify-center"
+                                    onClick={() => onAccept?.(swap.id)}>Accept</Button>
+                            <Button size="sm" variant="secondary" className="flex-1 justify-center"
+                                    onClick={() => onDecline?.(swap.id)}>Decline</Button>
                         </>
                     ) : (
-                        <Button size="sm" variant="danger" className="flex-1 justify-center" onClick={() => onCancel?.(swap.id)}>
-                            Cancel Request
-                        </Button>
+                        <Button size="sm" variant="danger" className="flex-1 justify-center"
+                                onClick={() => onCancel?.(swap.id)}>Cancel Request</Button>
                     )}
                 </div>
             )}
 
-            {/* Actions — completed */}
             {swap.status === 'completed' && (
-                <div className="flex justify-end pt-2 border-t border-[var(--color-border)]">
-                    <button
-                        onClick={() => setShowReport(true)}
-                        className="flex items-center gap-1.5 text-xs text-red-500 hover:text-red-600 font-medium transition-colors"
-                    >
-                        <Flag className="w-3.5 h-3.5" />
-                        Report User
+                <div style={{ display: 'flex', justifyContent: 'flex-end', paddingTop: '10px',
+                    borderTop: '1px solid var(--navbar-border)' }}>
+                    <button onClick={() => setShowReport(true)}
+                            style={{ display: 'flex', alignItems: 'center', gap: '5px',
+                                fontSize: '12px', color: '#c0392b', background: 'none',
+                                border: 'none', cursor: 'pointer', fontWeight: 500 }}>
+                        <Flag size={13} /> Report User
                     </button>
                 </div>
             )}
         </div>
     );
 }
-

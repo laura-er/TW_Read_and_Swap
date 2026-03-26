@@ -8,7 +8,7 @@ interface FavoritesTableProps {
 
 export function FavoritesTable({ books, onRemove }: FavoritesTableProps) {
     return (
-        <div className="overflow-hidden rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)]">
+        <div className="overflow-hidden rounded-[20px]" style={{ background: "var(--lib-card)", border: "1px solid var(--lib-border)", backdropFilter: "blur(16px)" }}>
             <div className="overflow-x-auto">
                 <table className="w-full min-w-[520px]">
                     <thead>

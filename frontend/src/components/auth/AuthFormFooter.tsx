@@ -1,4 +1,5 @@
 ﻿import { Link } from 'react-router-dom';
+import { useTheme } from '@/context/ThemeContext';
 
 interface AuthFormFooterProps {
     message: string;
@@ -7,10 +8,13 @@ interface AuthFormFooterProps {
 }
 
 export function AuthFormFooter({ message, linkLabel, linkTo }: AuthFormFooterProps) {
+    const { isDark } = useTheme();
     return (
-        <p className="mt-6 text-center text-sm text-[var(--color-text-muted)]">
+        <p style={{ marginTop: '14px', textAlign: 'center', fontSize: '12px',
+            color: isDark ? '#7a5a30' : '#8a6830' }}>
             {message}{' '}
-            <Link to={linkTo} className="text-[var(--color-accent)] hover:underline font-medium">
+            <Link to={linkTo} className="font-semibold hover:opacity-75 transition-opacity"
+                  style={{ color: isDark ? '#d4703a' : '#9a4a1e' }}>
                 {linkLabel}
             </Link>
         </p>

@@ -7,29 +7,31 @@ interface ProfileStatsProps {
 }
 
 export function ProfileStats({ favoritesCount, swapsCount, booksCount }: ProfileStatsProps) {
+    const stats = [
+        { icon: <BookOpen size={16} />, value: booksCount,      label: 'Books Listed', color: 'var(--color-accent)' },
+        { icon: <ArrowLeftRight size={16} />, value: swapsCount, label: 'Swaps Done',   color: '#40916c' },
+        { icon: <Heart size={16} />, value: favoritesCount,     label: 'Favorites',    color: '#c0392b' },
+    ];
+
     return (
-        <div className="mt-6 grid grid-cols-3 gap-4">
-            <div className="rounded-xl bg-[var(--color-surface-alt)] p-4 text-center">
-                <div className="flex items-center justify-center text-[var(--color-accent)]">
-                    <BookOpen className="h-5 w-5" />
+        <div style={{ marginTop: '16px', display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px' }}>
+            {stats.map(({ icon, value, label, color }) => (
+                <div key={label} style={{
+                    borderRadius: '16px', padding: '14px',
+                    textAlign: 'center',
+                    background: 'var(--lib-stats)',
+                    border: '1px solid var(--lib-border)',
+                }}>
+                    <div style={{ display: 'flex', justifyContent: 'center', color, marginBottom: '4px' }}>
+                        {icon}
+                    </div>
+                    <p className="font-['Playfair_Display']"
+                       style={{ fontSize: '20px', fontWeight: 700, color: 'var(--lib-text)' }}>
+                        {value}
+                    </p>
+                    <p style={{ fontSize: '11px', color: 'var(--lib-text-faint)', marginTop: '1px' }}>{label}</p>
                 </div>
-                <p className="mt-1 text-2xl font-bold text-[var(--color-text)]">{booksCount}</p>
-                <p className="text-xs text-[var(--color-text-muted)]">Books Listed</p>
-            </div>
-            <div className="rounded-xl bg-[var(--color-surface-alt)] p-4 text-center">
-                <div className="flex items-center justify-center text-[var(--color-accent)]">
-                    <ArrowLeftRight className="h-5 w-5" />
-                </div>
-                <p className="mt-1 text-2xl font-bold text-[var(--color-text)]">{swapsCount}</p>
-                <p className="text-xs text-[var(--color-text-muted)]">Swaps Done</p>
-            </div>
-            <div className="rounded-xl bg-[var(--color-surface-alt)] p-4 text-center">
-                <div className="flex items-center justify-center text-red-500">
-                    <Heart className="h-5 w-5" />
-                </div>
-                <p className="mt-1 text-2xl font-bold text-[var(--color-text)]">{favoritesCount}</p>
-                <p className="text-xs text-[var(--color-text-muted)]">Favorites</p>
-            </div>
+            ))}
         </div>
     );
 }

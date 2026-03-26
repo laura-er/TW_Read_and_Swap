@@ -15,25 +15,34 @@ export function ProfileTabs({ active, onChange }: ProfileTabsProps) {
     const unread = getUnreadCount(user?.id ?? 'user1');
 
     return (
-        <div className="flex items-center gap-1 border-b border-[var(--color-border)]">
+        <div style={{ display: 'flex', padding: '4px', gap: '2px' }}>
             {PROFILE_TABS.map((tab) => (
                 <button
                     key={tab}
                     onClick={() => onChange(tab)}
-                    className={`relative flex items-center gap-1.5 px-5 py-3 text-sm font-medium transition-colors ${
-                        active === tab
-                            ? 'text-[var(--color-accent)]'
-                            : 'text-[var(--color-text-muted)] hover:text-[var(--color-text)]'
-                    }`}
+                    style={{
+                        flex: 1, position: 'relative',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '5px',
+                        padding: '8px 12px',
+                        borderRadius: '14px',
+                        fontSize: '12px', fontWeight: 600,
+                        border: 'none', cursor: 'pointer',
+                        transition: 'all 0.15s',
+                        background: active === tab ? 'var(--color-accent)' : 'transparent',
+                        color: active === tab ? 'white' : 'var(--lib-text-muted)',
+                    }}
                 >
                     {tab}
                     {tab === 'Messages' && unread > 0 && (
-                        <span className="inline-flex items-center justify-center w-4 h-4 rounded-full bg-[var(--color-accent)] text-white text-[10px] font-bold">
+                        <span style={{
+                            display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+                            width: '16px', height: '16px', borderRadius: '50%',
+                            background: active === tab ? 'white' : 'var(--color-accent)',
+                            color: active === tab ? 'var(--color-accent)' : 'white',
+                            fontSize: '9px', fontWeight: 700,
+                        }}>
                             {unread}
                         </span>
-                    )}
-                    {active === tab && (
-                        <span className="absolute inset-x-0 bottom-0 h-0.5 rounded-full bg-[var(--color-accent)]" />
                     )}
                 </button>
             ))}

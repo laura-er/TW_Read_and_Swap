@@ -14,7 +14,7 @@ export function FavoritesSearch({
                                     totalCount,
                                 }: FavoritesSearchProps) {
     return (
-        <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between p-4 rounded-[18px]" style={{ background: "var(--lib-card)", border: "1px solid var(--lib-border)", backdropFilter: "blur(16px)" }}>
             <div className="relative sm:w-72">
                 <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--color-text-muted)]" />
                 <input
@@ -22,7 +22,7 @@ export function FavoritesSearch({
                     placeholder="Search favorites..."
                     value={search}
                     onChange={(e) => onSearchChange(e.target.value)}
-                    className="w-full rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] py-2 pl-9 pr-4 text-sm text-[var(--color-text)] placeholder:text-[var(--color-text-muted)] focus:outline-none focus:ring-2 focus:ring-[var(--color-accent)]/30"
+                    className="w-full rounded-[12px] border py-2 pl-9 pr-4 text-sm focus:outline-none" style={{ background: "var(--lib-stats)", border: "1px solid var(--lib-border)", color: "var(--lib-text)" }}
                 />
             </div>
             <div className="flex items-center gap-3 text-xs text-[var(--color-text-muted)]">
