@@ -20,6 +20,7 @@ const CURRENT_USER_ID = 'user1';
 
 export function ProfilePage() {
     const { user } = useAuth();
+    const isAdmin = user?.role === 'admin';
     const { swaps } = useSwaps();
     const [searchParams] = useSearchParams();
     const tabParam = searchParams.get('tab');
@@ -34,6 +35,12 @@ export function ProfilePage() {
     );
 
     useEffect(() => {
+        if (tabParam) {
+            const resolved = (tabParam.charAt(0).toUpperCase() + tabParam.slice(1)) as ProfileTab;
+            setActiveTab(resolved);
+        } else {
+            setActiveTab('Favorites');
+        }
         if (tabParam === 'favorites' && tabsRef.current) {
             setTimeout(() => {
                 tabsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -74,33 +81,60 @@ export function ProfilePage() {
                      style={{ border: '1px solid var(--lib-border)', backdropFilter: 'blur(20px)' }}>
                     <ProfileBanner user={user} isOwnProfile={true} />
                     <div style={{ background: 'var(--lib-card)', padding: '0 20px 20px' }}>
-                        <ProfileStats
-                            favoritesCount={favorites.length}
-                            swapsCount={swaps.filter((s) => s.status === 'completed').length}
-                            booksCount={userBooks.length}
-                        />
+                        {isAdmin ? (
+                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px', padding: '16px 0 4px' }}>
+                                {[
+                                    { to: '/admin/books-users', icon: '📚', label: 'Manage Books', desc: 'View & edit all books' },
+                                    { to: '/admin/books-users?tab=users', icon: '👥', label: 'Manage Users', desc: 'Ban, delete, manage roles' },
+                                    { to: '/admin/reports', icon: '🚩', label: 'Reports', desc: 'Review user reports' },
+                                ].map(({ to, icon, label, desc }) => (
+                                    <Link key={label} to={to} style={{
+                                        display: 'flex', flexDirection: 'column', alignItems: 'center',
+                                        gap: '8px', padding: '20px 16px', borderRadius: '16px',
+                                        background: 'var(--lib-stats)', border: '1px solid var(--lib-border)',
+                                        textDecoration: 'none', transition: 'all 0.15s',
+                                        cursor: 'pointer',
+                                    }}
+                                          onMouseEnter={e => (e.currentTarget.style.border = '1px solid var(--color-accent)')}
+                                          onMouseLeave={e => (e.currentTarget.style.border = '1px solid var(--lib-border)')}
+                                    >
+                                        <span style={{ fontSize: '28px' }}>{icon}</span>
+                                        <div style={{ textAlign: 'center' }}>
+                                            <p style={{ fontSize: '13px', fontWeight: 700, color: 'var(--lib-text)', marginBottom: '2px' }}>{label}</p>
+                                            <p style={{ fontSize: '11px', color: 'var(--lib-text-faint)' }}>{desc}</p>
+                                        </div>
+                                    </Link>
+                                ))}
+                            </div>
+                        ) : (
+                            <ProfileStats
+                                favoritesCount={favorites.length}
+                                swapsCount={swaps.filter((s) => s.status === 'completed').length}
+                                booksCount={userBooks.length}
+                            />
+                        )}
                     </div>
                 </div>
 
                 {/* Tabs */}
-                <div className="mb-4 rounded-[20px] overflow-hidden shadow-lg"
-                     style={{
-                         background: 'var(--lib-card)',
-                         border: '1px solid var(--lib-border)',
-                         backdropFilter: 'blur(20px)',
-                     }}
-                     ref={tabsRef}>
+                {!isAdmin && <div className="mb-4 rounded-[20px] overflow-hidden shadow-lg"
+                                  style={{
+                                      background: 'var(--lib-card)',
+                                      border: '1px solid var(--lib-border)',
+                                      backdropFilter: 'blur(20px)',
+                                  }}
+                                  ref={tabsRef}>
                     <ProfileTabs active={activeTab} onChange={setActiveTab} />
-                </div>
+                </div>}
 
                 {/* Tab content */}
-                {activeTab === 'Favorites' && (
+                {!isAdmin && activeTab === 'Favorites' && (
                     <div id="favorites-section">
                         <FavoritesTab favorites={favorites} onRemove={(id) => toggleFavorite(id)} />
                     </div>
                 )}
 
-                {activeTab === 'My Books' && (
+                {!isAdmin && activeTab === 'My Books' && (
                     userBooks.length === 0 ? (
                         <ProfileEmptyState
                             icon={<BookOpen className="h-12 w-12" />}
@@ -151,11 +185,11 @@ export function ProfilePage() {
                     )
                 )}
 
-                {activeTab === 'Swap History' && (
+                {!isAdmin && activeTab === 'Swap History' && (
                     <SwapHistoryTab swaps={swaps} currentUserId={CURRENT_USER_ID} />
                 )}
 
-                {activeTab === 'Messages' && <MessagesTab />}
+                {!isAdmin && activeTab === 'Messages' && <MessagesTab />}
             </div>
         </div>
     );

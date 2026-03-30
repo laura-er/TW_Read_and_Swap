@@ -34,12 +34,12 @@ export function RequestSwapPage() {
         <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6">
             <Link
                 to={`/books/${id}`}
-                className="inline-flex items-center gap-2 text-(--color-text) hover:text-(--color-accent) mb-8 px-4 py-3 bg-(--color-surface) backdrop-blur-xl rounded-xl shadow-lg hover:shadow-xl border border-(--color-border) transition-all duration-300 hover:-translate-y-0.5 group"
+                className="inline-flex items-center gap-1.5 text-sm text-(--color-text-muted) hover:text-(--color-text) mb-8 transition-colors group"
             >
-                <svg className="w-4 h-4 group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
                 </svg>
-                <span className="font-semibold">Back to Book Details</span>
+                <span>Back to Book Details</span>
             </Link>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">

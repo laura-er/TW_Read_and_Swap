@@ -131,11 +131,10 @@ export function Navbar() {
 
                             <div className="py-1.5 px-1.5">
                               {[
-                                { to: '/profile', icon: '👤', label: 'My Profile' },
+                                { to: '/profile?tab=Favorites', icon: '👤', label: 'My Profile' },
+                                ...(!isAdmin ? [{ to: '/swaps', icon: '🔄', label: 'My Swaps' }] : []),
                                 { to: '/profile/edit', icon: '✏️', label: 'Edit Profile' },
                                 ...(!isAdmin ? [
-                                  { to: '/profile?tab=favorites#favorites-section', icon: '❤️', label: 'Favorites' },
-                                  { to: '/swaps', icon: '🔄', label: 'My Swaps' },
                                   { to: '/profile/share', icon: '🔗', label: 'Share Profile' },
                                 ] : []),
                                 ...(isAdmin ? [{ to: '/admin', icon: '🔧', label: 'Admin Dashboard', accent: true }] : []),
