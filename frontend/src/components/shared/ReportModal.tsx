@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import ReactDOM from 'react-dom';
 import { Flag } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { useReports } from '@/context/ReportsContext';
@@ -52,7 +53,7 @@ export function ReportModal({ targetId, targetName, type, onClose }: ReportModal
     }
 
     if (submitted) {
-        return (
+        return ReactDOM.createPortal(
             <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
                 <div className="bg-[var(--color-surface)] rounded-2xl shadow-xl w-full max-w-sm mx-4 p-8 flex flex-col items-center gap-4 text-center">
                     <span className="text-5xl">✅</span>
@@ -62,11 +63,12 @@ export function ReportModal({ targetId, targetName, type, onClose }: ReportModal
                     </p>
                     <Button variant="primary" size="sm" onClick={onClose}>Close</Button>
                 </div>
-            </div>
+            </div>,
+            document.body
         );
     }
 
-    return (
+    return ReactDOM.createPortal(
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
             <div className="bg-[var(--color-surface)] rounded-2xl shadow-xl w-full max-w-md mx-4 p-6 flex flex-col gap-4">
                 <div className="flex items-center gap-3">
@@ -130,6 +132,7 @@ export function ReportModal({ targetId, targetName, type, onClose }: ReportModal
                     </Button>
                 </div>
             </div>
-        </div>
+        </div>,
+        document.body
     );
 }

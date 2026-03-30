@@ -1,3 +1,5 @@
+import { useState, useRef, useEffect, useCallback } from 'react';
+import ReactDOM from 'react-dom';
 import { Input } from '@/components/ui/Input';
 import type { BookCondition, BookGenre } from '@/types';
 
@@ -38,6 +40,82 @@ interface AddBookFormProps {
     onChange: (updated: Partial<AddBookFields>) => void;
 }
 
+
+function GenreDropdown({ value, options, onChange }: {
+    value: string;
+    options: { value: string; label: string }[];
+    onChange: (v: string) => void;
+}) {
+    const [open, setOpen] = useState(false);
+    const [menuPos, setMenuPos] = useState({ top: 0, left: 0, width: 0 });
+    const buttonRef = useRef<HTMLButtonElement>(null);
+    const menuRef = useRef<HTMLDivElement>(null);
+
+    const updatePos = useCallback(() => {
+        if (buttonRef.current) {
+            const rect = buttonRef.current.getBoundingClientRect();
+            setMenuPos({ top: rect.bottom + window.scrollY, left: rect.left + window.scrollX, width: rect.width });
+        }
+    }, []);
+
+    useEffect(() => {
+        if (!open) return;
+        function handleClick(e: MouseEvent) {
+            if (menuRef.current && !menuRef.current.contains(e.target as Node) &&
+                buttonRef.current && !buttonRef.current.contains(e.target as Node)) setOpen(false);
+        }
+        document.addEventListener('mousedown', handleClick);
+        return () => document.removeEventListener('mousedown', handleClick);
+    }, [open]);
+
+    const selected = options.find(o => o.value === value);
+
+    const menu = open ? ReactDOM.createPortal(
+        <div ref={menuRef} style={{
+            position: 'absolute', top: menuPos.top, left: menuPos.left, width: menuPos.width,
+            background: 'var(--color-surface)', border: '1px solid var(--color-border)',
+            borderRadius: '8px', boxShadow: '0 4px 16px rgba(0,0,0,0.10)',
+            zIndex: 99999, padding: '4px', fontFamily: 'inherit',
+        }}>
+            {options.map(opt => (
+                <button key={opt.value} type="button"
+                        onMouseDown={e => { e.preventDefault(); onChange(opt.value); setOpen(false); }}
+                        style={{
+                            display: 'block', width: '100%', textAlign: 'left',
+                            padding: '5px 10px', fontSize: '0.875rem', fontFamily: 'inherit', fontWeight: 400,
+                            color: 'var(--color-text)',
+                            background: opt.value === value ? 'rgba(0,0,0,0.07)' : 'transparent',
+                            border: 'none', borderRadius: '6px', cursor: 'pointer',
+                        }}
+                        onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.background = 'rgba(0,0,0,0.05)'; }}
+                        onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = opt.value === value ? 'rgba(0,0,0,0.07)' : 'transparent'; }}
+                >{opt.label}</button>
+            ))}
+        </div>, document.body
+    ) : null;
+
+    return (
+        <div style={{ position: 'relative' }}>
+            <button ref={buttonRef} type="button"
+                    onClick={() => { updatePos(); setOpen(o => !o); }}
+                    className="w-full rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] px-3 py-2 text-sm text-[var(--color-text)] outline-none transition-all"
+                    style={{
+                        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                        fontFamily: 'inherit', fontWeight: 400, cursor: 'pointer',
+                        borderColor: open ? 'var(--color-accent)' : undefined,
+                        boxShadow: open ? '0 0 0 2px color-mix(in srgb, var(--color-accent) 20%, transparent)' : 'none',
+                    }}>
+                <span>{selected?.label}</span>
+                <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                     style={{ transform: open ? 'rotate(180deg)' : 'none', transition: 'transform 0.15s', color: 'var(--color-text-muted)', flexShrink: 0 }}>
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+            </button>
+            {menu}
+        </div>
+    );
+}
+
 export function AddBookForm({ fields, errors, onChange }: AddBookFormProps) {
     const handleBlur = (field: keyof Pick<AddBookFields, 'title' | 'author' | 'coverUrl'>) =>
         (e: React.FocusEvent<HTMLInputElement>) => {
@@ -71,15 +149,11 @@ export function AddBookForm({ fields, errors, onChange }: AddBookFormProps) {
 
             <div className="flex flex-col gap-1.5">
                 <label className="text-sm font-medium text-[var(--color-text)]">Genre</label>
-                <select
+                <GenreDropdown
                     value={fields.genre}
-                    onChange={(e) => onChange({ genre: e.target.value as BookGenre })}
-                    className="w-full rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] px-3 py-2 text-sm text-[var(--color-text)] outline-none focus:border-[var(--color-accent)] focus:ring-2 focus:ring-[var(--color-accent)]/20 transition-all"
-                >
-                    {GENRES.map(({ value, label }) => (
-                        <option key={value} value={value}>{label}</option>
-                    ))}
-                </select>
+                    options={GENRES}
+                    onChange={(v) => onChange({ genre: v as BookGenre })}
+                />
             </div>
 
             <div className="flex flex-col gap-2">

@@ -1,3 +1,5 @@
+import { useState, useRef, useEffect, useCallback } from 'react';
+import ReactDOM from 'react-dom';
 import type { BookCondition, BookGenre } from '@/types';
 
 const GENRES: Array<'All' | BookGenre> = [
@@ -18,26 +20,162 @@ interface CatalogFiltersProps {
     onClearFilters: () => void;
 }
 
-const selectStyle: React.CSSProperties = {
-    height: '100%',
-    appearance: 'none',
-    background: 'var(--navbar-bg)',
-    border: '1px solid var(--navbar-border)',
-    color: 'var(--navbar-text)',
-    padding: '10px 32px 10px 14px',
-    fontSize: '13px',
-    fontWeight: 500,
-    outline: 'none',
-    cursor: 'pointer',
-    backdropFilter: 'blur(12px)',
-};
+interface CustomDropdownProps {
+    value: string;
+    options: string[];
+    getLabel: (v: string) => string;
+    onChange: (v: string) => void;
+    minWidth?: string; // fix width so button doesn't shrink on short values
+}
+
+function CustomDropdown({ value, options, getLabel, onChange, minWidth }: CustomDropdownProps) {
+    const [open, setOpen] = useState(false);
+    const [menuPos, setMenuPos] = useState({ top: 0, left: 0, width: 0 });
+    const buttonRef = useRef<HTMLButtonElement>(null);
+    const menuRef = useRef<HTMLDivElement>(null);
+
+    const updatePos = useCallback(() => {
+        if (buttonRef.current) {
+            const rect = buttonRef.current.getBoundingClientRect();
+            setMenuPos({
+                top: rect.bottom + window.scrollY,
+                left: rect.left + window.scrollX,
+                width: rect.width,
+            });
+        }
+    }, []);
+
+    const handleOpen = () => {
+        updatePos();
+        setOpen(o => !o);
+    };
+
+    useEffect(() => {
+        if (!open) return;
+        function handleClickOutside(e: MouseEvent) {
+            if (
+                menuRef.current && !menuRef.current.contains(e.target as Node) &&
+                buttonRef.current && !buttonRef.current.contains(e.target as Node)
+            ) {
+                setOpen(false);
+            }
+        }
+        function handleScroll() { updatePos(); }
+        document.addEventListener('mousedown', handleClickOutside);
+        window.addEventListener('scroll', handleScroll, true);
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+            window.removeEventListener('scroll', handleScroll, true);
+        };
+    }, [open, updatePos]);
+
+    const menu = open ? ReactDOM.createPortal(
+        <div
+            ref={menuRef}
+            style={{
+                position: 'absolute',
+                top: menuPos.top,
+                left: menuPos.left,
+                width: menuPos.width,
+                // solid equivalent of rgba(238,225,205,0.82) on #faf8f5 — matches bar color
+                background: '#eee1cd',
+                border: '1px solid var(--navbar-border)',
+                borderRadius: '8px',
+                boxShadow: '0 4px 16px rgba(0,0,0,0.10)',
+                zIndex: 99999,
+                padding: '4px',
+                overflow: 'hidden',
+                fontFamily: 'inherit',
+            }}
+        >
+            {options.map(opt => (
+                <button
+                    key={opt}
+                    type="button"
+                    onMouseDown={e => {
+                        e.preventDefault();
+                        onChange(opt);
+                        setOpen(false);
+                    }}
+                    style={{
+                        display: 'block',
+                        width: '100%',
+                        textAlign: 'left',
+                        padding: '3px 10px',
+                        fontSize: '13px',
+                        fontFamily: 'inherit',
+                        fontWeight: 400,
+                        color: 'var(--navbar-text, #1c1510)',
+                        background: opt === value ? 'rgba(0,0,0,0.09)' : 'transparent',
+                        border: 'none',
+                        borderRadius: '6px',
+                        cursor: 'pointer',
+                    }}
+                    onMouseEnter={e => {
+                        (e.currentTarget as HTMLButtonElement).style.background = 'rgba(0,0,0,0.06)';
+                    }}
+                    onMouseLeave={e => {
+                        (e.currentTarget as HTMLButtonElement).style.background =
+                            opt === value ? 'rgba(0,0,0,0.09)' : 'transparent';
+                    }}
+                >
+                    {getLabel(opt)}
+                </button>
+            ))}
+        </div>,
+        document.body
+    ) : null;
+
+    return (
+        <div style={{ position: 'relative', flexShrink: 0, alignSelf: 'stretch', display: 'flex' }}>
+            <button
+                ref={buttonRef}
+                type="button"
+                onClick={handleOpen}
+                style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    background: 'var(--navbar-bg)',
+                    border: 'none',
+                    color: 'var(--navbar-text)',
+                    padding: '10px 32px 10px 14px',
+                    fontSize: '13px',
+                    fontFamily: 'inherit',
+                    fontWeight: 500,
+                    outline: 'none',
+                    cursor: 'pointer',
+                    backdropFilter: 'blur(12px)',
+                    whiteSpace: 'nowrap',
+                    // Fixed min-width prevents button from shrinking on short values like "new"
+                    minWidth: minWidth ?? 'auto',
+                    width: '100%',
+                    position: 'relative',
+                }}
+            >
+                {getLabel(value)}
+                <span style={{
+                    position: 'absolute',
+                    right: '10px',
+                    top: '50%',
+                    transform: `translateY(-50%) rotate(${open ? '180deg' : '0deg'})`,
+                    transition: 'transform 0.15s',
+                    pointerEvents: 'none',
+                    color: 'var(--navbar-text-muted)',
+                }}>
+                    <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    </svg>
+                </span>
+            </button>
+            {menu}
+        </div>
+    );
+}
 
 const inputStyle: React.CSSProperties = {
     flex: 1,
     background: 'var(--navbar-bg)',
-    border: '1px solid var(--navbar-border)',
-    borderLeft: 'none',
-    borderRight: 'none',
+    border: 'none',
     color: 'var(--navbar-text)',
     padding: '10px 14px',
     fontSize: '13px',
@@ -55,54 +193,47 @@ export function CatalogFilters({
     return (
         <div className="mb-8 flex flex-col gap-3">
 
-            {/* Search bar */}
             <div style={{
                 display: 'flex',
                 borderRadius: '16px',
-                overflow: 'hidden',
                 boxShadow: '0 4px 20px rgba(0,0,0,0.06)',
                 border: '1px solid var(--navbar-border)',
+                overflow: 'hidden',
             }}>
-                {/* Genre */}
-                <div style={{ position: 'relative', flexShrink: 0 }}>
-                    <select value={selectedGenre} onChange={e => onGenreChange(e.target.value)}
-                            style={{ ...selectStyle, borderRadius: 0, borderTop: 'none', borderBottom: 'none', borderLeft: 'none' }}>
-                        {GENRES.map(g => (
-                            <option key={g} value={g}>{g === 'All' ? 'All Genres' : g}</option>
-                        ))}
-                    </select>
-                    <span style={{ position: 'absolute', right: '10px', top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none', color: 'var(--navbar-text-muted)' }}>
-            <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-            </svg>
-          </span>
-                </div>
+                {/* Genre dropdown — wide enough for "All Genres" */}
+                <CustomDropdown
+                    value={selectedGenre}
+                    options={GENRES as string[]}
+                    getLabel={v => v === 'All' ? 'All Genres' : v}
+                    onChange={onGenreChange}
+                    minWidth="120px"
+                />
 
-                {/* Input */}
+                <div style={{ width: '1px', background: 'var(--navbar-border)', flexShrink: 0 }} />
+
                 <input
-                    type="search" value={searchTerm} onChange={e => onSearchChange(e.target.value)}
+                    type="search"
+                    value={searchTerm}
+                    onChange={e => onSearchChange(e.target.value)}
                     placeholder="Search by title or author..."
                     style={inputStyle}
                     onFocus={e => { e.currentTarget.style.background = 'var(--color-surface)'; }}
                     onBlur={e => { e.currentTarget.style.background = 'var(--navbar-bg)'; }}
                 />
 
-                {/* Condition */}
-                <div style={{ position: 'relative', flexShrink: 0 }}>
-                    <select value={selectedCondition} onChange={e => onConditionChange(e.target.value)}
-                            style={{ ...selectStyle, borderRadius: 0, borderTop: 'none', borderBottom: 'none', borderRight: 'none' }}>
-                        {CONDITIONS.map(c => (
-                            <option key={c} value={c}>{c === 'All' ? 'Any Condition' : c}</option>
-                        ))}
-                    </select>
-                    <span style={{ position: 'absolute', right: '10px', top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none', color: 'var(--navbar-text-muted)' }}>
-            <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-            </svg>
-          </span>
-                </div>
+                <div style={{ width: '1px', background: 'var(--navbar-border)', flexShrink: 0 }} />
 
-                {/* Search btn */}
+                {/* Condition dropdown — fixed min-width = "Any Condition" width */}
+                <CustomDropdown
+                    value={selectedCondition}
+                    options={CONDITIONS as string[]}
+                    getLabel={v => v === 'All' ? 'Any Condition' : v}
+                    onChange={onConditionChange}
+                    minWidth="130px"
+                />
+
+                <div style={{ width: '1px', background: 'var(--navbar-border)', flexShrink: 0 }} />
+
                 <button type="button" style={{
                     flexShrink: 0, display: 'flex', alignItems: 'center', gap: '6px',
                     padding: '10px 18px', background: 'var(--color-accent)',
@@ -116,7 +247,6 @@ export function CatalogFilters({
                 </button>
             </div>
 
-            {/* Secondary row */}
             <div className="flex items-center gap-2">
                 <button onClick={onAvailableToggle}
                         style={{
