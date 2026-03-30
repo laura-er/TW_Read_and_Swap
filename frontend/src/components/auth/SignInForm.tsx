@@ -2,6 +2,7 @@
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 import { useTheme } from '@/context/ThemeContext';
+import axiosInstance from '@/api/axiosInstance';
 
 export function SignInForm() {
     const { login } = useAuth();
@@ -40,17 +41,31 @@ export function SignInForm() {
         e.preventDefault();
         const email = emailRef.current?.value ?? '';
         const password = passwordRef.current?.value ?? '';
-        setError(''); setIsLoading(true);
+        setError('');
+        setIsLoading(true);
         try {
-            if (email && password) {
-                const isAdmin = email === 'admin@test.com';
-                login({ id: isAdmin ? 'admin1' : 'user1', name: isAdmin ? 'Admin' : 'User',
-                    email, role: isAdmin ? 'admin' : 'user', username: isAdmin ? 'admin' : 'user',
-                    avatarUrl: '', bio: '', location: '', joinedAt: new Date().toISOString() });
-                navigate(isAdmin ? '/admin' : '/');
-            } else { setError('Please fill in all fields.'); }
-        } catch { setError('Invalid email or password.'); }
-        finally { setIsLoading(false); }
+            const response = await axiosInstance.post('/api/users/login', {
+                email,
+                password
+            });
+            const userData = response.data;
+            login({
+                id: String(userData.id),
+                name: userData.firstName,
+                email: userData.email,
+                role: userData.role,
+                username: userData.username,
+                avatarUrl: '',
+                bio: '',
+                location: '',
+                joinedAt: userData.createdAt
+            });
+            navigate(userData.role === 'admin' ? '/admin' : '/');
+        } catch {
+            setError('Invalid email or password.');
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     return (
@@ -92,25 +107,7 @@ export function SignInForm() {
             }}>
                 {isLoading ? 'Signing in...' : 'Sign in →'}
             </button>
-
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <div style={{ flex: 1, height: '1px', background: isDark ? 'rgba(180,120,40,0.15)' : 'rgba(180,140,60,0.25)' }} />
-                <span style={{ fontSize: '10px', color: isDark ? '#5a4020' : '#8a6830' }}>or</span>
-                <div style={{ flex: 1, height: '1px', background: isDark ? 'rgba(180,120,40,0.15)' : 'rgba(180,140,60,0.25)' }} />
-            </div>
-
-            <button type="button" onClick={() => {
-                login({ id: 'admin1', name: 'Admin', email: 'admin@readandswap.com', role: 'admin',
-                    username: 'admin', avatarUrl: '', bio: '', location: '', joinedAt: new Date().toISOString() });
-                navigate('/admin');
-            }} style={{
-                width: '100%', padding: '8px', borderRadius: '10px',
-                border: isDark ? '1px dashed rgba(180,120,40,0.2)' : '1px dashed rgba(180,140,60,0.3)',
-                background: 'transparent', fontSize: '11px', cursor: 'pointer',
-                color: isDark ? '#5a4020' : '#8a6830',
-            }}>
-                🔧 Admin (dev only)
-            </button>
         </form>
     );
 }
+

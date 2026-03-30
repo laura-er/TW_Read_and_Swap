@@ -17,5 +17,10 @@ public class BusinessLogic
     {
         return new UserLogic(_context);
     }
+
+    public IBookLogic GetBookLogic()
+    {
+        return new BookLogic(_context);
+    }
 }
 

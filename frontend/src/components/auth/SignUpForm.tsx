@@ -1,16 +1,16 @@
 ﻿import { useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '@/context/AuthContext';
 import { useTheme } from '@/context/ThemeContext';
+import axiosInstance from '@/api/axiosInstance';
 
 export function SignUpForm() {
-    const { login } = useAuth();
     const { isDark } = useTheme();
     const navigate = useNavigate();
 
-    const nameRef = useRef<HTMLInputElement>(null);
+    const firstNameRef = useRef<HTMLInputElement>(null);
     const usernameRef = useRef<HTMLInputElement>(null);
     const emailRef = useRef<HTMLInputElement>(null);
+    const phoneRef = useRef<HTMLInputElement>(null);
     const passwordRef = useRef<HTMLInputElement>(null);
     const confirmRef = useRef<HTMLInputElement>(null);
 
@@ -41,21 +41,33 @@ export function SignUpForm() {
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault(); setError('');
-        const name = nameRef.current?.value ?? '';
+        e.preventDefault();
+        setError('');
+        const firstName = firstNameRef.current?.value ?? '';
         const username = usernameRef.current?.value ?? '';
         const email = emailRef.current?.value ?? '';
+        const phone = phoneRef.current?.value ?? '';
         const password = passwordRef.current?.value ?? '';
         const confirm = confirmRef.current?.value ?? '';
+
         if (password.length < 8) { setError('Min. 8 characters.'); return; }
         if (password !== confirm) { setError('Passwords do not match.'); return; }
+
         setIsLoading(true);
         try {
-            login({ id: '1', name, email, role: 'user', username,
-                avatarUrl: '', bio: '', location: '', joinedAt: new Date().toISOString() });
+            await axiosInstance.post('/api/users/register', {
+                firstName,
+                username,
+                email,
+                phone,
+                password
+            });
             navigate('/sign-in');
-        } catch { setError('Something went wrong.'); }
-        finally { setIsLoading(false); }
+        } catch {
+            setError('Email already in use or something went wrong.');
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     const Field = ({ label, r, type = 'text', ph, toggle, show, onT }: {
@@ -85,11 +97,12 @@ export function SignUpForm() {
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '11px' }}>
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
-                <Field label="Full name" r={nameRef} ph="Jane Doe" />
+                <Field label="First Name" r={firstNameRef} ph="Jane" />
                 <Field label="Username" r={usernameRef} ph="janedoe" />
             </div>
 
             <Field label="Email" r={emailRef} type="email" ph="you@example.com" />
+            <Field label="Phone" r={phoneRef} ph="069123456" />
             <Field label="Password" r={passwordRef} ph="Min. 8 chars"
                    toggle show={showPass} onT={() => setShowPass(p => !p)} />
             <Field label="Confirm" r={confirmRef} ph="Repeat password"
@@ -117,3 +130,4 @@ export function SignUpForm() {
         </form>
     );
 }
+
