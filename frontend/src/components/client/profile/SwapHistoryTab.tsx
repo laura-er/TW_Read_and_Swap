@@ -9,7 +9,7 @@ interface SwapHistoryTabProps {
 }
 
 export function SwapHistoryTab({ swaps, currentUserId }: SwapHistoryTabProps) {
-    const completed = swaps.filter((s) => s.status === 'completed');
+    const completed = swaps.filter((s) => s.status === 'accepted' || s.status === 'completed');
 
     if (completed.length === 0) {
         return (
@@ -32,7 +32,7 @@ export function SwapHistoryTab({ swaps, currentUserId }: SwapHistoryTabProps) {
                 const otherUser = isOwner ? swap.requester : swap.owner;
 
                 return (
-                    <div key={swap.id} className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)] p-5">
+                    <div key={swap.id} className="rounded-2xl p-5" style={{background: "var(--lib-card)", border: "1px solid var(--lib-border)", backdropFilter: "blur(16px)"}}>
                         <div className="flex items-center justify-between mb-4">
                             <div className="flex items-center gap-3">
                                 <Avatar src={otherUser.avatarUrl} name={otherUser.name} size="sm" />
@@ -47,7 +47,7 @@ export function SwapHistoryTab({ swaps, currentUserId }: SwapHistoryTabProps) {
                         </div>
 
                         <div className="flex items-center gap-3">
-                            <Link to={`/books/${swap.bookRequested.id}`} className="flex-1 flex items-center gap-3 p-3 rounded-xl bg-[var(--color-surface-alt)] hover:border-[var(--color-accent)] border border-transparent transition-all">
+                            <Link to={`/books/${swap.bookRequested.id}`} className="flex-1 flex items-center gap-3 p-3 rounded-xl hover:border-[var(--color-accent)] border border-transparent transition-all" style={{background: "var(--lib-stats)"}}>
                                 <img src={swap.bookRequested.coverUrl} alt={swap.bookRequested.title} className="w-9 h-12 object-cover rounded-lg" />
                                 <div className="min-w-0">
                                     <p className="text-xs text-[var(--color-text-muted)] mb-0.5">{isOwner ? 'You gave:' : 'You received:'}</p>
@@ -60,7 +60,7 @@ export function SwapHistoryTab({ swaps, currentUserId }: SwapHistoryTabProps) {
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
                             </svg>
 
-                            <Link to={`/books/${swap.bookOffered.id}`} className="flex-1 flex items-center gap-3 p-3 rounded-xl bg-[var(--color-surface-alt)] hover:border-[var(--color-accent)] border border-transparent transition-all">
+                            <Link to={`/books/${swap.bookOffered.id}`} className="flex-1 flex items-center gap-3 p-3 rounded-xl hover:border-[var(--color-accent)] border border-transparent transition-all" style={{background: "var(--lib-stats)"}}>
                                 <img src={swap.bookOffered.coverUrl} alt={swap.bookOffered.title} className="w-9 h-12 object-cover rounded-lg" />
                                 <div className="min-w-0">
                                     <p className="text-xs text-[var(--color-text-muted)] mb-0.5">{isOwner ? 'You received:' : 'You gave:'}</p>

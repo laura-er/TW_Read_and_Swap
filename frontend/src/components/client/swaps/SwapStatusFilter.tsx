@@ -10,7 +10,6 @@ interface SwapStatusFilterProps {
 const filters: { key: FilterStatus; label: string; activeColor: string }[] = [
     { key: 'all',      label: 'All',      activeColor: 'var(--color-accent)' },
     { key: 'pending',  label: 'Pending',  activeColor: '#e8924a' },
-    { key: 'accepted', label: 'Accepted', activeColor: '#40916c' },
     { key: 'declined', label: 'Declined', activeColor: '#c0392b' },
 ];
 

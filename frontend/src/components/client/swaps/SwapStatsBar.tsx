@@ -1,14 +1,14 @@
 ﻿interface SwapStatsBarProps {
     receivedCount: number;
     sentCount: number;
-    pendingCount: number;
+    completedCount: number;
 }
 
-export function SwapStatsBar({ receivedCount, sentCount, pendingCount }: SwapStatsBarProps) {
+export function SwapStatsBar({ receivedCount, sentCount, completedCount }: SwapStatsBarProps) {
     const stats = [
         { label: 'Received', value: receivedCount, color: '#4a90d9' },
         { label: 'Sent',     value: sentCount,     color: '#40916c' },
-        { label: 'Pending',  value: pendingCount,  color: 'var(--color-accent)' },
+        { label: 'Accepted',  value: completedCount, color: 'var(--color-accent)' },
     ];
 
     return (
