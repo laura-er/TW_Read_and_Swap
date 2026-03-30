@@ -14,6 +14,9 @@ export function ProfileTabs({ active, onChange }: ProfileTabsProps) {
     const { getUnreadCount } = useNotifications();
     const unread = getUnreadCount(user?.id ?? 'user1');
 
+    const isAdmin = user?.role === 'admin';
+    if (isAdmin) return null;
+
     return (
         <div style={{ display: 'flex', padding: '4px', gap: '2px' }}>
             {PROFILE_TABS.map((tab) => (

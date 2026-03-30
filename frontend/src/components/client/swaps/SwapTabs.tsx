@@ -12,7 +12,7 @@ export function SwapTabs({ activeTab, onTabChange, receivedCount, sentCount, com
     const tabs: { key: Tab; label: string; count: number; activeColor: string }[] = [
         { key: 'received',  label: 'Received', count: receivedCount,  activeColor: '#4a90d9' },
         { key: 'sent',      label: 'Sent',     count: sentCount,      activeColor: '#40916c' },
-        { key: 'completed', label: 'Completed',count: completedCount, activeColor: 'var(--color-accent)' },
+        { key: 'completed', label: 'Accepted', count: completedCount, activeColor: 'var(--color-accent)' },
     ];
 
     return (

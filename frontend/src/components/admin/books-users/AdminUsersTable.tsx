@@ -12,16 +12,16 @@ interface AdminUsersTableProps {
 export function AdminUsersTable({ users, onBan, onUnban, onDelete }: AdminUsersTableProps) {
     return (
         <div className="rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] overflow-hidden">
-            <table className="w-full text-sm">
+            <table className="w-full text-sm table-fixed">
                 <thead className="bg-[var(--color-surface-alt)]">
                 <tr>
-                    <th className="text-left px-4 py-3 text-xs font-medium text-[var(--color-text-muted)] uppercase tracking-wide">User</th>
-                    <th className="text-left px-4 py-3 text-xs font-medium text-[var(--color-text-muted)] uppercase tracking-wide">Role</th>
-                    <th className="text-left px-4 py-3 text-xs font-medium text-[var(--color-text-muted)] uppercase tracking-wide">Books</th>
-                    <th className="text-left px-4 py-3 text-xs font-medium text-[var(--color-text-muted)] uppercase tracking-wide">Swaps</th>
-                    <th className="text-left px-4 py-3 text-xs font-medium text-[var(--color-text-muted)] uppercase tracking-wide">Status</th>
-                    <th className="w-24 px-4 py-3"></th>
-                    <th className="w-24 px-4 py-3"></th>
+                    <th className="text-left px-4 py-3 text-xs font-medium text-[var(--color-text-muted)] uppercase tracking-wide w-[35%]">User</th>
+                    <th className="text-left px-4 py-3 text-xs font-medium text-[var(--color-text-muted)] uppercase tracking-wide w-[10%]">Role</th>
+                    <th className="text-left px-4 py-3 text-xs font-medium text-[var(--color-text-muted)] uppercase tracking-wide w-[10%]">Books</th>
+                    <th className="text-left px-4 py-3 text-xs font-medium text-[var(--color-text-muted)] uppercase tracking-wide w-[10%]">Swaps</th>
+                    <th className="text-left px-4 py-3 text-xs font-medium text-[var(--color-text-muted)] uppercase tracking-wide w-[12%]">Status</th>
+                    <th className="px-4 py-3 w-[10%]"></th>
+                    <th className="px-4 py-3 w-[13%]"></th>
                 </tr>
                 </thead>
                 <tbody>
@@ -43,7 +43,7 @@ export function AdminUsersTable({ users, onBan, onUnban, onDelete }: AdminUsersT
                                 {user.isBanned ? 'Banned' : 'Active'}
                             </Badge>
                         </td>
-                        <td className="w-24 px-4 py-3">
+                        <td className="w-28 px-4 py-3" style={{minWidth: "112px"}}>
                             {user.isBanned ? (
                                 <Button size="sm" variant="secondary" onClick={() => onUnban(user.id)}>Unban</Button>
                             ) : (

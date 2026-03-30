@@ -56,18 +56,18 @@ export function BookDetailPage() {
   const reviewCount = reviews.length + (book.reviewCount ?? 0);
 
   return (
-      <div className="bg-(--color-bg) min-h-screen">
+      <div className="min-h-screen">
         <div className="container mx-auto px-4 sm:px-6 py-8 pt-24 md:pt-10">
 
           <div className="flex items-center justify-between mb-8">
             <Link
                 to="/books"
-                className="inline-flex items-center gap-2 text-(--color-text) hover:text-(--color-accent) px-4 py-3 bg-(--color-surface) backdrop-blur-xl rounded-xl shadow-lg hover:shadow-xl border border-(--color-border) transition-all duration-300 hover:-translate-y-0.5 group"
+                className="inline-flex items-center gap-1.5 text-sm text-(--color-text-muted) hover:text-(--color-text) transition-colors group"
             >
-              <svg className="w-4 h-4 group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
               </svg>
-              <span className="font-semibold">Back to Books</span>
+              <span>Back to Books</span>
             </Link>
 
           </div>

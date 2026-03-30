@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { mockBooks } from '@/data/mockBooks';
 import { mockAdminUsers } from '@/data/mockAdminData';
 import type { Book } from '@/types';
@@ -22,7 +23,15 @@ function exportToCsv(filename: string, rows: string[][]): void {
 }
 
 export function AdminBooksUsersPage() {
-    const [activeTab, setActiveTab] = useState<ActiveTab>('books');
+    const [searchParams] = useSearchParams();
+    const [activeTab, setActiveTab] = useState<ActiveTab>(
+        searchParams.get('tab') === 'users' ? 'users' : 'books'
+    );
+
+    useEffect(() => {
+        if (searchParams.get('tab') === 'users') setActiveTab('users');
+        else setActiveTab('books');
+    }, [searchParams]);
     const [search, setSearch] = useState('');
     const [books, setBooks] = useState<Book[]>(mockBooks);
     const [users, setUsers] = useState<AdminUser[]>(mockAdminUsers);

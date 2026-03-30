@@ -133,7 +133,7 @@ export function SwapCard({ swap, currentUserId, onAccept, onDecline, onCancel }:
                 </div>
             )}
 
-            {swap.status === 'completed' && (
+            {(swap.status === 'accepted' || swap.status === 'completed') && (
                 <div style={{ display: 'flex', justifyContent: 'flex-end', paddingTop: '10px',
                     borderTop: '1px solid var(--navbar-border)' }}>
                     <button onClick={() => setShowReport(true)}

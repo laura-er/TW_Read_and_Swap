@@ -17,13 +17,13 @@ export function SwapRequestPage() {
     const [activeTab, setActiveTab] = useState<Tab>('received');
     const [filterStatus, setFilterStatus] = useState<FilterStatus>('all');
 
-    const received = swaps.filter((s) => s.ownerId === CURRENT_USER_ID && s.status !== 'completed');
-    const sent = swaps.filter((s) => s.requesterId === CURRENT_USER_ID && s.status !== 'completed');
+    const received = swaps.filter((s) => s.ownerId === CURRENT_USER_ID && (s.status === 'pending' || s.status === 'declined'));
+    const sent = swaps.filter((s) => s.requesterId === CURRENT_USER_ID && (s.status === 'pending' || s.status === 'declined'));
     const completed = swaps.filter(
-        (s) => s.status === 'completed' &&
+        (s) => s.status === 'accepted' &&
             (s.ownerId === CURRENT_USER_ID || s.requesterId === CURRENT_USER_ID)
     );
-    const pendingCount = swaps.filter((s) => s.status === 'pending').length;
+
 
     const activeList = activeTab === 'received' ? received
         : activeTab === 'sent' ? sent
@@ -42,7 +42,7 @@ export function SwapRequestPage() {
                 <p className="text-sm text-[var(--color-text-muted)]">Manage your book swap requests</p>
             </div>
 
-            <SwapStatsBar receivedCount={received.length} sentCount={sent.length} pendingCount={pendingCount} />
+            <SwapStatsBar receivedCount={received.length} sentCount={sent.length} completedCount={completed.length} />
             <SwapTabs
                 activeTab={activeTab}
                 onTabChange={setActiveTab}
