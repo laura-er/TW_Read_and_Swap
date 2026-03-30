@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState, useCallback } from 'react';
+import { createContext, useContext, useEffect, useState, useCallback, useRef } from 'react';
 import type { ReactNode } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axiosInstance from './axiosInstance';
@@ -13,12 +13,12 @@ const ApiContext = createContext<ApiContextValue | null>(null);
 export function ApiProvider({ children }: { children: ReactNode }) {
     const [isBackendUp, setIsBackendUp] = useState(true);
     const navigate = useNavigate();
+    const interceptorRef = useRef<number | null>(null);
 
     const checkHealth = useCallback(() => {
         axiosInstance.get('/api/health/check')
             .then(() => {
                 setIsBackendUp(true);
-                navigate('/');
             })
             .catch(() => {
                 setIsBackendUp(false);
@@ -28,18 +28,27 @@ export function ApiProvider({ children }: { children: ReactNode }) {
 
     useEffect(() => {
         checkHealth();
-    }, []);
 
-    axiosInstance.interceptors.response.use(
-        (response) => response,
-        (error) => {
-            if (!error.response) {
-                setIsBackendUp(false);
-                navigate('/500');
-            }
-            return Promise.reject(error);
+        if (interceptorRef.current === null) {
+            interceptorRef.current = axiosInstance.interceptors.response.use(
+                (response) => response,
+                (error) => {
+                    if (!error.response && !error.config?.url?.includes('/api/users')) {
+                        setIsBackendUp(false);
+                        navigate('/500');
+                    }
+                    return Promise.reject(error);
+                }
+            );
         }
-    );
+
+        return () => {
+            if (interceptorRef.current !== null) {
+                axiosInstance.interceptors.response.eject(interceptorRef.current);
+                interceptorRef.current = null;
+            }
+        };
+    }, []);
 
     return (
         <ApiContext.Provider value={{ isBackendUp, checkHealth }}>
@@ -53,4 +62,3 @@ export function useApiContext(): ApiContextValue {
     if (!ctx) throw new Error('useApiContext must be used inside ApiProvider');
     return ctx;
 }
-

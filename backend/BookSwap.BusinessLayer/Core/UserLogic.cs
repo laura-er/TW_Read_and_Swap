@@ -22,6 +22,10 @@ public class UserLogic : UserActions, IUserLogic
     public ServiceResponse GetUserList()
         => GetUserListAction();
 
+    public ServiceResponse UpdateUser(int id, UserUpdateDto dto)
+        => UpdateUserAction(id, dto);
+
     public ServiceResponse DeleteUser(int id)
         => DeleteUserAction(id);
 }
+

@@ -1,3 +1,4 @@
+using BCrypt.Net;
 using BookSwap.DataAccessLayer.Context;
 using BookSwap.Domain.Entities.User;
 using BookSwap.Domain.Models.Service;
@@ -22,9 +23,11 @@ public class UserActions
 
         var user = new UserEntity
         {
+            FirstName = dto.FirstName,
             Username = dto.Username,
             Email = dto.Email,
-            PasswordHash = dto.Password,
+            Phone = dto.Phone,
+            PasswordHash = BCrypt.Net.BCrypt.HashPassword(dto.Password),
             Role = "user",
             CreatedAt = DateTime.UtcNow
         };
@@ -45,17 +48,23 @@ public class UserActions
     protected ServiceResponse LoginAction(LoginDto dto)
     {
         var user = _context.Users
-            .FirstOrDefault(u => u.Email == dto.Email && u.PasswordHash == dto.Password);
+            .FirstOrDefault(u => u.Email == dto.Email);
 
-        if (user == null)
+        if (user == null || !BCrypt.Net.BCrypt.Verify(dto.Password, user.PasswordHash))
             return new ServiceResponse { IsSuccess = false, Message = "Invalid email or password" };
+
+        user.SessionId = Guid.NewGuid().ToString();
+        _context.SaveChanges();
 
         var userInfo = new UserInfoDto
         {
             Id = user.Id,
+            FirstName = user.FirstName,
             Username = user.Username,
             Email = user.Email,
+            Phone = user.Phone,
             Role = user.Role,
+            SessionId = user.SessionId,
             CreatedAt = user.CreatedAt
         };
 
@@ -71,9 +80,12 @@ public class UserActions
         var userInfo = new UserInfoDto
         {
             Id = user.Id,
+            FirstName = user.FirstName,
             Username = user.Username,
             Email = user.Email,
+            Phone = user.Phone,
             Role = user.Role,
+            SessionId = user.SessionId,
             CreatedAt = user.CreatedAt
         };
 
@@ -86,13 +98,38 @@ public class UserActions
             .Select(u => new UserInfoDto
             {
                 Id = u.Id,
+                FirstName = u.FirstName,
                 Username = u.Username,
                 Email = u.Email,
+                Phone = u.Phone,
                 Role = u.Role,
+                SessionId = u.SessionId,
                 CreatedAt = u.CreatedAt
             }).ToList();
 
         return new ServiceResponse { IsSuccess = true, Data = list };
+    }
+
+    protected ServiceResponse UpdateUserAction(int id, UserUpdateDto dto)
+    {
+        var user = _context.Users.Find(id);
+        if (user == null)
+            return new ServiceResponse { IsSuccess = false, Message = "User not found" };
+
+        user.FirstName = dto.FirstName;
+        user.Username = dto.Username;
+        user.Phone = dto.Phone;
+
+        try
+        {
+            _context.SaveChanges();
+        }
+        catch (Exception)
+        {
+            return new ServiceResponse { IsSuccess = false, Message = "Update failed" };
+        }
+
+        return new ServiceResponse { IsSuccess = true, Message = "User updated" };
     }
 
     protected ServiceResponse DeleteUserAction(int id)
