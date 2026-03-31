@@ -1,10 +1,12 @@
 import { Link } from 'react-router-dom';
-import { mockBooks } from '@/data/mockBooks';
+import { useBooks } from '@/hooks/useBooks';
 import { BookCard } from '@/components/client/BookCard';
 import { Button } from '@/components/ui/Button';
+import type { Book } from '@/types';
 
 export function FeaturedBooks() {
-    const featured = mockBooks.filter((b) => b.isAvailable).slice(0, 4);
+    const { books } = useBooks();
+    const featured = books.filter((b) => b.isAvailable).slice(0, 4);
 
     return (
         <section className="py-20" style={{
@@ -59,8 +61,6 @@ export function FeaturedBooks() {
     );
 }
 
-import type { Book } from '@/types';
-
 function BookCardWrapper({ book }: { book: Book }) {
     return (
         <div
@@ -69,7 +69,6 @@ function BookCardWrapper({ book }: { book: Book }) {
                 backdropFilter: 'blur(10px)',
                 border: '1px solid var(--lib-border)',
                 background: 'var(--lib-card)',
-                /* Override inline so BookCard's style={{ background: 'var(--color-surface)' }} picks up lib-card */
                 ['--color-surface' as string]:     'var(--lib-card)',
                 ['--color-surface-alt' as string]: 'var(--lib-stats)',
                 ['--color-border' as string]:      'var(--lib-border)',

@@ -30,6 +30,27 @@ public class BookActions
 
         return new ServiceResponse { IsSuccess = true, Data = books };
     }
+    internal ServiceResponse GetBooksByOwnerAction(int ownerId)
+    {
+        using var db = new BookSwapDbContext(DbSession.GetOptions());
+
+        var books = db.Books
+            .Where(b => b.OwnerId == ownerId)
+            .Select(b => new BookDto
+            {
+                Id = b.Id,
+                Title = b.Title,
+                Author = b.Author,
+                Genre = b.Genre,
+                Condition = b.Condition,
+                CoverUrl = b.CoverUrl,
+                Description = b.Description,
+                IsAvailable = b.IsAvailable,
+                OwnerId = b.OwnerId
+            }).ToList();
+
+        return new ServiceResponse { IsSuccess = true, Data = books };
+    }
 
     protected ServiceResponse GetBookByIdAction(int id)
     {

@@ -1,11 +1,24 @@
-const stats = [
-    { value: '2,400+', label: 'Books Available', icon: '📚' },
-    { value: '800+',   label: 'Active Readers',  icon: '👥' },
-    { value: '1,200+', label: 'Swaps Completed', icon: '🔄' },
-    { value: '15+',    label: 'Genres',           icon: '🏷️' },
-];
+import { useBooks } from '@/hooks/useBooks';
+import { useState, useEffect } from 'react';
+import axiosInstance from '@/api/axiosInstance';
 
 export function StatsBar() {
+    const { books } = useBooks();
+    const [userCount, setUserCount] = useState(0);
+
+    useEffect(() => {
+        axiosInstance.get('/api/users/list')
+            .then((res) => setUserCount(res.data.length))
+            .catch(() => setUserCount(0));
+    }, []);
+
+    const stats = [
+        { value: `${books.length}+`, label: 'Books Available', icon: '📚' },
+        { value: `${userCount}+`,    label: 'Active Readers',  icon: '👥' },
+        { value: '1,200+',           label: 'Swaps Completed', icon: '🔄' },
+        { value: '15+',              label: 'Genres',           icon: '🏷️' },
+    ];
+
     return (
         <section style={{
             background: 'var(--lib-stats)',
