@@ -1,26 +1,19 @@
 using BookSwap.BusinessLayer.Core;
 using BookSwap.BusinessLayer.Interfaces;
-using BookSwap.DataAccessLayer.Context;
 
 namespace BookSwap.BusinessLayer;
 
 public class BusinessLogic
 {
-    private readonly BookSwapDbContext _context;
-
-    public BusinessLogic(BookSwapDbContext context)
-    {
-        _context = context;
-    }
+    public BusinessLogic() { }
 
     public IUserLogic GetUserLogic()
     {
-        return new UserLogic(_context);
+        return new UserLogic();
     }
 
     public IBookLogic GetBookLogic()
     {
-        return new BookLogic(_context);
+        return new BookLogic();
     }
 }
-

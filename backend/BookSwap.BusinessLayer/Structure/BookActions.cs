@@ -1,3 +1,4 @@
+using BookSwap.DataAccessLayer;
 using BookSwap.DataAccessLayer.Context;
 using BookSwap.Domain.Entities.Book;
 using BookSwap.Domain.Models.Book;
@@ -7,16 +8,13 @@ namespace BookSwap.BusinessLayer.Structure;
 
 public class BookActions
 {
-    private readonly BookSwapDbContext _context;
-
-    public BookActions(BookSwapDbContext context)
-    {
-        _context = context;
-    }
+    public BookActions() { }
 
     protected ServiceResponse GetAllBooksAction()
     {
-        var books = _context.Books
+        using var db = new BookSwapDbContext(DbSession.GetOptions());
+
+        var books = db.Books
             .Select(b => new BookDto
             {
                 Id = b.Id,
@@ -35,7 +33,9 @@ public class BookActions
 
     protected ServiceResponse GetBookByIdAction(int id)
     {
-        var book = _context.Books.Find(id);
+        using var db = new BookSwapDbContext(DbSession.GetOptions());
+
+        var book = db.Books.Find(id);
         if (book == null)
             return new ServiceResponse { IsSuccess = false, Message = "Book not found" };
 
@@ -57,6 +57,12 @@ public class BookActions
 
     protected ServiceResponse CreateBookAction(BookCreateDto dto)
     {
+        using var db = new BookSwapDbContext(DbSession.GetOptions());
+
+        var ownerExists = db.Users.Any(u => u.Id == dto.OwnerId);
+        if (!ownerExists)
+            return new ServiceResponse { IsSuccess = false, Message = "Owner not found" };
+
         var book = new BookEntity
         {
             Title = dto.Title,
@@ -72,8 +78,8 @@ public class BookActions
 
         try
         {
-            _context.Books.Add(book);
-            _context.SaveChanges();
+            db.Books.Add(book);
+            db.SaveChanges();
         }
         catch (Exception)
         {
@@ -85,7 +91,9 @@ public class BookActions
 
     protected ServiceResponse UpdateBookAction(int id, BookUpdateDto dto)
     {
-        var book = _context.Books.Find(id);
+        using var db = new BookSwapDbContext(DbSession.GetOptions());
+
+        var book = db.Books.Find(id);
         if (book == null)
             return new ServiceResponse { IsSuccess = false, Message = "Book not found" };
 
@@ -99,7 +107,7 @@ public class BookActions
 
         try
         {
-            _context.SaveChanges();
+            db.SaveChanges();
         }
         catch (Exception)
         {
@@ -111,14 +119,16 @@ public class BookActions
 
     protected ServiceResponse DeleteBookAction(int id)
     {
-        var book = _context.Books.Find(id);
+        using var db = new BookSwapDbContext(DbSession.GetOptions());
+
+        var book = db.Books.Find(id);
         if (book == null)
             return new ServiceResponse { IsSuccess = false, Message = "Book not found" };
 
         try
         {
-            _context.Books.Remove(book);
-            _context.SaveChanges();
+            db.Books.Remove(book);
+            db.SaveChanges();
         }
         catch (Exception)
         {

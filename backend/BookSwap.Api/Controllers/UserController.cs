@@ -11,8 +11,9 @@ public class UserController : ControllerBase
 {
     private readonly IUserLogic _userLogic;
 
-    public UserController(BusinessLogic bl)
+    public UserController()
     {
+        var bl = new BusinessLogic();
         _userLogic = bl.GetUserLogic();
     }
 
@@ -58,7 +59,7 @@ public class UserController : ControllerBase
         var response = _userLogic.UpdateUser(id, dto);
         if (!response.IsSuccess)
             return NotFound(response.Message);
-        return Ok(response.Data);
+        return Ok(response.Message);
     }
 
     [HttpDelete("{id}")]
@@ -70,4 +71,3 @@ public class UserController : ControllerBase
         return NoContent();
     }
 }
-
