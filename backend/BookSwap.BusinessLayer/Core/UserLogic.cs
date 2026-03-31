@@ -1,6 +1,5 @@
 using BookSwap.BusinessLayer.Interfaces;
 using BookSwap.BusinessLayer.Structure;
-using BookSwap.DataAccessLayer.Context;
 using BookSwap.Domain.Models.Service;
 using BookSwap.Domain.Models.User;
 
@@ -8,7 +7,7 @@ namespace BookSwap.BusinessLayer.Core;
 
 public class UserLogic : UserActions, IUserLogic
 {
-    public UserLogic(BookSwapDbContext context) : base(context) { }
+    public UserLogic() : base() { }
 
     public ServiceResponse Register(UserCreateDto dto)
         => RegisterAction(dto);
@@ -28,4 +27,3 @@ public class UserLogic : UserActions, IUserLogic
     public ServiceResponse DeleteUser(int id)
         => DeleteUserAction(id);
 }
-

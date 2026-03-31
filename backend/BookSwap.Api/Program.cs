@@ -1,8 +1,10 @@
 using BookSwap.BusinessLayer;
-using BookSwap.DataAccessLayer.Context;
-using Microsoft.EntityFrameworkCore;
+using BookSwap.DataAccessLayer;
 
 var builder = WebApplication.CreateBuilder(args);
+
+DbSession.ConnectionString = builder.Configuration
+    .GetConnectionString("DefaultConnection");
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -22,11 +24,6 @@ builder.Services.AddCors(options =>
     });
 });
 
-builder.Services.AddDbContext<BookSwapDbContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
-
-builder.Services.AddScoped<BusinessLogic>();
-
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
@@ -39,4 +36,3 @@ app.UseCors("FrontendPolicy");
 app.MapControllers();
 
 app.Run();
-

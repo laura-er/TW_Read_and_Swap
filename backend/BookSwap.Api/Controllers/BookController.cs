@@ -11,8 +11,9 @@ public class BookController : ControllerBase
 {
     private readonly IBookLogic _bookLogic;
 
-    public BookController(BusinessLogic bl)
+    public BookController()
     {
+        var bl = new BusinessLogic();
         _bookLogic = bl.GetBookLogic();
     }
 

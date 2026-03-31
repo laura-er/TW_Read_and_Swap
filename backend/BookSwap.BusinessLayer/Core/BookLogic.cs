@@ -1,6 +1,5 @@
 using BookSwap.BusinessLayer.Interfaces;
 using BookSwap.BusinessLayer.Structure;
-using BookSwap.DataAccessLayer.Context;
 using BookSwap.Domain.Models.Book;
 using BookSwap.Domain.Models.Service;
 
@@ -8,7 +7,7 @@ namespace BookSwap.BusinessLayer.Core;
 
 public class BookLogic : BookActions, IBookLogic
 {
-    public BookLogic(BookSwapDbContext context) : base(context) { }
+    public BookLogic() : base() { }
 
     public ServiceResponse GetAllBooks()
         => GetAllBooksAction();
@@ -25,4 +24,3 @@ public class BookLogic : BookActions, IBookLogic
     public ServiceResponse DeleteBook(int id)
         => DeleteBookAction(id);
 }
-

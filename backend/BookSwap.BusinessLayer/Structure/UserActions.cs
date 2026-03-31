@@ -1,4 +1,5 @@
 using BCrypt.Net;
+using BookSwap.DataAccessLayer;
 using BookSwap.DataAccessLayer.Context;
 using BookSwap.Domain.Entities.User;
 using BookSwap.Domain.Models.Service;
@@ -8,16 +9,13 @@ namespace BookSwap.BusinessLayer.Structure;
 
 public class UserActions
 {
-    private readonly BookSwapDbContext _context;
-
-    public UserActions(BookSwapDbContext context)
-    {
-        _context = context;
-    }
+    public UserActions() { }
 
     protected ServiceResponse RegisterAction(UserCreateDto dto)
     {
-        var exists = _context.Users.Any(u => u.Email == dto.Email);
+        using var db = new BookSwapDbContext(DbSession.GetOptions());
+
+        var exists = db.Users.Any(u => u.Email == dto.Email);
         if (exists)
             return new ServiceResponse { IsSuccess = false, Message = "Email already in use" };
 
@@ -34,8 +32,8 @@ public class UserActions
 
         try
         {
-            _context.Users.Add(user);
-            _context.SaveChanges();
+            db.Users.Add(user);
+            db.SaveChanges();
         }
         catch (Exception)
         {
@@ -47,14 +45,16 @@ public class UserActions
 
     protected ServiceResponse LoginAction(LoginDto dto)
     {
-        var user = _context.Users
+        using var db = new BookSwapDbContext(DbSession.GetOptions());
+
+        var user = db.Users
             .FirstOrDefault(u => u.Email == dto.Email);
 
         if (user == null || !BCrypt.Net.BCrypt.Verify(dto.Password, user.PasswordHash))
             return new ServiceResponse { IsSuccess = false, Message = "Invalid email or password" };
 
         user.SessionId = Guid.NewGuid().ToString();
-        _context.SaveChanges();
+        db.SaveChanges();
 
         var userInfo = new UserInfoDto
         {
@@ -73,7 +73,9 @@ public class UserActions
 
     protected ServiceResponse GetUserByIdAction(int id)
     {
-        var user = _context.Users.Find(id);
+        using var db = new BookSwapDbContext(DbSession.GetOptions());
+
+        var user = db.Users.Find(id);
         if (user == null)
             return new ServiceResponse { IsSuccess = false, Message = "User not found" };
 
@@ -94,7 +96,9 @@ public class UserActions
 
     protected ServiceResponse GetUserListAction()
     {
-        var list = _context.Users
+        using var db = new BookSwapDbContext(DbSession.GetOptions());
+
+        var list = db.Users
             .Select(u => new UserInfoDto
             {
                 Id = u.Id,
@@ -112,7 +116,9 @@ public class UserActions
 
     protected ServiceResponse UpdateUserAction(int id, UserUpdateDto dto)
     {
-        var user = _context.Users.Find(id);
+        using var db = new BookSwapDbContext(DbSession.GetOptions());
+
+        var user = db.Users.Find(id);
         if (user == null)
             return new ServiceResponse { IsSuccess = false, Message = "User not found" };
 
@@ -122,7 +128,7 @@ public class UserActions
 
         try
         {
-            _context.SaveChanges();
+            db.SaveChanges();
         }
         catch (Exception)
         {
@@ -134,14 +140,16 @@ public class UserActions
 
     protected ServiceResponse DeleteUserAction(int id)
     {
-        var user = _context.Users.Find(id);
+        using var db = new BookSwapDbContext(DbSession.GetOptions());
+
+        var user = db.Users.Find(id);
         if (user == null)
             return new ServiceResponse { IsSuccess = false, Message = "User not found" };
 
         try
         {
-            _context.Users.Remove(user);
-            _context.SaveChanges();
+            db.Users.Remove(user);
+            db.SaveChanges();
         }
         catch (Exception)
         {
