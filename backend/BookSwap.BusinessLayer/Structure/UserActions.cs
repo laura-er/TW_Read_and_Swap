@@ -26,7 +26,7 @@ public class UserActions
             Email = dto.Email,
             Phone = dto.Phone,
             PasswordHash = BCrypt.Net.BCrypt.HashPassword(dto.Password),
-            Role = "user",
+            Role = UserRole.User,
             CreatedAt = DateTime.UtcNow
         };
 
@@ -53,7 +53,8 @@ public class UserActions
         if (user == null || !BCrypt.Net.BCrypt.Verify(dto.Password, user.PasswordHash))
             return new ServiceResponse { IsSuccess = false, Message = "Invalid email or password" };
 
-        user.SessionId = Guid.NewGuid().ToString();
+        var tokenService = new TokenService();
+        user.SessionId = tokenService.GenerateToken();
         db.SaveChanges();
 
         var userInfo = new UserInfoDto
@@ -63,7 +64,7 @@ public class UserActions
             Username = user.Username,
             Email = user.Email,
             Phone = user.Phone,
-            Role = user.Role,
+            Role = user.Role.ToString().ToLower(),
             SessionId = user.SessionId,
             CreatedAt = user.CreatedAt
         };
@@ -86,7 +87,7 @@ public class UserActions
             Username = user.Username,
             Email = user.Email,
             Phone = user.Phone,
-            Role = user.Role,
+            Role = user.Role.ToString().ToLower(),
             SessionId = user.SessionId,
             CreatedAt = user.CreatedAt
         };
@@ -106,7 +107,7 @@ public class UserActions
                 Username = u.Username,
                 Email = u.Email,
                 Phone = u.Phone,
-                Role = u.Role,
+                Role = u.Role.ToString().ToLower(),
                 SessionId = u.SessionId,
                 CreatedAt = u.CreatedAt
             }).ToList();
