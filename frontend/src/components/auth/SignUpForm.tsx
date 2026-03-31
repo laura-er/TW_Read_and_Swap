@@ -1,24 +1,32 @@
-﻿import { useRef, useState } from 'react';
+﻿import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTheme } from '@/context/ThemeContext';
 import axiosInstance from '@/api/axiosInstance';
 
-export function SignUpForm() {
-    const { isDark } = useTheme();
-    const navigate = useNavigate();
+type USignupData = {
+    firstName: string;
+    lastName: string;
+    username: string;
+    email: string;
+    phone: string;
+    password: string;
+    confirm: string;
+};
 
-    const firstNameRef = useRef<HTMLInputElement>(null);
-    const usernameRef = useRef<HTMLInputElement>(null);
-    const emailRef = useRef<HTMLInputElement>(null);
-    const phoneRef = useRef<HTMLInputElement>(null);
-    const passwordRef = useRef<HTMLInputElement>(null);
-    const confirmRef = useRef<HTMLInputElement>(null);
+type FieldProps = {
+    label: string;
+    name: keyof USignupData;
+    value: string;
+    onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+    type?: string;
+    ph: string;
+    toggle?: boolean;
+    show?: boolean;
+    onToggle?: () => void;
+    isDark: boolean;
+};
 
-    const [error, setError] = useState('');
-    const [isLoading, setIsLoading] = useState(false);
-    const [showPass, setShowPass] = useState(false);
-    const [showConfirm, setShowConfirm] = useState(false);
-
+function Field({ label, name, value, onChange, type = 'text', ph, toggle, show, onToggle, isDark }: FieldProps) {
     const inp: React.CSSProperties = {
         width: '100%', boxSizing: 'border-box',
         padding: '9px 12px', fontSize: '12px', borderRadius: '10px',
@@ -40,27 +48,69 @@ export function SignUpForm() {
         e.currentTarget.style.boxShadow = 'none';
     };
 
+    return (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+            <label style={lbl}>{label}</label>
+            <div style={{ position: 'relative' }}>
+                <input
+                    name={name}
+                    value={value}
+                    onChange={onChange}
+                    type={toggle ? (show ? 'text' : 'password') : type}
+                    placeholder={ph}
+                    required={name !== 'phone'}
+                    style={{ ...inp, paddingRight: toggle ? '36px' : '12px' }}
+                    onFocus={focus}
+                    onBlur={blur}
+                />
+                {toggle && (
+                    <button type="button" onClick={onToggle}
+                            style={{
+                                position: 'absolute', right: '10px', top: '50%',
+                                transform: 'translateY(-50%)', fontSize: '12px',
+                                background: 'none', border: 'none', cursor: 'pointer',
+                                color: isDark ? '#7a5a30' : '#8a6830',
+                            }}>
+                        {show ? '🙈' : '👁️'}
+                    </button>
+                )}
+            </div>
+        </div>
+    );
+}
+
+export function SignUpForm() {
+    const { isDark } = useTheme();
+    const navigate = useNavigate();
+
+    const [form, setForm] = useState<USignupData>({
+        firstName: '', lastName: '', username: '',
+        email: '', phone: '', password: '', confirm: '',
+    });
+    const [error, setError] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
+    const [showPass, setShowPass] = useState(false);
+    const [showConfirm, setShowConfirm] = useState(false);
+
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const { name, value } = e.target;
+        setForm(prev => ({ ...prev, [name]: value }));
+    };
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setError('');
-        const firstName = firstNameRef.current?.value ?? '';
-        const username = usernameRef.current?.value ?? '';
-        const email = emailRef.current?.value ?? '';
-        const phone = phoneRef.current?.value ?? '';
-        const password = passwordRef.current?.value ?? '';
-        const confirm = confirmRef.current?.value ?? '';
-
-        if (password.length < 8) { setError('Min. 8 characters.'); return; }
-        if (password !== confirm) { setError('Passwords do not match.'); return; }
-
+        if (form.password.length < 8) { setError('Min. 8 characters.'); return; }
+        if (form.password !== form.confirm) { setError('Passwords do not match.'); return; }
         setIsLoading(true);
         try {
             await axiosInstance.post('/api/users/register', {
-                firstName,
-                username,
-                email,
-                phone,
-                password
+                firstName: form.firstName,
+                lastName: form.lastName,
+                username: form.username,
+                email: form.email,
+                phone: form.phone,
+                password: form.password,
             });
             navigate('/sign-in');
         } catch {
@@ -70,45 +120,25 @@ export function SignUpForm() {
         }
     };
 
-    const Field = ({ label, r, type = 'text', ph, toggle, show, onT }: {
-        label: string; r: React.RefObject<HTMLInputElement | null>;
-        type?: string; ph: string; toggle?: boolean; show?: boolean; onT?: () => void;
-    }) => (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-            <label style={lbl}>{label}</label>
-            <div style={{ position: 'relative' }}>
-                <input ref={r} type={toggle ? (show ? 'text' : 'password') : type}
-                       placeholder={ph} required
-                       style={{ ...inp, paddingRight: toggle ? '36px' : '12px' }}
-                       onFocus={focus} onBlur={blur} />
-                {toggle && (
-                    <button type="button" onClick={onT}
-                            style={{ position: 'absolute', right: '10px', top: '50%', transform: 'translateY(-50%)',
-                                fontSize: '12px', background: 'none', border: 'none', cursor: 'pointer',
-                                color: isDark ? '#7a5a30' : '#8a6830' }}>
-                        {show ? '🙈' : '👁️'}
-                    </button>
-                )}
-            </div>
-        </div>
-    );
-
     return (
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '11px' }}>
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
-                <Field label="First Name" r={firstNameRef} ph="Jane" />
-                <Field label="Username" r={usernameRef} ph="janedoe" />
+                <Field label="First Name" name="firstName" value={form.firstName} onChange={handleChange} ph="Jane" isDark={isDark} />
+                <Field label="Last Name"  name="lastName"  value={form.lastName}  onChange={handleChange} ph="Doe"  isDark={isDark} />
             </div>
 
-            <Field label="Email" r={emailRef} type="email" ph="you@example.com" />
-            <Field label="Phone" r={phoneRef} ph="069123456" />
-            <Field label="Password" r={passwordRef} ph="Min. 8 chars"
-                   toggle show={showPass} onT={() => setShowPass(p => !p)} />
-            <Field label="Confirm" r={confirmRef} ph="Repeat password"
-                   toggle show={showConfirm} onT={() => setShowConfirm(p => !p)} />
+            <Field label="Username" name="username" value={form.username} onChange={handleChange} ph="janedoe" isDark={isDark} />
+            <Field label="Email"    name="email"    value={form.email}    onChange={handleChange} type="email" ph="you@example.com" isDark={isDark} />
+            <Field label="Phone"    name="phone"    value={form.phone}    onChange={handleChange} ph="069123456" isDark={isDark} />
+            <Field label="Password" name="password" value={form.password} onChange={handleChange} ph="Min. 8 chars"
+                   toggle show={showPass} onToggle={() => setShowPass(p => !p)} isDark={isDark} />
+            <Field label="Confirm"  name="confirm"  value={form.confirm}  onChange={handleChange} ph="Repeat password"
+                   toggle show={showConfirm} onToggle={() => setShowConfirm(p => !p)} isDark={isDark} />
 
-            {error && <p style={{ fontSize: '11px', color: '#e05030', marginTop: '-2px' }}>⚠ {error}</p>}
+            {error && (
+                <p style={{ fontSize: '11px', color: '#e05030', marginTop: '-2px' }}>⚠ {error}</p>
+            )}
 
             <p style={{ fontSize: '10px', color: isDark ? '#5a4020' : '#8a6830', lineHeight: 1.5 }}>
                 By signing up you agree to our{' '}
@@ -127,7 +157,7 @@ export function SignUpForm() {
             }}>
                 {isLoading ? 'Creating...' : 'Create account →'}
             </button>
+
         </form>
     );
 }
-
