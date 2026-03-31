@@ -13,12 +13,15 @@ namespace BookSwap.Domain.Entities.User
         [StringLength(30)]
         public string FirstName { get; set; } = string.Empty;
 
+        [StringLength(30)]
+        public string LastName { get; set; } = string.Empty;
+
         [Required]
         [StringLength(30, MinimumLength = 2)]
         public string Username { get; set; } = string.Empty;
 
         [Required]
-        [StringLength(30)]
+        [StringLength(100)]
         [DataType(DataType.EmailAddress)]
         public string Email { get; set; } = string.Empty;
 
@@ -26,7 +29,7 @@ namespace BookSwap.Domain.Entities.User
         public string Phone { get; set; } = string.Empty;
 
         [Required]
-        [StringLength(48, MinimumLength = 8)]
+        [StringLength(60)]
         public string PasswordHash { get; set; } = string.Empty;
 
         public UserRole Role { get; set; } = UserRole.User;
