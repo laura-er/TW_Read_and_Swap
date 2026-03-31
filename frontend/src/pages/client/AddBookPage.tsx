@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
-import { mockBooks } from '@/data/mockBooks';
+import axiosInstance from '@/api/axiosInstance';
 import { Button } from '@/components/ui/Button';
 import { AddBookForm } from '@/components/client/add-book/AddBookForm';
 import { BookPreviewCard } from '@/components/client/add-book/BookPreviewCard';
@@ -46,17 +46,15 @@ export function AddBookPage() {
     }
     setIsLoading(true);
 
-    // TODO: replace with real API call
-    await new Promise((r) => setTimeout(r, 800));
-
-    const newBook: Book = {
-      id: String(Date.now()),
-      ...fields,
-      ownerId: user?.id ?? 'unknown',
-      isAvailable: true,
-      createdAt: new Date().toISOString(),
-    };
-    mockBooks.unshift(newBook);
+    await axiosInstance.post('/api/books', {
+    title: fields.title,
+    author: fields.author,
+    genre: fields.genre,
+    condition: fields.condition,
+    coverUrl: fields.coverUrl,
+    description: fields.description,
+    ownerId: Number(user?.id) || 1,
+});
 
     setIsLoading(false);
     navigate('/books');

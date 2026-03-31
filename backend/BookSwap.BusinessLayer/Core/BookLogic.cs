@@ -11,6 +11,8 @@ public class BookLogic : BookActions, IBookLogic
 
     public ServiceResponse GetAllBooks()
         => GetAllBooksAction();
+    public ServiceResponse GetBooksByOwner(int ownerId)
+        => GetBooksByOwnerAction(ownerId);
 
     public ServiceResponse GetBookById(int id)
         => GetBookByIdAction(id);

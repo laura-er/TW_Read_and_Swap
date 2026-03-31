@@ -3,7 +3,7 @@ import { Link, useSearchParams } from 'react-router-dom';
 import { BookOpen, Plus } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { useSwaps } from '@/context/SwapContext';
-import { mockBooks } from '@/data/mockBooks';
+import axiosInstance from '@/api/axiosInstance';
 import { ProfileBanner } from '@/components/client/profile/ProfileBanner';
 import { ProfileStats } from '@/components/client/profile/ProfileStats';
 import { ProfileTabs } from '@/components/client/profile/ProfileTabs';
@@ -30,9 +30,24 @@ export function ProfilePage() {
     const [activeTab, setActiveTab] = useState<ProfileTab>(initialTab);
     const tabsRef = useRef<HTMLDivElement>(null);
 
-    const [userBooks, setUserBooks] = useState<Book[]>(
-        mockBooks.filter((b) => b.ownerId === (user?.id ?? CURRENT_USER_ID))
-    );
+    const [userBooks, setUserBooks] = useState<Book[]>([]);
+
+    useEffect(() => {
+        if (!user?.id) return;
+        axiosInstance.get(`/api/books/owner/${user.id}`)
+            .then((res) => {
+                const mapped = res.data.map((b: any) => ({
+                    ...b,
+                    id: String(b.id),
+                    ownerId: String(b.ownerId),
+                    rating: b.rating ?? 0,
+                    reviewCount: b.reviewCount ?? 0,
+                    createdAt: b.createdAt ?? new Date().toISOString(),
+                }));
+                setUserBooks(mapped);
+            })
+            .catch(() => {});
+    }, [user?.id]);
 
     useEffect(() => {
         if (tabParam) {
@@ -48,21 +63,23 @@ export function ProfilePage() {
         }
     }, [tabParam]);
 
-    const { favorites: favoriteIds, toggleFavorite } = useFavorites();
-    const favorites = useMemo(
-        () => mockBooks.filter((b) => favoriteIds.includes(b.id)),
-        [favoriteIds]
+    const { favorites, toggleFavorite } = useFavorites();
+
+    const favoriteBooks = useMemo(
+        () => userBooks.filter((b) => favorites.includes(b.id)),
+        [favorites, userBooks]
     );
 
     const handleDeleteBook = (id: string) => {
-        setUserBooks((prev) => prev.filter((b) => b.id !== id));
+        axiosInstance.delete(`/api/books/${id}`)
+            .then(() => setUserBooks((prev) => prev.filter((b) => b.id !== id)))
+            .catch(() => {});
     };
 
     if (!user) return null;
 
     return (
         <div className="relative -mt-8 -mx-4 sm:-mx-6 min-h-screen">
-            {/* Same library bg as homepage */}
             <div
                 className="fixed inset-0 -z-20 bg-cover bg-center"
                 style={{
@@ -73,10 +90,8 @@ export function ProfilePage() {
             />
             <div className="fixed inset-0 -z-10" style={{ background: 'var(--lib-overlay)' }} />
 
-            {/* Centered content column — leaves bg visible on sides */}
             <div className="mx-auto max-w-6xl px-4 py-10">
 
-                {/* Profile banner + stats card */}
                 <div className="mb-4 rounded-[24px] overflow-hidden shadow-2xl"
                      style={{ border: '1px solid var(--lib-border)', backdropFilter: 'blur(20px)' }}>
                     <ProfileBanner user={user} isOwnProfile={true} />
@@ -108,7 +123,7 @@ export function ProfilePage() {
                             </div>
                         ) : (
                             <ProfileStats
-                                favoritesCount={favorites.length}
+                                favoritesCount={favoriteBooks.length}
                                 swapsCount={swaps.filter((s) => s.status === 'completed').length}
                                 booksCount={userBooks.length}
                             />
@@ -116,7 +131,6 @@ export function ProfilePage() {
                     </div>
                 </div>
 
-                {/* Tabs */}
                 {!isAdmin && <div className="mb-4 rounded-[20px] overflow-hidden shadow-lg"
                                   style={{
                                       background: 'var(--lib-card)',
@@ -127,10 +141,9 @@ export function ProfilePage() {
                     <ProfileTabs active={activeTab} onChange={setActiveTab} />
                 </div>}
 
-                {/* Tab content */}
                 {!isAdmin && activeTab === 'Favorites' && (
                     <div id="favorites-section">
-                        <FavoritesTab favorites={favorites} onRemove={(id) => toggleFavorite(id)} />
+                        <FavoritesTab favorites={favoriteBooks} onRemove={(id) => toggleFavorite(id)} />
                     </div>
                 )}
 

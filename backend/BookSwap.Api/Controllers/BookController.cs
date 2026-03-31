@@ -25,6 +25,15 @@ public class BookController : ControllerBase
             return BadRequest(response.Message);
         return Ok(response.Data);
     }
+    
+    [HttpGet("owner/{ownerId}")]
+    public IActionResult GetBooksByOwner([FromRoute] int ownerId)
+    {
+        var response = _bookLogic.GetBooksByOwner(ownerId);
+        if (!response.IsSuccess)
+            return BadRequest(response.Message);
+        return Ok(response.Data);
+    }
 
     [HttpGet("{id}")]
     public IActionResult GetBook([FromRoute] int id)

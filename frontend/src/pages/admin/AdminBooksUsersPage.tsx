@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { mockBooks } from '@/data/mockBooks';
-import { mockAdminUsers } from '@/data/mockAdminData';
+import axiosInstance from '@/api/axiosInstance';
 import type { Book } from '@/types';
 import type { AdminUser } from '@/types/admin';
 import { AdminTabs } from '@/components/admin/AdminTabs';
@@ -32,9 +31,48 @@ export function AdminBooksUsersPage() {
         if (searchParams.get('tab') === 'users') setActiveTab('users');
         else setActiveTab('books');
     }, [searchParams]);
+
     const [search, setSearch] = useState('');
-    const [books, setBooks] = useState<Book[]>(mockBooks);
-    const [users, setUsers] = useState<AdminUser[]>(mockAdminUsers);
+    const [books, setBooks] = useState<Book[]>([]);
+    const [users, setUsers] = useState<AdminUser[]>([]);
+
+    // Încarcă cărțile din API
+    useEffect(() => {
+        axiosInstance.get('/api/books')
+            .then((res) => {
+                const mapped = res.data.map((b: any) => ({
+                    ...b,
+                    id: String(b.id),
+                    ownerId: String(b.ownerId),
+                    rating: b.rating ?? 0,
+                    reviewCount: b.reviewCount ?? 0,
+                    createdAt: b.createdAt ?? new Date().toISOString(),
+                }));
+                setBooks(mapped);
+            })
+            .catch(() => console.error('Failed to load books'));
+    }, []);
+
+    // Încarcă userii din API
+    useEffect(() => {
+        axiosInstance.get('/api/users/list')
+            .then((res) => {
+                const mapped = res.data.map((u: any) => ({
+                    id: String(u.id),
+                    name: u.firstName || u.username,
+                    username: u.username,
+                    email: u.email,
+                    avatarUrl: '',
+                    role: u.role === 'admin' ? 'admin' : 'user',
+                    joinedAt: u.createdAt ?? new Date().toISOString(),
+                    booksCount: 0,
+                    swapsCompleted: 0,
+                    isBanned: false,
+                }));
+                setUsers(mapped);
+            })
+            .catch(() => console.error('Failed to load users'));
+    }, []);
 
     const filteredBooks = books.filter(
         (b) =>
@@ -49,14 +87,21 @@ export function AdminBooksUsersPage() {
             u.email.toLowerCase().includes(search.toLowerCase()),
     );
 
+    // Delete carte — cheamă API real
     function handleDeleteBook(id: string) {
-        setBooks((prev) => prev.filter((b) => b.id !== id));
+        axiosInstance.delete(`/api/books/${id}`)
+            .then(() => setBooks((prev) => prev.filter((b) => b.id !== id)))
+            .catch(() => console.error('Failed to delete book'));
     }
 
+    // Delete user — cheamă API real
     function handleDeleteUser(id: string) {
-        setUsers((prev) => prev.filter((u) => u.id !== id));
+        axiosInstance.delete(`/api/users/${id}`)
+            .then(() => setUsers((prev) => prev.filter((u) => u.id !== id)))
+            .catch(() => console.error('Failed to delete user'));
     }
 
+    // Ban/Unban — rămân locale (nu avem endpoint în backend încă)
     function handleBanUser(id: string) {
         setUsers((prev) => prev.map((u) => (u.id === id ? { ...u, isBanned: true } : u)));
     }
