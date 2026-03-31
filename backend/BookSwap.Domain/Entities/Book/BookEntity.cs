@@ -1,19 +1,42 @@
+using System;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using BookSwap.Domain.Entities.User;
 
-namespace BookSwap.Domain.Entities.Book;
-
-public class BookEntity
+namespace BookSwap.Domain.Entities.Book
 {
-    public int Id { get; set; }
-    public string Title { get; set; } = string.Empty;
-    public string Author { get; set; } = string.Empty;
-    public string Genre { get; set; } = string.Empty;
-    public string Condition { get; set; } = string.Empty;
-    public string CoverUrl { get; set; } = string.Empty;
-    public string Description { get; set; } = string.Empty;
-    public bool IsAvailable { get; set; } = true;
-    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+    public class BookEntity
+    {
+        [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public int Id { get; set; }
 
-    public int OwnerId { get; set; }
-    public UserEntity Owner { get; set; } = null!;
+        [Required]
+        [StringLength(200)]
+        public string Title { get; set; } = string.Empty;
+
+        [Required]
+        [StringLength(100)]
+        public string Author { get; set; } = string.Empty;
+
+        [StringLength(50)]
+        public string Genre { get; set; } = string.Empty;
+
+        [StringLength(20)]
+        public string Condition { get; set; } = string.Empty;
+
+        [StringLength(500)]
+        public string CoverUrl { get; set; } = string.Empty;
+
+        [StringLength(1000)]
+        public string Description { get; set; } = string.Empty;
+
+        public bool IsAvailable { get; set; } = true;
+
+        [DataType(DataType.Date)]
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+
+        public int OwnerId { get; set; }
+        public UserEntity Owner { get; set; } = null!;
+    }
 }
