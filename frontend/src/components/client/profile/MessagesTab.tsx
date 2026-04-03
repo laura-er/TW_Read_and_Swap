@@ -2,6 +2,7 @@ import { Bell, CheckCheck } from 'lucide-react';
 import { useNotifications } from '@/context/NotificationsContext';
 import { useAuth } from '@/context/AuthContext';
 import { Button } from '@/components/ui/Button';
+import { ProfileEmptyState } from './ProfileEmptyState';
 
 const typeStyles = {
     warning: { bg: 'bg-yellow-50 border-yellow-200', icon: '⚠️', label: 'Warning', labelColor: 'text-yellow-700' },
@@ -19,10 +20,11 @@ export function MessagesTab() {
 
     if (messages.length === 0) {
         return (
-            <div className="flex flex-col items-center justify-center py-20 gap-4">
-                <Bell className="w-12 h-12 text-[var(--color-text-muted)] opacity-30" />
-                <p className="text-[var(--color-text-muted)] text-sm">No messages yet</p>
-            </div>
+            <ProfileEmptyState
+                icon={<Bell className="h-12 w-12" />}
+                title="No messages yet"
+                description="You'll see notifications about swaps, warnings, and account activity here."
+            />
         );
     }
 
