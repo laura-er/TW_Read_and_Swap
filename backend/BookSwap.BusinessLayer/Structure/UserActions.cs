@@ -22,6 +22,7 @@ public class UserActions
         var user = new UserEntity
         {
             FirstName = dto.FirstName,
+            LastName = dto.LastName,
             Username = dto.Username,
             Email = dto.Email,
             Phone = dto.Phone,
@@ -47,11 +48,13 @@ public class UserActions
     {
         using var db = new BookSwapDbContext(DbSession.GetOptions());
 
-        var user = db.Users
-            .FirstOrDefault(u => u.Email == dto.Email);
+        var user = db.Users.FirstOrDefault(u =>
+            u.Email == dto.EmailOrUsername ||
+            u.Username == dto.EmailOrUsername
+        );
 
         if (user == null || !BCrypt.Net.BCrypt.Verify(dto.Password, user.PasswordHash))
-            return new ServiceResponse { IsSuccess = false, Message = "Invalid email or password" };
+            return new ServiceResponse { IsSuccess = false, Message = "Invalid credentials" };
 
         var tokenService = new TokenService();
         user.SessionId = tokenService.GenerateToken();
@@ -61,6 +64,7 @@ public class UserActions
         {
             Id = user.Id,
             FirstName = user.FirstName,
+            LastName = user.LastName,
             Username = user.Username,
             Email = user.Email,
             Phone = user.Phone,
@@ -84,6 +88,7 @@ public class UserActions
         {
             Id = user.Id,
             FirstName = user.FirstName,
+            LastName = user.LastName,
             Username = user.Username,
             Email = user.Email,
             Phone = user.Phone,
@@ -104,6 +109,7 @@ public class UserActions
             {
                 Id = u.Id,
                 FirstName = u.FirstName,
+                LastName = u.LastName,
                 Username = u.Username,
                 Email = u.Email,
                 Phone = u.Phone,
