@@ -1,3 +1,4 @@
+using BookSwap.Api.Helpers;
 using BookSwap.BusinessLayer;
 using BookSwap.BusinessLayer.Interfaces;
 using BookSwap.Domain.Models.User;
@@ -35,9 +36,23 @@ public class UserController : ControllerBase
         return Ok(response.Data);
     }
 
+    [HttpPost("logout")]
+    public IActionResult Logout()
+    {
+        if (!HttpContext.IsAuthenticated())
+            return Unauthorized("Not authenticated");
+
+        var currentUser = HttpContext.GetCurrentUser();
+        _userLogic.Logout(currentUser!.Id);
+        return Ok("Logged out");
+    }
+
     [HttpGet("list")]
     public IActionResult GetUserList()
     {
+        if (!HttpContext.IsAdmin())
+            return StatusCode(403, "Access denied");
+
         var response = _userLogic.GetUserList();
         if (!response.IsSuccess)
             return BadRequest(response.Message);
@@ -56,6 +71,14 @@ public class UserController : ControllerBase
     [HttpPut("{id}")]
     public IActionResult UpdateUser([FromRoute] int id, [FromBody] UserUpdateDto dto)
     {
+        var currentUser = HttpContext.GetCurrentUser();
+
+        if (currentUser == null)
+            return Unauthorized("Not authenticated");
+
+        if (currentUser.Id != id && !HttpContext.IsAdmin())
+            return StatusCode(403, "Access denied");
+
         var response = _userLogic.UpdateUser(id, dto);
         if (!response.IsSuccess)
             return NotFound(response.Message);
@@ -65,9 +88,24 @@ public class UserController : ControllerBase
     [HttpDelete("{id}")]
     public IActionResult DeleteUser([FromRoute] int id)
     {
+        if (!HttpContext.IsAdmin())
+            return StatusCode(403, "Access denied");
+
         var response = _userLogic.DeleteUser(id);
         if (!response.IsSuccess)
             return NotFound(response.Message);
         return NoContent();
+    }
+    
+    [HttpPut("{id}/role")]
+    public IActionResult ChangeRole([FromRoute] int id, [FromBody] ChangeRoleDto dto)
+    {
+        if (!HttpContext.IsAdmin())
+            return StatusCode(403, "Access denied");
+
+        var response = _userLogic.ChangeRole(id, dto);
+        if (!response.IsSuccess)
+            return BadRequest(response.Message);
+        return Ok(response.Message);
     }
 }
