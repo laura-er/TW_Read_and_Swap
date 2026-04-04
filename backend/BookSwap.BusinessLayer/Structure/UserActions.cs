@@ -76,13 +76,35 @@ public class UserActions
         return new ServiceResponse { IsSuccess = true, Data = userInfo };
     }
 
+    protected ServiceResponse LogoutAction(int userId)
+    {
+        using var db = new BookSwapDbContext(DbSession.GetOptions());
+
+        var user = db.Users.Find(userId);
+        if (user == null)
+            return new ServiceResponse { IsSuccess = false, Message = "User not found" };
+
+        user.SessionId = string.Empty;
+
+        try
+        {
+            db.SaveChanges();
+        }
+        catch (Exception)
+        {
+            return new ServiceResponse { IsSuccess = false, Message = "Logout failed" };
+        }
+
+        return new ServiceResponse { IsSuccess = true, Message = "Logged out" };
+    }
+
     protected ServiceResponse GetUserByIdAction(int id)
     {
         using var db = new BookSwapDbContext(DbSession.GetOptions());
 
         var user = db.Users.Find(id);
         if (user == null)
-            return new ServiceResponse { IsSuccess = false, Message = "User not found" };
+            return new ServiceResponse { IsSuccess = false, Message = "User not found" }; 
 
         var userInfo = new UserInfoDto
         {
@@ -164,5 +186,30 @@ public class UserActions
         }
 
         return new ServiceResponse { IsSuccess = true, Message = "User deleted" };
+    }
+
+    protected ServiceResponse ChangeRoleAction(int id, ChangeRoleDto dto)
+    {
+        using var db = new BookSwapDbContext(DbSession.GetOptions());
+
+        var user = db.Users.Find(id);
+        if (user == null)
+            return new ServiceResponse { IsSuccess = false, Message = "User not found" };
+
+        if (!Enum.TryParse<UserRole>(dto.Role, true, out var newRole))
+            return new ServiceResponse { IsSuccess = false, Message = "Invalid role. Use: user, moderator, admin" };
+
+        user.Role = newRole;
+
+        try
+        {
+            db.SaveChanges();
+        }
+        catch (Exception)
+        {
+            return new ServiceResponse { IsSuccess = false, Message = "Change role failed" };
+        }
+
+        return new ServiceResponse { IsSuccess = true, Message = $"Role changed to {newRole}" };
     }
 }

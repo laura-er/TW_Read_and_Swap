@@ -15,6 +15,9 @@ public class UserLogic : UserActions, IUserLogic
     public ServiceResponse Login(LoginDto dto)
         => LoginAction(dto);
 
+    public ServiceResponse Logout(int userId)
+        => LogoutAction(userId);
+
     public ServiceResponse GetUserById(int id)
         => GetUserByIdAction(id);
 
@@ -26,4 +29,8 @@ public class UserLogic : UserActions, IUserLogic
 
     public ServiceResponse DeleteUser(int id)
         => DeleteUserAction(id);
+
+    public ServiceResponse ChangeRole(int id, ChangeRoleDto dto)
+        => ChangeRoleAction(id, dto);
 }
+
