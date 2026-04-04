@@ -81,7 +81,6 @@ function BookDropdown({ value, options, onChange, hasError }: BookDropdownProps)
                 fontFamily: 'inherit',
             }}
         >
-            {/* Placeholder option */}
             <button
                 type="button"
                 onMouseDown={e => { e.preventDefault(); onChange(''); setOpen(false); }}
@@ -184,10 +183,20 @@ export function SwapForm({ book }: SwapFormProps) {
     const validate = (): boolean => {
         const newErrors: Partial<SwapFormData> = {};
         if (!formData.offeredBookId) newErrors.offeredBookId = 'Please select a book to offer.';
-        if (!formData.message) newErrors.message = 'Please write a message.';
-        if (!formData.contactEmail) newErrors.contactEmail = 'Please enter your email.';
+        if (!formData.contactEmail) {
+            newErrors.contactEmail = 'Contact email is required.';
+        } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.contactEmail)) {
+            newErrors.contactEmail = 'Please enter a valid email address.';
+        }
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
+    };
+
+    const handleChange = (field: keyof SwapFormData, value: string) => {
+        setFormData(p => ({ ...p, [field]: value }));
+        if (errors[field]) {
+            setErrors(p => ({ ...p, [field]: undefined }));
+        }
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -217,7 +226,7 @@ export function SwapForm({ book }: SwapFormProps) {
                     <BookDropdown
                         value={formData.offeredBookId}
                         options={bookOptions}
-                        onChange={id => setFormData(p => ({ ...p, offeredBookId: id }))}
+                        onChange={id => handleChange('offeredBookId', id)}
                         hasError={!!errors.offeredBookId}
                     />
                     {errors.offeredBookId && (
@@ -231,31 +240,43 @@ export function SwapForm({ book }: SwapFormProps) {
                     </p>
                 </div>
 
-                {/* Message */}
+                {/* Message — optional */}
                 <div className="flex flex-col gap-1.5">
                     <label className="text-sm font-medium text-[var(--color-text)]">
-                        Message <span className="text-red-500">*</span>
+                        Message
+                        <span className="ml-1 text-xs text-[var(--color-text-muted)] font-normal">(optional)</span>
                     </label>
                     <textarea
                         rows={4}
                         placeholder="Introduce yourself and explain why you'd like to swap..."
                         value={formData.message}
-                        onChange={(e) => setFormData((p) => ({ ...p, message: e.target.value }))}
+                        onChange={(e) => handleChange('message', e.target.value)}
                         className="w-full rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] px-3 py-2 text-sm text-[var(--color-text)] placeholder:text-[var(--color-text-muted)] outline-none focus:border-[var(--color-accent)] focus:ring-2 focus:ring-[var(--color-accent)]/20 transition-all resize-none"
                     />
-                    {errors.message && <p className="text-xs text-red-500">{errors.message}</p>}
                 </div>
 
-                {/* Email */}
-                <Input
-                    label="Contact Email"
-                    type="email"
-                    placeholder="you@example.com"
-                    value={formData.contactEmail}
-                    onChange={(e) => setFormData((p) => ({ ...p, contactEmail: e.target.value }))}
-                    error={errors.contactEmail}
-                    required
-                />
+                {/* Contact Email — required */}
+                <div className="flex flex-col gap-1.5">
+                    <label className="text-sm font-medium text-[var(--color-text)]">
+                        Contact Email <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                        type="email"
+                        placeholder="you@example.com"
+                        value={formData.contactEmail}
+                        onChange={(e) => handleChange('contactEmail', e.target.value)}
+                        className={[
+                            'w-full rounded-lg border bg-[var(--color-surface)] px-3 py-2 text-sm text-[var(--color-text)] placeholder:text-[var(--color-text-muted)] outline-none transition-all',
+                            'focus:border-[var(--color-accent)] focus:ring-2 focus:ring-[var(--color-accent)]/20',
+                            errors.contactEmail
+                                ? 'border-red-500 focus:border-red-500 focus:ring-red-500/20'
+                                : 'border-[var(--color-border)]',
+                        ].join(' ')}
+                    />
+                    {errors.contactEmail && (
+                        <p className="text-xs text-red-500">{errors.contactEmail}</p>
+                    )}
+                </div>
 
                 <SwapGuidelinesBox />
 

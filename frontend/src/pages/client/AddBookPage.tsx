@@ -7,7 +7,6 @@ import { Button } from '@/components/ui/Button';
 import { AddBookForm } from '@/components/client/add-book/AddBookForm';
 import { BookPreviewCard } from '@/components/client/add-book/BookPreviewCard';
 import type { AddBookFields, AddBookErrors } from '@/components/client/add-book/AddBookForm';
-import type { Book } from '@/types';
 
 const DEFAULT_FIELDS: AddBookFields = {
   title: '',
@@ -20,8 +19,27 @@ const DEFAULT_FIELDS: AddBookFields = {
 
 function validate(fields: AddBookFields): AddBookErrors {
   const errors: AddBookErrors = {};
-  if (!fields.title.trim()) errors.title = 'Title is required.';
-  if (!fields.author.trim()) errors.author = 'Author is required.';
+
+  if (!fields.title.trim()) {
+    errors.title = 'Title is required.';
+  } else if (fields.title.trim().length < 2) {
+    errors.title = 'Title must be at least 2 characters.';
+  } else if (fields.title.trim().length > 200) {
+    errors.title = 'Title cannot exceed 200 characters.';
+  }
+
+  if (!fields.author.trim()) {
+    errors.author = 'Author is required.';
+  } else if (fields.author.trim().length < 2) {
+    errors.author = 'Author must be at least 2 characters.';
+  } else if (fields.author.trim().length > 100) {
+    errors.author = 'Author cannot exceed 100 characters.';
+  }
+
+  if (fields.description && fields.description.length > 1000) {
+    errors.description = 'Description cannot exceed 1000 characters.';
+  }
+
   return errors;
 }
 
@@ -34,7 +52,10 @@ export function AddBookPage() {
 
   const handleChange = (updated: Partial<AddBookFields>) => {
     setFields((prev) => ({ ...prev, ...updated }));
-    setErrors({});
+    const updatedKey = Object.keys(updated)[0] as keyof AddBookFields;
+    if (errors[updatedKey]) {
+      setErrors((prev) => ({ ...prev, [updatedKey]: undefined }));
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -47,14 +68,14 @@ export function AddBookPage() {
     setIsLoading(true);
 
     await axiosInstance.post('/api/books', {
-    title: fields.title,
-    author: fields.author,
-    genre: fields.genre,
-    condition: fields.condition,
-    coverUrl: fields.coverUrl,
-    description: fields.description,
-    ownerId: Number(user?.id) || 1,
-});
+      title: fields.title,
+      author: fields.author,
+      genre: fields.genre,
+      condition: fields.condition,
+      coverUrl: fields.coverUrl,
+      description: fields.description,
+      ownerId: Number(user?.id) || 1,
+    });
 
     setIsLoading(false);
     navigate('/books');

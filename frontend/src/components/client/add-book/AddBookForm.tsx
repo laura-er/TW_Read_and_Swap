@@ -116,6 +116,16 @@ function GenreDropdown({ value, options, onChange }: {
     );
 }
 
+// Label cu steluta rosie pentru campuri obligatorii
+function RequiredLabel({ children }: { children: string }) {
+    return (
+        <label className="text-sm font-medium text-[var(--color-text)]">
+            {children}
+            <span style={{ color: '#e05030', marginLeft: '3px' }}>*</span>
+        </label>
+    );
+}
+
 export function AddBookForm({ fields, errors, onChange }: AddBookFormProps) {
     const handleBlur = (field: keyof Pick<AddBookFields, 'title' | 'author' | 'coverUrl'>) =>
         (e: React.FocusEvent<HTMLInputElement>) => {
@@ -131,20 +141,36 @@ export function AddBookForm({ fields, errors, onChange }: AddBookFormProps) {
             <h2 className="font-semibold text-[var(--color-text)]">Book details</h2>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <Input
-                    label="Title"
-                    placeholder="e.g. The Great Gatsby"
-                    defaultValue={fields.title}
-                    onBlur={handleBlur('title')}
-                    error={errors.title}
-                />
-                <Input
-                    label="Author"
-                    placeholder="e.g. F. Scott Fitzgerald"
-                    defaultValue={fields.author}
-                    onBlur={handleBlur('author')}
-                    error={errors.author}
-                />
+                <div className="flex flex-col gap-1.5">
+                    <RequiredLabel>Title</RequiredLabel>
+                    <input
+                        placeholder="e.g. The Great Gatsby"
+                        defaultValue={fields.title}
+                        onBlur={handleBlur('title')}
+                        maxLength={200}
+                        className={[
+                            'w-full rounded-lg border bg-[var(--color-surface)] px-3 py-2 text-sm text-[var(--color-text)] placeholder:text-[var(--color-text-muted)] outline-none transition-all',
+                            'focus:border-[var(--color-accent)] focus:ring-2 focus:ring-[var(--color-accent)]/20',
+                            errors.title ? 'border-red-500 focus:border-red-500 focus:ring-red-500/20' : 'border-[var(--color-border)]',
+                        ].join(' ')}
+                    />
+                    {errors.title && <p className="text-xs text-red-500">{errors.title}</p>}
+                </div>
+                <div className="flex flex-col gap-1.5">
+                    <RequiredLabel>Author</RequiredLabel>
+                    <input
+                        placeholder="e.g. F. Scott Fitzgerald"
+                        defaultValue={fields.author}
+                        onBlur={handleBlur('author')}
+                        maxLength={100}
+                        className={[
+                            'w-full rounded-lg border bg-[var(--color-surface)] px-3 py-2 text-sm text-[var(--color-text)] placeholder:text-[var(--color-text-muted)] outline-none transition-all',
+                            'focus:border-[var(--color-accent)] focus:ring-2 focus:ring-[var(--color-accent)]/20',
+                            errors.author ? 'border-red-500 focus:border-red-500 focus:ring-red-500/20' : 'border-[var(--color-border)]',
+                        ].join(' ')}
+                    />
+                    {errors.author && <p className="text-xs text-red-500">{errors.author}</p>}
+                </div>
             </div>
 
             <div className="flex flex-col gap-1.5">
@@ -185,7 +211,7 @@ export function AddBookForm({ fields, errors, onChange }: AddBookFormProps) {
                     defaultValue={fields.description}
                     onBlur={handleTextareaBlur}
                     rows={3}
-                    maxLength={500}
+                    maxLength={1000}
                     className="w-full rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] px-3 py-2 text-sm text-[var(--color-text)] placeholder:text-[var(--color-text-muted)] outline-none resize-none focus:border-[var(--color-accent)] focus:ring-2 focus:ring-[var(--color-accent)]/20 transition-all"
                 />
             </div>

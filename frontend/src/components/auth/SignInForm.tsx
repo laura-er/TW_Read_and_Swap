@@ -19,17 +19,23 @@ export function SignInForm() {
         password: '',
     });
     const [error, setError] = useState('');
+    const [hasError, setHasError] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [showPass, setShowPass] = useState(false);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
         setForm(prev => ({ ...prev, [name]: value }));
+        if (hasError) {
+            setError('');
+            setHasError(false);
+        }
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setError('');
+        setHasError(false);
         setIsLoading(true);
         try {
             const response = await axiosInstance.post('/api/users/login', {
@@ -48,31 +54,46 @@ export function SignInForm() {
                 location: '',
                 joinedAt: userData.createdAt,
             });
-            navigate(userData.role === 'admin' ? '/admin' : '/');
-        } catch {
-            setError('Invalid email/username or password.');
+            if (userData.role === 'admin') navigate('/admin');
+            else navigate('/');
+        } catch (err: any) {
+            setHasError(true);
+            const msg = err?.response?.data;
+            if (typeof msg === 'string' && msg.length < 100) {
+                setError(msg);
+            } else {
+                setError('Invalid email/username or password.');
+            }
         } finally {
             setIsLoading(false);
         }
     };
 
-    const inp: React.CSSProperties = {
+    const getInputStyle = (isError: boolean): React.CSSProperties => ({
         width: '100%', boxSizing: 'border-box',
         padding: '9px 12px', fontSize: '12px', borderRadius: '10px',
         background: isDark ? 'rgba(40,26,10,0.9)' : 'rgba(255,248,230,0.9)',
-        border: isDark ? '1px solid rgba(180,120,40,0.22)' : '1px solid rgba(190,150,60,0.35)',
+        border: isError
+            ? '1.5px solid #e05030'
+            : isDark ? '1px solid rgba(180,120,40,0.22)' : '1px solid rgba(190,150,60,0.35)',
         color: isDark ? '#e8d5b0' : '#2a1f08',
         outline: 'none', transition: 'border-color 0.15s, box-shadow 0.15s',
-    };
+        boxShadow: isError ? '0 0 0 3px rgba(224,80,48,0.15)' : 'none',
+    });
+
     const lbl: React.CSSProperties = {
         fontSize: '10px', fontWeight: 600, letterSpacing: '0.1em',
-        textTransform: 'uppercase', color: isDark ? '#7a5a30' : '#8a6830',
+        textTransform: 'uppercase',
+        color: hasError ? '#e05030' : isDark ? '#7a5a30' : '#8a6830',
     };
+
     const focus = (e: React.FocusEvent<HTMLInputElement>) => {
+        if (hasError) return;
         e.currentTarget.style.borderColor = isDark ? 'rgba(212,112,58,0.7)' : 'rgba(180,120,30,0.7)';
         e.currentTarget.style.boxShadow = isDark ? '0 0 0 3px rgba(212,112,58,0.1)' : '0 0 0 3px rgba(180,120,30,0.1)';
     };
     const blur = (e: React.FocusEvent<HTMLInputElement>) => {
+        if (hasError) return;
         e.currentTarget.style.borderColor = isDark ? 'rgba(180,120,40,0.22)' : 'rgba(190,150,60,0.35)';
         e.currentTarget.style.boxShadow = 'none';
     };
@@ -89,7 +110,7 @@ export function SignInForm() {
                     type="text"
                     placeholder="you@example.com or janedoe"
                     required
-                    style={inp}
+                    style={getInputStyle(hasError)}
                     onFocus={focus}
                     onBlur={blur}
                 />
@@ -112,7 +133,7 @@ export function SignInForm() {
                         placeholder="••••••••"
                         required
                         minLength={8}
-                        style={{ ...inp, paddingRight: '36px' }}
+                        style={{ ...getInputStyle(hasError), paddingRight: '36px' }}
                         onFocus={focus}
                         onBlur={blur}
                     />

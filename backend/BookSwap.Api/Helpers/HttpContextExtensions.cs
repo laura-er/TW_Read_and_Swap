@@ -18,10 +18,4 @@ public static class HttpContextExtensions
     {
         return context.GetCurrentUser()?.Role == UserRole.Admin;
     }
-
-    public static bool IsModerator(this HttpContext context)
-    {
-        var role = context.GetCurrentUser()?.Role;
-        return role == UserRole.Moderator || role == UserRole.Admin;
-    }
 }
