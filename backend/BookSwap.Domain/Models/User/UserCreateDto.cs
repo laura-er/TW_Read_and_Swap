@@ -4,10 +4,12 @@ namespace BookSwap.Domain.Models.User;
 
 public class UserCreateDto
 {
-    [StringLength(30)]
+    [Required]
+    [StringLength(30, MinimumLength = 2)]
     public string FirstName { get; set; } = string.Empty;
 
-    [StringLength(30)]
+    [Required]
+    [StringLength(30, MinimumLength = 2)]
     public string LastName { get; set; } = string.Empty;
 
     [Required]
@@ -19,7 +21,7 @@ public class UserCreateDto
     [DataType(DataType.EmailAddress)]
     public string Email { get; set; } = string.Empty;
 
-    [StringLength(12)]
+    [StringLength(12, MinimumLength = 7)]
     public string Phone { get; set; } = string.Empty;
 
     [Required]

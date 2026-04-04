@@ -197,7 +197,7 @@ public class UserActions
             return new ServiceResponse { IsSuccess = false, Message = "User not found" };
 
         if (!Enum.TryParse<UserRole>(dto.Role, true, out var newRole))
-            return new ServiceResponse { IsSuccess = false, Message = "Invalid role. Use: user, moderator, admin" };
+            return new ServiceResponse { IsSuccess = false, Message = "Invalid role. Use: user, admin" };
 
         user.Role = newRole;
 

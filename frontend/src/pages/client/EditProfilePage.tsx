@@ -12,13 +12,36 @@ type FormErrors = Partial<Record<keyof FormFields, string>>;
 
 function validate(fields: FormFields): FormErrors {
   const errors: FormErrors = {};
-  if (!fields.name.trim()) errors.name = 'Name is required.';
-  if (!fields.username.trim()) errors.username = 'Username is required.';
-  if (!/^[a-z0-9_]+$/.test(fields.username))
-    errors.username = 'Only lowercase letters, numbers and underscores.';
-  if (!fields.email.trim()) errors.email = 'Email is required.';
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(fields.email))
+
+  // Full name = FirstName in backend (StringLength 30, MinimumLength 2)
+  if (!fields.name.trim()) {
+    errors.name = 'Full name is required.';
+  } else if (fields.name.trim().length < 2) {
+    errors.name = 'Full name must be at least 2 characters.';
+  } else if (fields.name.trim().length > 30) {
+    errors.name = 'Full name cannot exceed 30 characters.';
+  }
+
+  // Username (StringLength 30, MinimumLength 2)
+  if (!fields.username.trim()) {
+    errors.username = 'Username is required.';
+  } else if (fields.username.trim().length < 2) {
+    errors.username = 'Username must be at least 2 characters.';
+  } else if (fields.username.trim().length > 30) {
+    errors.username = 'Username cannot exceed 30 characters.';
+  } else if (!/^[a-z0-9_.]+$/.test(fields.username)) {
+    errors.username = 'Only lowercase letters, numbers, dots and underscores.';
+  }
+
+  // Email (StringLength 100)
+  if (!fields.email.trim()) {
+    errors.email = 'Email is required.';
+  } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(fields.email)) {
     errors.email = 'Enter a valid email address.';
+  } else if (fields.email.length > 100) {
+    errors.email = 'Email cannot exceed 100 characters.';
+  }
+
   return errors;
 }
 
@@ -41,6 +64,11 @@ export function EditProfilePage() {
   const handleChange = (updated: Partial<FormFields>) => {
     setFields((prev) => ({ ...prev, ...updated }));
     setSaved(false);
+    // Sterge eroarea pentru campul modificat
+    const updatedKey = Object.keys(updated)[0] as keyof FormFields;
+    if (errors[updatedKey]) {
+      setErrors((prev) => ({ ...prev, [updatedKey]: undefined }));
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {

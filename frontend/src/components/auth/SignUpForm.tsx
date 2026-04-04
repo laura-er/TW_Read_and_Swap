@@ -24,26 +24,33 @@ type FieldProps = {
     show?: boolean;
     onToggle?: () => void;
     isDark: boolean;
+    hasError?: boolean;
 };
 
-function Field({ label, name, value, onChange, type = 'text', ph, toggle, show, onToggle, isDark }: FieldProps) {
+function Field({ label, name, value, onChange, type = 'text', ph, toggle, show, onToggle, isDark, hasError }: FieldProps) {
     const inp: React.CSSProperties = {
         width: '100%', boxSizing: 'border-box',
         padding: '9px 12px', fontSize: '12px', borderRadius: '10px',
         background: isDark ? 'rgba(40,26,10,0.9)' : 'rgba(255,248,230,0.9)',
-        border: isDark ? '1px solid rgba(180,120,40,0.22)' : '1px solid rgba(190,150,60,0.35)',
+        border: hasError
+            ? '1.5px solid #e05030'
+            : isDark ? '1px solid rgba(180,120,40,0.22)' : '1px solid rgba(190,150,60,0.35)',
         color: isDark ? '#e8d5b0' : '#2a1f08',
         outline: 'none', transition: 'border-color 0.15s, box-shadow 0.15s',
+        boxShadow: hasError ? '0 0 0 3px rgba(224,80,48,0.15)' : 'none',
     };
     const lbl: React.CSSProperties = {
         fontSize: '10px', fontWeight: 600, letterSpacing: '0.1em',
-        textTransform: 'uppercase', color: isDark ? '#7a5a30' : '#8a6830',
+        textTransform: 'uppercase',
+        color: hasError ? '#e05030' : isDark ? '#7a5a30' : '#8a6830',
     };
     const focus = (e: React.FocusEvent<HTMLInputElement>) => {
+        if (hasError) return;
         e.currentTarget.style.borderColor = isDark ? 'rgba(212,112,58,0.7)' : 'rgba(180,120,30,0.7)';
         e.currentTarget.style.boxShadow = isDark ? '0 0 0 3px rgba(212,112,58,0.1)' : '0 0 0 3px rgba(180,120,30,0.1)';
     };
     const blur = (e: React.FocusEvent<HTMLInputElement>) => {
+        if (hasError) return;
         e.currentTarget.style.borderColor = isDark ? 'rgba(180,120,40,0.22)' : 'rgba(190,150,60,0.35)';
         e.currentTarget.style.boxShadow = 'none';
     };
@@ -88,6 +95,7 @@ export function SignUpForm() {
         email: '', phone: '', password: '', confirm: '',
     });
     const [error, setError] = useState('');
+    const [errorField, setErrorField] = useState<keyof USignupData | 'server' | ''>('');
     const [isLoading, setIsLoading] = useState(false);
     const [showPass, setShowPass] = useState(false);
     const [showConfirm, setShowConfirm] = useState(false);
@@ -95,13 +103,46 @@ export function SignUpForm() {
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
         setForm(prev => ({ ...prev, [name]: value }));
+        if (errorField === name || errorField === 'server') {
+            setError('');
+            setErrorField('');
+        }
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setError('');
-        if (form.password.length < 8) { setError('Min. 8 characters.'); return; }
-        if (form.password !== form.confirm) { setError('Passwords do not match.'); return; }
+        setErrorField('');
+
+        if (form.firstName.length < 2 || form.firstName.length > 30) {
+            setErrorField('firstName');
+            return setError('First name must be between 2 and 30 characters.');
+        }
+        if (form.lastName.length < 2 || form.lastName.length > 30) {
+            setErrorField('lastName');
+            return setError('Last name must be between 2 and 30 characters.');
+        }
+        if (form.username.length < 2 || form.username.length > 30) {
+            setErrorField('username');
+            return setError('Username must be between 2 and 30 characters.');
+        }
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) {
+            setErrorField('email');
+            return setError('Please enter a valid email address.');
+        }
+        if (form.phone && (form.phone.length < 7 || form.phone.length > 12)) {
+            setErrorField('phone');
+            return setError('Phone number must be between 7 and 12 digits.');
+        }
+        if (form.password.length < 8) {
+            setErrorField('password');
+            return setError('Password must be at least 8 characters.');
+        }
+        if (form.password !== form.confirm) {
+            setErrorField('confirm');
+            return setError('Passwords do not match.');
+        }
+
         setIsLoading(true);
         try {
             await axiosInstance.post('/api/users/register', {
@@ -113,8 +154,17 @@ export function SignUpForm() {
                 password: form.password,
             });
             navigate('/sign-in');
-        } catch {
-            setError('Email already in use or something went wrong.');
+        } catch (err: any) {
+            const msg = err?.response?.data;
+            if (typeof msg === 'string' && msg.length < 100) {
+                setError(msg);
+                if (msg.toLowerCase().includes('email')) setErrorField('email');
+                else if (msg.toLowerCase().includes('username')) setErrorField('username');
+                else setErrorField('server');
+            } else {
+                setErrorField('server');
+                setError('Something went wrong. Please try again.');
+            }
         } finally {
             setIsLoading(false);
         }
@@ -124,17 +174,17 @@ export function SignUpForm() {
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '11px' }}>
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
-                <Field label="First Name" name="firstName" value={form.firstName} onChange={handleChange} ph="Jane" isDark={isDark} />
-                <Field label="Last Name"  name="lastName"  value={form.lastName}  onChange={handleChange} ph="Doe"  isDark={isDark} />
+                <Field label="First Name" name="firstName" value={form.firstName} onChange={handleChange} ph="Jane" isDark={isDark} hasError={errorField === 'firstName'} />
+                <Field label="Last Name"  name="lastName"  value={form.lastName}  onChange={handleChange} ph="Doe"  isDark={isDark} hasError={errorField === 'lastName'} />
             </div>
 
-            <Field label="Username" name="username" value={form.username} onChange={handleChange} ph="janedoe" isDark={isDark} />
-            <Field label="Email"    name="email"    value={form.email}    onChange={handleChange} type="email" ph="you@example.com" isDark={isDark} />
-            <Field label="Phone"    name="phone"    value={form.phone}    onChange={handleChange} ph="069123456" isDark={isDark} />
+            <Field label="Username" name="username" value={form.username} onChange={handleChange} ph="janedoe" isDark={isDark} hasError={errorField === 'username'} />
+            <Field label="Email"    name="email"    value={form.email}    onChange={handleChange} type="email" ph="you@example.com" isDark={isDark} hasError={errorField === 'email'} />
+            <Field label="Phone"    name="phone"    value={form.phone}    onChange={handleChange} ph="069123456" isDark={isDark} hasError={errorField === 'phone'} />
             <Field label="Password" name="password" value={form.password} onChange={handleChange} ph="Min. 8 chars"
-                   toggle show={showPass} onToggle={() => setShowPass(p => !p)} isDark={isDark} />
+                   toggle show={showPass} onToggle={() => setShowPass(p => !p)} isDark={isDark} hasError={errorField === 'password'} />
             <Field label="Confirm"  name="confirm"  value={form.confirm}  onChange={handleChange} ph="Repeat password"
-                   toggle show={showConfirm} onToggle={() => setShowConfirm(p => !p)} isDark={isDark} />
+                   toggle show={showConfirm} onToggle={() => setShowConfirm(p => !p)} isDark={isDark} hasError={errorField === 'confirm'} />
 
             {error && (
                 <p style={{ fontSize: '11px', color: '#e05030', marginTop: '-2px' }}>⚠ {error}</p>
