@@ -18,6 +18,10 @@ public class UserActions
         var exists = db.Users.Any(u => u.Email == dto.Email);
         if (exists)
             return new ServiceResponse { IsSuccess = false, Message = "Email already in use" };
+        
+        var usernameExists = db.Users.Any(u => u.Username == dto.Username);
+        if (usernameExists)
+            return new ServiceResponse { IsSuccess = false, Message = "Username already in use" };
 
         var user = new UserEntity
         {

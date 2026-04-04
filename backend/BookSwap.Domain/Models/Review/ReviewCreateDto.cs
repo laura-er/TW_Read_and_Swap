@@ -1,11 +1,19 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace BookSwap.Domain.Models.Review;
 
-public class ReviewDto
+public class ReviewCreateDto
 {
-    public int Id { get; set; }
+    [Required]
+    [Range(1, 5)]
     public int Rating { get; set; }
+
+    [StringLength(1000)]
     public string Comment { get; set; } = string.Empty;
-    public DateTime CreatedAt { get; set; }
+
+    [Required]
     public int BookId { get; set; }
+
+    [Required]
     public int UserId { get; set; }
 }
