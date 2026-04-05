@@ -11,11 +11,15 @@ public class BookLogic : BookActions, IBookLogic
 
     public ServiceResponse GetAllBooks()
         => GetAllBooksAction();
+
     public ServiceResponse GetBooksByOwner(int ownerId)
         => GetBooksByOwnerAction(ownerId);
 
     public ServiceResponse GetBookById(int id)
         => GetBookByIdAction(id);
+
+    public ServiceResponse SearchBooks(string? search, string? genre, string? condition, bool? isAvailable, string? sort, string? order)
+        => SearchBooksAction(search, genre, condition, isAvailable, sort, order);
 
     public ServiceResponse CreateBook(BookCreateDto dto)
         => CreateBookAction(dto);
@@ -26,3 +30,4 @@ public class BookLogic : BookActions, IBookLogic
     public ServiceResponse DeleteBook(int id)
         => DeleteBookAction(id);
 }
+

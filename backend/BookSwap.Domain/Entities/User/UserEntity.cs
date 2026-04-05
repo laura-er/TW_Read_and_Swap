@@ -33,9 +33,7 @@ namespace BookSwap.Domain.Entities.User
         public string PasswordHash { get; set; } = string.Empty;
 
         public UserRole Role { get; set; } = UserRole.User;
-
-        public string SessionId { get; set; } = string.Empty;
-
+        
         [DataType(DataType.Date)]
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     }

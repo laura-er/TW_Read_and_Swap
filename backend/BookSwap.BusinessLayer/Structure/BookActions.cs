@@ -17,19 +17,70 @@ public class BookActions
         var books = db.Books
             .Select(b => new BookDto
             {
-                Id = b.Id,
-                Title = b.Title,
-                Author = b.Author,
-                Genre = b.Genre,
-                Condition = b.Condition,
-                CoverUrl = b.CoverUrl,
+                Id          = b.Id,
+                Title       = b.Title,
+                Author      = b.Author,
+                Genre       = b.Genre,
+                Condition   = b.Condition,
+                CoverUrl    = b.CoverUrl,
                 Description = b.Description,
                 IsAvailable = b.IsAvailable,
-                OwnerId = b.OwnerId
+                OwnerId     = b.OwnerId
             }).ToList();
 
         return new ServiceResponse { IsSuccess = true, Data = books };
     }
+
+    protected ServiceResponse SearchBooksAction(
+        string? search,
+        string? genre,
+        string? condition,
+        bool? isAvailable,
+        string? sort,
+        string? order)
+    {
+        using var db = new BookSwapDbContext(DbSession.GetOptions());
+
+        var query = db.Books.AsQueryable();
+
+        if (!string.IsNullOrWhiteSpace(search))
+            query = query.Where(b =>
+                b.Title.ToLower().Contains(search.ToLower()) ||
+                b.Author.ToLower().Contains(search.ToLower()));
+
+        if (!string.IsNullOrWhiteSpace(genre))
+            query = query.Where(b => b.Genre.ToLower() == genre.ToLower());
+
+        if (!string.IsNullOrWhiteSpace(condition))
+            query = query.Where(b => b.Condition.ToLower() == condition.ToLower());
+
+        if (isAvailable.HasValue)
+            query = query.Where(b => b.IsAvailable == isAvailable.Value);
+
+        query = sort?.ToLower() switch
+        {
+            "title"     => order == "desc" ? query.OrderByDescending(b => b.Title)     : query.OrderBy(b => b.Title),
+            "author"    => order == "desc" ? query.OrderByDescending(b => b.Author)    : query.OrderBy(b => b.Author),
+            "createdat" => order == "desc" ? query.OrderByDescending(b => b.CreatedAt) : query.OrderBy(b => b.CreatedAt),
+            _           => query.OrderByDescending(b => b.CreatedAt)
+        };
+
+        var books = query.Select(b => new BookDto
+        {
+            Id          = b.Id,
+            Title       = b.Title,
+            Author      = b.Author,
+            Genre       = b.Genre,
+            Condition   = b.Condition,
+            CoverUrl    = b.CoverUrl,
+            Description = b.Description,
+            IsAvailable = b.IsAvailable,
+            OwnerId     = b.OwnerId
+        }).ToList();
+
+        return new ServiceResponse { IsSuccess = true, Data = books };
+    }
+
     internal ServiceResponse GetBooksByOwnerAction(int ownerId)
     {
         using var db = new BookSwapDbContext(DbSession.GetOptions());
@@ -38,15 +89,15 @@ public class BookActions
             .Where(b => b.OwnerId == ownerId)
             .Select(b => new BookDto
             {
-                Id = b.Id,
-                Title = b.Title,
-                Author = b.Author,
-                Genre = b.Genre,
-                Condition = b.Condition,
-                CoverUrl = b.CoverUrl,
+                Id          = b.Id,
+                Title       = b.Title,
+                Author      = b.Author,
+                Genre       = b.Genre,
+                Condition   = b.Condition,
+                CoverUrl    = b.CoverUrl,
                 Description = b.Description,
                 IsAvailable = b.IsAvailable,
-                OwnerId = b.OwnerId
+                OwnerId     = b.OwnerId
             }).ToList();
 
         return new ServiceResponse { IsSuccess = true, Data = books };
@@ -62,15 +113,15 @@ public class BookActions
 
         var dto = new BookDto
         {
-            Id = book.Id,
-            Title = book.Title,
-            Author = book.Author,
-            Genre = book.Genre,
-            Condition = book.Condition,
-            CoverUrl = book.CoverUrl,
+            Id          = book.Id,
+            Title       = book.Title,
+            Author      = book.Author,
+            Genre       = book.Genre,
+            Condition   = book.Condition,
+            CoverUrl    = book.CoverUrl,
             Description = book.Description,
             IsAvailable = book.IsAvailable,
-            OwnerId = book.OwnerId
+            OwnerId     = book.OwnerId
         };
 
         return new ServiceResponse { IsSuccess = true, Data = dto };
@@ -86,15 +137,15 @@ public class BookActions
 
         var book = new BookEntity
         {
-            Title = dto.Title,
-            Author = dto.Author,
-            Genre = dto.Genre,
-            Condition = dto.Condition,
-            CoverUrl = dto.CoverUrl,
+            Title       = dto.Title,
+            Author      = dto.Author,
+            Genre       = dto.Genre,
+            Condition   = dto.Condition,
+            CoverUrl    = dto.CoverUrl,
             Description = dto.Description,
             IsAvailable = true,
-            OwnerId = dto.OwnerId,
-            CreatedAt = DateTime.UtcNow
+            OwnerId     = dto.OwnerId,
+            CreatedAt   = DateTime.UtcNow
         };
 
         try
@@ -118,11 +169,11 @@ public class BookActions
         if (book == null)
             return new ServiceResponse { IsSuccess = false, Message = "Book not found" };
 
-        book.Title = dto.Title;
-        book.Author = dto.Author;
-        book.Genre = dto.Genre;
-        book.Condition = dto.Condition;
-        book.CoverUrl = dto.CoverUrl;
+        book.Title       = dto.Title;
+        book.Author      = dto.Author;
+        book.Genre       = dto.Genre;
+        book.Condition   = dto.Condition;
+        book.CoverUrl    = dto.CoverUrl;
         book.Description = dto.Description;
         book.IsAvailable = dto.IsAvailable;
 
