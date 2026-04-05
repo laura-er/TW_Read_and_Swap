@@ -1,5 +1,7 @@
 using BookSwap.BusinessLayer;
 using BookSwap.DataAccessLayer;
+using BookSwap.DataAccessLayer.Context;
+using BookSwap.Domain.Entities.User;
 using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -50,6 +52,29 @@ builder.Services.AddCors(options =>
 });
 
 var app = builder.Build();
+
+// ── Seed admin implicit 
+using (var db = new BookSwapDbContext(DbSession.GetOptions()))
+{
+    var adminExists = db.Users.Any(u => u.Role == UserRole.Admin);
+    if (!adminExists)
+    {
+        db.Users.Add(new UserEntity
+        {
+            FirstName    = "Admin",
+            LastName     = "Admin",
+            Username     = "admin",
+            Email        = "admin@test.com",
+            Phone        = "",
+            PasswordHash = BCrypt.Net.BCrypt.HashPassword("Admin123"),
+            Role         = UserRole.Admin,
+            CreatedAt    = DateTime.UtcNow,
+           
+        });
+        db.SaveChanges();
+    }
+}
+
 
 if (app.Environment.IsDevelopment())
 {

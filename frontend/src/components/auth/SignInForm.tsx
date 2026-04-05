@@ -49,6 +49,7 @@ export function SignInForm() {
                 email: userData.email,
                 role: userData.role,
                 username: userData.username,
+                token: userData.token,
                 avatarUrl: '',
                 bio: '',
                 location: '',

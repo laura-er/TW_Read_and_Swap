@@ -1,3 +1,5 @@
+using System.Security.Claims;
+using BookSwap.BusinessLayer.Structure;
 using BookSwap.DataAccessLayer;
 using BookSwap.DataAccessLayer.Context;
 
@@ -18,11 +20,23 @@ public class AuthMiddleware
 
         if (!string.IsNullOrEmpty(token))
         {
-            using var db = new BookSwapDbContext(DbSession.GetOptions());
-            var user = db.Users.FirstOrDefault(u => u.SessionId == token);
+            var tokenService = new TokenService();
+            var principal = tokenService.ValidateToken(token);
 
-            if (user != null)
-                context.Items["CurrentUser"] = user;
+            if (principal != null)
+            {
+                var userIdClaim = principal.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                var roleClaim = principal.FindFirst(ClaimTypes.Role)?.Value;
+
+                if (int.TryParse(userIdClaim, out var userId))
+                {
+                    using var db = new BookSwapDbContext(DbSession.GetOptions());
+                    var user = db.Users.Find(userId);
+
+                    if (user != null)
+                        context.Items["CurrentUser"] = user;
+                }
+            }
         }
 
         await _next(context);

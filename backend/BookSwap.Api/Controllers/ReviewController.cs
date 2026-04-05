@@ -1,3 +1,4 @@
+using BookSwap.Api.Helpers;
 using BookSwap.BusinessLayer;
 using BookSwap.BusinessLayer.Interfaces;
 using BookSwap.Domain.Models.Review;
@@ -17,6 +18,7 @@ public class ReviewController : ControllerBase
         _reviewLogic = bl.GetReviewLogic();
     }
 
+    // ── PUBLIC ──────────────────────────────────────────
     [HttpGet]
     public IActionResult GetAll()
     {
@@ -45,9 +47,16 @@ public class ReviewController : ControllerBase
         return response.IsSuccess ? Ok(response.Data) : BadRequest(response.Message);
     }
 
+    // ── AUTENTIFICAT ─────────────────────────────────────
     [HttpPost]
     public IActionResult Create([FromBody] ReviewCreateDto dto)
     {
+        var currentUser = HttpContext.GetCurrentUser();
+        if (currentUser == null)
+            return Unauthorized("Not authenticated");
+
+        dto.UserId = currentUser.Id;
+
         var response = _reviewLogic.CreateReview(dto);
         return response.IsSuccess ? StatusCode(201, response.Message) : BadRequest(response.Message);
     }
@@ -55,6 +64,18 @@ public class ReviewController : ControllerBase
     [HttpPut("{id}")]
     public IActionResult Update([FromRoute] int id, [FromBody] ReviewUpdateDto dto)
     {
+        var currentUser = HttpContext.GetCurrentUser();
+        if (currentUser == null)
+            return Unauthorized("Not authenticated");
+
+        var reviewResponse = _reviewLogic.GetReviewById(id);
+        if (!reviewResponse.IsSuccess)
+            return NotFound(reviewResponse.Message);
+
+        var review = reviewResponse.Data as ReviewDto;
+        if (review!.UserId != currentUser.Id && !HttpContext.IsAdmin())
+            return StatusCode(403, "Access denied");
+
         var response = _reviewLogic.UpdateReview(id, dto);
         return response.IsSuccess ? Ok(response.Message) : NotFound(response.Message);
     }
@@ -62,6 +83,18 @@ public class ReviewController : ControllerBase
     [HttpDelete("{id}")]
     public IActionResult Delete([FromRoute] int id)
     {
+        var currentUser = HttpContext.GetCurrentUser();
+        if (currentUser == null)
+            return Unauthorized("Not authenticated");
+
+        var reviewResponse = _reviewLogic.GetReviewById(id);
+        if (!reviewResponse.IsSuccess)
+            return NotFound(reviewResponse.Message);
+
+        var review = reviewResponse.Data as ReviewDto;
+        if (review!.UserId != currentUser.Id && !HttpContext.IsAdmin())
+            return StatusCode(403, "Access denied");
+
         var response = _reviewLogic.DeleteReview(id);
         return response.IsSuccess ? NoContent() : NotFound(response.Message);
     }
