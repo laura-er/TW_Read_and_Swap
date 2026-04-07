@@ -12,6 +12,7 @@ export interface User {
   booksCount?: number;
   swapsCompleted?: number;
   favoritesCount?: number;
+  phone?: string; 
 }
 
 export interface Review {

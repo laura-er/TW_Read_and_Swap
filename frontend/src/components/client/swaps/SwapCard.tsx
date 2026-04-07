@@ -1,10 +1,9 @@
 ﻿import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Flag } from 'lucide-react';
-import type { SwapRequestPopulated } from '@/types';
+import type { SwapRequest } from '@/types';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
-import { Avatar } from '@/components/ui/Avatar';
 import { ReportModal } from '@/components/shared/ReportModal';
 import { formatRelativeDate } from '@/utils/formatDate';
 
@@ -16,7 +15,7 @@ const statusVariant: Record<string, StatusVariant> = {
 };
 
 interface SwapCardProps {
-    swap: SwapRequestPopulated;
+    swap: SwapRequest;
     currentUserId: string;
     onAccept?: (id: string) => void;
     onDecline?: (id: string) => void;
@@ -25,7 +24,7 @@ interface SwapCardProps {
 
 export function SwapCard({ swap, currentUserId, onAccept, onDecline, onCancel }: SwapCardProps) {
     const isOwner = swap.ownerId === currentUserId;
-    const otherUser = isOwner ? swap.requester : swap.owner;
+    const otherUserId = isOwner ? swap.requesterId : swap.ownerId;
     const [showReport, setShowReport] = useState(false);
 
     const bookPanelStyle: React.CSSProperties = {
@@ -45,40 +44,39 @@ export function SwapCard({ swap, currentUserId, onAccept, onDecline, onCancel }:
             padding: '20px',
         }}>
             {showReport && (
-                <ReportModal targetId={otherUser.id} targetName={otherUser.name}
-                             type="user" onClose={() => setShowReport(false)} />
+                <ReportModal
+                    targetId={otherUserId}
+                    targetName={`User #${otherUserId}`}
+                    type="user"
+                    onClose={() => setShowReport(false)}
+                />
             )}
 
             {/* User + status */}
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '14px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                    <Avatar src={otherUser.avatarUrl} name={otherUser.name} size="sm" />
-                    <div>
-                        <p style={{ fontSize: '13px', fontWeight: 600, color: 'var(--navbar-text)' }}>
-                            {otherUser.name}
-                        </p>
-                        <p style={{ fontSize: '11px', color: 'var(--navbar-text-muted)' }}>
-                            {formatRelativeDate(swap.createdAt)}
-                        </p>
-                    </div>
+                <div>
+                    <p style={{ fontSize: '13px', fontWeight: 600, color: 'var(--navbar-text)' }}>
+                        {isOwner ? `From user #${swap.requesterId}` : `To user #${swap.ownerId}`}
+                    </p>
+                    <p style={{ fontSize: '11px', color: 'var(--navbar-text-muted)' }}>
+                        {formatRelativeDate(swap.createdAt)}
+                    </p>
                 </div>
                 <Badge variant={statusVariant[swap.status]}>{swap.status}</Badge>
             </div>
 
             {/* Books exchange */}
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '14px' }}>
-                <Link to={`/books/${swap.bookRequested.id}`} style={bookPanelStyle}
+                <Link to={`/books/${swap.bookRequestedId}`} style={bookPanelStyle}
                       onMouseEnter={e => (e.currentTarget.style.borderColor = 'var(--color-accent)')}
                       onMouseLeave={e => (e.currentTarget.style.borderColor = 'transparent')}>
-                    <img src={swap.bookRequested.coverUrl} alt={swap.bookRequested.title}
-                         style={{ width: '36px', height: '50px', objectFit: 'cover', borderRadius: '8px' }} />
                     <div style={{ minWidth: 0 }}>
                         <p style={{ fontSize: '11px', color: 'var(--navbar-text-muted)', marginBottom: '2px' }}>
                             {isOwner ? 'They want:' : 'You requested:'}
                         </p>
                         <p style={{ fontSize: '12px', fontWeight: 600, color: 'var(--navbar-text)',
                             overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                            {swap.bookRequested.title}
+                            Book #{swap.bookRequestedId}
                         </p>
                     </div>
                 </Link>
@@ -89,18 +87,16 @@ export function SwapCard({ swap, currentUserId, onAccept, onDecline, onCancel }:
                           d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
                 </svg>
 
-                <Link to={`/books/${swap.bookOffered.id}`} style={bookPanelStyle}
+                <Link to={`/books/${swap.bookOfferedId}`} style={bookPanelStyle}
                       onMouseEnter={e => (e.currentTarget.style.borderColor = 'var(--color-accent)')}
                       onMouseLeave={e => (e.currentTarget.style.borderColor = 'transparent')}>
-                    <img src={swap.bookOffered.coverUrl} alt={swap.bookOffered.title}
-                         style={{ width: '36px', height: '50px', objectFit: 'cover', borderRadius: '8px' }} />
                     <div style={{ minWidth: 0 }}>
                         <p style={{ fontSize: '11px', color: 'var(--navbar-text-muted)', marginBottom: '2px' }}>
                             {isOwner ? 'They offered:' : 'You offered:'}
                         </p>
                         <p style={{ fontSize: '12px', fontWeight: 600, color: 'var(--navbar-text)',
                             overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                            {swap.bookOffered.title}
+                            Book #{swap.bookOfferedId}
                         </p>
                     </div>
                 </Link>

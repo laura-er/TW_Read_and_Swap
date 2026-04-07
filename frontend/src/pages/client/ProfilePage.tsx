@@ -16,12 +16,12 @@ import type { ProfileTab } from '@/components/client/profile/ProfileTabs';
 import { useFavorites } from '@/context/FavoritesContext';
 import type { Book } from '@/types';
 
-const CURRENT_USER_ID = 'user1';
 
 export function ProfilePage() {
     const { user } = useAuth();
     const isAdmin = user?.role === 'admin';
-    const { swaps } = useSwaps();
+    const { incoming, outgoing } = useSwaps();
+const swaps = [...incoming, ...outgoing];
     const [searchParams] = useSearchParams();
     const tabParam = searchParams.get('tab');
     const initialTab: ProfileTab = tabParam
@@ -199,7 +199,7 @@ export function ProfilePage() {
                 )}
 
                 {!isAdmin && activeTab === 'Swap History' && (
-                    <SwapHistoryTab swaps={swaps} currentUserId={CURRENT_USER_ID} />
+                    <SwapHistoryTab swaps={swaps} currentUserId={user?.id ?? ''} />
                 )}
 
                 {!isAdmin && activeTab === 'Messages' && <MessagesTab />}

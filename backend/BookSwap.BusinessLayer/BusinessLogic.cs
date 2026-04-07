@@ -17,6 +17,21 @@ public class BusinessLogic
         return new BookLogic();
     }
 
+    public IReviewLogic GetReviewLogic()
+    {
+        return new ReviewLogic();
+    }
+
+    public ISwapLogic GetSwapLogic()
+    {
+        return new SwapLogic();
+    }
+
+    public IFavoriteLogic GetFavoriteLogic()
+    {
+        return new FavoriteLogic();
+    }
+
     public IReportLogic GetReportLogic()
     {
         return new ReportLogic();

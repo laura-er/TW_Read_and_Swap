@@ -4,7 +4,8 @@ import { useNavigate, Link } from 'react-router-dom';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
 import { SwapGuidelinesBox } from './SwapGuidelinesBox';
-import { mockBooks } from '@/data/mockBooks';
+import { useAuth } from '@/context/AuthContext';
+import axiosInstance from '@/api/axiosInstance';
 import type { Book } from '@/types';
 
 interface SwapFormData {
@@ -166,15 +167,28 @@ function BookDropdown({ value, options, onChange, hasError }: BookDropdownProps)
 
 export function SwapForm({ book }: SwapFormProps) {
     const navigate = useNavigate();
+    const { user } = useAuth();
     const [formData, setFormData] = useState<SwapFormData>({
         offeredBookId: '',
         message: '',
-        contactEmail: '',
+        contactEmail: user?.email ?? '',
     });
     const [isLoading, setIsLoading] = useState(false);
     const [errors, setErrors] = useState<Partial<SwapFormData>>({});
+    const [userBooks, setUserBooks] = useState<Book[]>([]);
 
-    const userBooks = mockBooks.filter((b) => b.ownerId === 'user1' && b.id !== book.id);
+    useEffect(() => {
+        if (!user?.id) return;
+        axiosInstance.get(`/api/books/owner/${user.id}`)
+            .then(res => {
+                const mapped = res.data
+                    .map((b: any) => ({ ...b, id: String(b.id) }))
+                    .filter((b: Book) => b.id !== book.id);
+                setUserBooks(mapped);
+            })
+            .catch(() => {});
+    }, [user?.id, book.id]);
+
     const bookOptions = userBooks.map(b => ({
         id: b.id,
         label: `${b.title} — ${b.author} (${b.condition})`,
@@ -202,10 +216,22 @@ export function SwapForm({ book }: SwapFormProps) {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!validate()) return;
+        if (!user) return;
+
         setIsLoading(true);
-        await new Promise((resolve) => setTimeout(resolve, 1000));
-        setIsLoading(false);
-        navigate(`/swap/${book.id}/success`);
+        try {
+            await axiosInstance.post('/api/swaps', {
+                ownerId: Number(book.ownerId),
+                bookOfferedId: Number(formData.offeredBookId),
+                bookRequestedId: Number(book.id),
+                message: formData.message,
+            });
+            navigate(`/swap/${book.id}/success`);
+        } catch {
+            setErrors({ offeredBookId: 'Failed to send swap request. Please try again.' });
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     return (

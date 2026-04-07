@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import { mockActivityFeed } from '@/data/mockAdminData';
 import type { AdminStats } from '@/types/admin';
 import { DashboardStats } from '@/components/admin/dashboard/DashboardStats';
 import { ActivityFeed } from '@/components/admin/dashboard/ActivityFeed';
@@ -16,14 +15,12 @@ export function AdminDashboardPage() {
     });
 
     useEffect(() => {
-        // Încarcă totalBooks din API
         axiosInstance.get('/api/books')
             .then((res) => {
                 setStats((prev) => ({ ...prev, totalBooks: res.data.length }));
             })
             .catch(() => {});
 
-        // Încarcă totalUsers din API
         axiosInstance.get('/api/users/list')
             .then((res) => {
                 setStats((prev) => ({ ...prev, totalUsers: res.data.length }));
@@ -42,7 +39,7 @@ export function AdminDashboardPage() {
                 </p>
             </div>
             <DashboardStats stats={stats} />
-            <ActivityFeed items={mockActivityFeed} />
+            <ActivityFeed items={[]} />
         </main>
     );
 }

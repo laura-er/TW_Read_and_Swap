@@ -1,10 +1,9 @@
 ﻿import { Link } from 'react-router-dom';
-import type { SwapRequestPopulated } from '@/types';
+import type { SwapRequest } from '@/types';
 import { formatRelativeDate } from '@/utils/formatDate';
-import { Avatar } from '@/components/ui/Avatar';
 
 interface SwapHistoryTabProps {
-    swaps: SwapRequestPopulated[];
+    swaps: SwapRequest[];
     currentUserId: string;
 }
 
@@ -29,30 +28,30 @@ export function SwapHistoryTab({ swaps, currentUserId }: SwapHistoryTabProps) {
         <div className="flex flex-col gap-4">
             {completed.map((swap) => {
                 const isOwner = swap.ownerId === currentUserId;
-                const otherUser = isOwner ? swap.requester : swap.owner;
 
                 return (
-                    <div key={swap.id} className="rounded-2xl p-5" style={{background: "var(--lib-card)", border: "1px solid var(--lib-border)", backdropFilter: "blur(16px)"}}>
+                    <div key={swap.id} className="rounded-2xl p-5" style={{ background: 'var(--lib-card)', border: '1px solid var(--lib-border)', backdropFilter: 'blur(16px)' }}>
                         <div className="flex items-center justify-between mb-4">
-                            <div className="flex items-center gap-3">
-                                <Avatar src={otherUser.avatarUrl} name={otherUser.name} size="sm" />
-                                <div>
-                                    <p className="text-sm font-semibold text-[var(--color-text)]">{otherUser.name}</p>
-                                    <p className="text-xs text-[var(--color-text-muted)]">{formatRelativeDate(swap.updatedAt)}</p>
-                                </div>
+                            <div>
+                                <p className="text-sm font-semibold text-[var(--color-text)]">
+                                    {isOwner ? `With user #${swap.requesterId}` : `With user #${swap.ownerId}`}
+                                </p>
+                                <p className="text-xs text-[var(--color-text-muted)]">{formatRelativeDate(swap.updatedAt)}</p>
                             </div>
                             <span className="text-xs font-semibold text-green-600 bg-green-100 dark:bg-green-900/30 px-2.5 py-1 rounded-full">
-                Completed
-              </span>
+                                Completed
+                            </span>
                         </div>
 
                         <div className="flex items-center gap-3">
-                            <Link to={`/books/${swap.bookRequested.id}`} className="flex-1 flex items-center gap-3 p-3 rounded-xl hover:border-[var(--color-accent)] border border-transparent transition-all" style={{background: "var(--lib-stats)"}}>
-                                <img src={swap.bookRequested.coverUrl} alt={swap.bookRequested.title} className="w-9 h-12 object-cover rounded-lg" />
+                            <Link
+                                to={`/books/${swap.bookRequestedId}`}
+                                className="flex-1 flex items-center gap-3 p-3 rounded-xl hover:border-[var(--color-accent)] border border-transparent transition-all"
+                                style={{ background: 'var(--lib-stats)' }}
+                            >
                                 <div className="min-w-0">
                                     <p className="text-xs text-[var(--color-text-muted)] mb-0.5">{isOwner ? 'You gave:' : 'You received:'}</p>
-                                    <p className="text-sm font-semibold text-[var(--color-text)] truncate">{swap.bookRequested.title}</p>
-                                    <p className="text-xs text-[var(--color-text-muted)] truncate">{swap.bookRequested.author}</p>
+                                    <p className="text-sm font-semibold text-[var(--color-text)] truncate">Book #{swap.bookRequestedId}</p>
                                 </div>
                             </Link>
 
@@ -60,12 +59,14 @@ export function SwapHistoryTab({ swaps, currentUserId }: SwapHistoryTabProps) {
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
                             </svg>
 
-                            <Link to={`/books/${swap.bookOffered.id}`} className="flex-1 flex items-center gap-3 p-3 rounded-xl hover:border-[var(--color-accent)] border border-transparent transition-all" style={{background: "var(--lib-stats)"}}>
-                                <img src={swap.bookOffered.coverUrl} alt={swap.bookOffered.title} className="w-9 h-12 object-cover rounded-lg" />
+                            <Link
+                                to={`/books/${swap.bookOfferedId}`}
+                                className="flex-1 flex items-center gap-3 p-3 rounded-xl hover:border-[var(--color-accent)] border border-transparent transition-all"
+                                style={{ background: 'var(--lib-stats)' }}
+                            >
                                 <div className="min-w-0">
                                     <p className="text-xs text-[var(--color-text-muted)] mb-0.5">{isOwner ? 'You received:' : 'You gave:'}</p>
-                                    <p className="text-sm font-semibold text-[var(--color-text)] truncate">{swap.bookOffered.title}</p>
-                                    <p className="text-xs text-[var(--color-text-muted)] truncate">{swap.bookOffered.author}</p>
+                                    <p className="text-sm font-semibold text-[var(--color-text)] truncate">Book #{swap.bookOfferedId}</p>
                                 </div>
                             </Link>
                         </div>

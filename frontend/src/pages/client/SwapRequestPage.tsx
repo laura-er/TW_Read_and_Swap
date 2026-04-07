@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import type { SwapStatus } from '@/types';
 import { useSwaps } from '@/context/SwapContext';
+import { useAuth } from '@/context/AuthContext';
 import { SwapStatsBar } from '@/components/client/swaps/SwapStatsBar';
 import { SwapTabs } from '@/components/client/swaps/SwapTabs';
 import { SwapStatusFilter } from '@/components/client/swaps/SwapStatusFilter';
@@ -10,28 +11,25 @@ import { SwapEmptyState } from '@/components/client/swaps/SwapEmptyState';
 type Tab = 'received' | 'sent' | 'completed';
 type FilterStatus = 'all' | SwapStatus;
 
-const CURRENT_USER_ID = 'user1';
-
 export function SwapRequestPage() {
-    const { swaps, updateStatus, removeSwap } = useSwaps();
+    const { user } = useAuth();
+    const { incoming, outgoing, updateStatus, removeSwap } = useSwaps();
     const [activeTab, setActiveTab] = useState<Tab>('received');
     const [filterStatus, setFilterStatus] = useState<FilterStatus>('all');
 
-    const received = swaps.filter((s) => s.ownerId === CURRENT_USER_ID && (s.status === 'pending' || s.status === 'declined'));
-    const sent = swaps.filter((s) => s.requesterId === CURRENT_USER_ID && (s.status === 'pending' || s.status === 'declined'));
-    const completed = swaps.filter(
-        (s) => s.status === 'accepted' &&
-            (s.ownerId === CURRENT_USER_ID || s.requesterId === CURRENT_USER_ID)
-    );
+    const currentUserId = user?.id ?? '';
 
+    const received = incoming.filter(s => s.status === 'pending' || s.status === 'declined');
+    const sent = outgoing.filter(s => s.status === 'pending' || s.status === 'declined');
+    const completed = [...incoming, ...outgoing].filter(s => s.status === 'accepted' || s.status === 'completed');
 
     const activeList = activeTab === 'received' ? received
         : activeTab === 'sent' ? sent
-            : completed;
+        : completed;
 
     const filtered = activeTab === 'completed'
         ? completed
-        : activeList.filter((s) => filterStatus === 'all' || s.status === filterStatus);
+        : activeList.filter(s => filterStatus === 'all' || s.status === filterStatus);
 
     return (
         <div className="mx-auto max-w-4xl px-4 py-10 sm:px-6">
@@ -59,11 +57,11 @@ export function SwapRequestPage() {
                 {filtered.length === 0 ? (
                     <SwapEmptyState tab={activeTab === 'completed' ? 'received' : activeTab} />
                 ) : (
-                    filtered.map((swap) => (
+                    filtered.map((swap: any) => (
                         <SwapCard
                             key={swap.id}
                             swap={swap}
-                            currentUserId={CURRENT_USER_ID}
+                            currentUserId={currentUserId}
                             onAccept={(id) => updateStatus(id, 'accepted')}
                             onDecline={(id) => updateStatus(id, 'declined')}
                             onCancel={removeSwap}
