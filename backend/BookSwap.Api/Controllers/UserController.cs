@@ -1,6 +1,6 @@
-using BookSwap.Api.Helpers;
 using BookSwap.BusinessLayer;
 using BookSwap.BusinessLayer.Interfaces;
+using BookSwap.Domain.Entities.User;
 using BookSwap.Domain.Models.User;
 using Microsoft.AspNetCore.Mvc;
 
@@ -39,18 +39,19 @@ public class UserController : ControllerBase
     [HttpPost("logout")]
     public IActionResult Logout()
     {
-        if (!HttpContext.IsAuthenticated())
+        var currentUser = HttpContext.Items["CurrentUser"] as UserEntity;
+        if (currentUser == null)
             return Unauthorized("Not authenticated");
 
-        var currentUser = HttpContext.GetCurrentUser();
-        _userLogic.Logout(currentUser!.Id);
+        _userLogic.Logout(currentUser.Id);
         return Ok("Logged out");
     }
 
     [HttpGet("list")]
     public IActionResult GetUserList()
     {
-        if (!HttpContext.IsAdmin())
+        var currentUser = HttpContext.Items["CurrentUser"] as UserEntity;
+        if (currentUser?.Role != UserRole.Admin)
             return StatusCode(403, "Access denied");
 
         var response = _userLogic.GetUserList();
@@ -71,12 +72,11 @@ public class UserController : ControllerBase
     [HttpPut("{id}")]
     public IActionResult UpdateUser([FromRoute] int id, [FromBody] UserUpdateDto dto)
     {
-        var currentUser = HttpContext.GetCurrentUser();
-
+        var currentUser = HttpContext.Items["CurrentUser"] as UserEntity;
         if (currentUser == null)
             return Unauthorized("Not authenticated");
 
-        if (currentUser.Id != id && !HttpContext.IsAdmin())
+        if (currentUser.Id != id && currentUser.Role != UserRole.Admin)
             return StatusCode(403, "Access denied");
 
         var response = _userLogic.UpdateUser(id, dto);
@@ -88,7 +88,8 @@ public class UserController : ControllerBase
     [HttpDelete("{id}")]
     public IActionResult DeleteUser([FromRoute] int id)
     {
-        if (!HttpContext.IsAdmin())
+        var currentUser = HttpContext.Items["CurrentUser"] as UserEntity;
+        if (currentUser?.Role != UserRole.Admin)
             return StatusCode(403, "Access denied");
 
         var response = _userLogic.DeleteUser(id);
@@ -96,11 +97,12 @@ public class UserController : ControllerBase
             return NotFound(response.Message);
         return NoContent();
     }
-    
+
     [HttpPut("{id}/role")]
     public IActionResult ChangeRole([FromRoute] int id, [FromBody] ChangeRoleDto dto)
     {
-        if (!HttpContext.IsAdmin())
+        var currentUser = HttpContext.Items["CurrentUser"] as UserEntity;
+        if (currentUser?.Role != UserRole.Admin)
             return StatusCode(403, "Access denied");
 
         var response = _userLogic.ChangeRole(id, dto);

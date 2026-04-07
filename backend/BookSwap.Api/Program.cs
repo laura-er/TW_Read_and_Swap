@@ -1,4 +1,6 @@
+using System.Security.Claims;
 using BookSwap.BusinessLayer;
+using BookSwap.BusinessLayer.Structure;
 using BookSwap.DataAccessLayer;
 using BookSwap.DataAccessLayer.Context;
 using BookSwap.Domain.Entities.User;
@@ -69,12 +71,10 @@ using (var db = new BookSwapDbContext(DbSession.GetOptions()))
             PasswordHash = BCrypt.Net.BCrypt.HashPassword("Admin123"),
             Role         = UserRole.Admin,
             CreatedAt    = DateTime.UtcNow,
-           
         });
         db.SaveChanges();
     }
 }
-
 
 if (app.Environment.IsDevelopment())
 {
@@ -83,7 +83,33 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseCors("FrontendPolicy");
-app.UseMiddleware<BookSwap.Api.Middleware.AuthMiddleware>();
+
+// Auth middleware inline
+app.Use(async (context, next) =>
+{
+    var authHeader = context.Request.Headers["Authorization"].FirstOrDefault();
+    if (authHeader != null && authHeader.StartsWith("Bearer "))
+    {
+        var token = authHeader.Substring(7);
+        var tokenService = new TokenService();
+        var principal = tokenService.ValidateToken(token);
+
+        if (principal != null)
+        {
+            var userIdClaim = principal.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (int.TryParse(userIdClaim, out var userId))
+            {
+                using var db = new BookSwapDbContext(DbSession.GetOptions());
+                var user = db.Users.Find(userId);
+                if (user != null)
+                    context.Items["CurrentUser"] = user;
+            }
+        }
+    }
+
+    await next(context);
+});
+
 app.MapControllers();
 
 app.Run();

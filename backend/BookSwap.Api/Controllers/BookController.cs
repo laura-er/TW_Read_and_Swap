@@ -1,6 +1,6 @@
-using BookSwap.Api.Helpers;
 using BookSwap.BusinessLayer;
 using BookSwap.BusinessLayer.Interfaces;
+using BookSwap.Domain.Entities.User;
 using BookSwap.Domain.Models.Book;
 using Microsoft.AspNetCore.Mvc;
 
@@ -65,7 +65,7 @@ public class BookController : ControllerBase
     [HttpPost]
     public IActionResult CreateBook([FromBody] BookCreateDto dto)
     {
-        var currentUser = HttpContext.GetCurrentUser();
+        var currentUser = HttpContext.Items["CurrentUser"] as UserEntity;
         if (currentUser == null)
             return Unauthorized("Not authenticated");
 
@@ -80,7 +80,7 @@ public class BookController : ControllerBase
     [HttpPut("{id}")]
     public IActionResult UpdateBook([FromRoute] int id, [FromBody] BookUpdateDto dto)
     {
-        var currentUser = HttpContext.GetCurrentUser();
+        var currentUser = HttpContext.Items["CurrentUser"] as UserEntity;
         if (currentUser == null)
             return Unauthorized("Not authenticated");
 
@@ -89,7 +89,7 @@ public class BookController : ControllerBase
             return NotFound(bookResponse.Message);
 
         var book = bookResponse.Data as BookDto;
-        if (book!.OwnerId != currentUser.Id && !HttpContext.IsAdmin())
+        if (book!.OwnerId != currentUser.Id && currentUser.Role != UserRole.Admin)
             return StatusCode(403, "Access denied");
 
         var response = _bookLogic.UpdateBook(id, dto);
@@ -101,7 +101,7 @@ public class BookController : ControllerBase
     [HttpDelete("{id}")]
     public IActionResult DeleteBook([FromRoute] int id)
     {
-        var currentUser = HttpContext.GetCurrentUser();
+        var currentUser = HttpContext.Items["CurrentUser"] as UserEntity;
         if (currentUser == null)
             return Unauthorized("Not authenticated");
 
@@ -110,7 +110,7 @@ public class BookController : ControllerBase
             return NotFound(bookResponse.Message);
 
         var book = bookResponse.Data as BookDto;
-        if (book!.OwnerId != currentUser.Id && !HttpContext.IsAdmin())
+        if (book!.OwnerId != currentUser.Id && currentUser.Role != UserRole.Admin)
             return StatusCode(403, "Access denied");
 
         var response = _bookLogic.DeleteBook(id);

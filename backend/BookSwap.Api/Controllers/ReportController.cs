@@ -1,6 +1,6 @@
-using BookSwap.Api.Helpers;
 using BookSwap.BusinessLayer;
 using BookSwap.BusinessLayer.Interfaces;
+using BookSwap.Domain.Entities.User;
 using BookSwap.Domain.Models.Report;
 using Microsoft.AspNetCore.Mvc;
 
@@ -18,11 +18,11 @@ public class ReportController : ControllerBase
         _reportLogic = bl.GetReportLogic();
     }
 
-   
     [HttpGet]
     public IActionResult GetAll()
     {
-        if (!HttpContext.IsAdmin())
+        var currentUser = HttpContext.Items["CurrentUser"] as UserEntity;
+        if (currentUser?.Role != UserRole.Admin)
             return StatusCode(403, "Access denied");
 
         var response = _reportLogic.GetAllReports();
@@ -32,7 +32,8 @@ public class ReportController : ControllerBase
     [HttpGet("{id}")]
     public IActionResult GetById([FromRoute] int id)
     {
-        if (!HttpContext.IsAdmin())
+        var currentUser = HttpContext.Items["CurrentUser"] as UserEntity;
+        if (currentUser?.Role != UserRole.Admin)
             return StatusCode(403, "Access denied");
 
         var response = _reportLogic.GetReportById(id);
@@ -42,7 +43,8 @@ public class ReportController : ControllerBase
     [HttpPut("{id}/resolve")]
     public IActionResult Resolve([FromRoute] int id, [FromBody] ReportResolveDto dto)
     {
-        if (!HttpContext.IsAdmin())
+        var currentUser = HttpContext.Items["CurrentUser"] as UserEntity;
+        if (currentUser?.Role != UserRole.Admin)
             return StatusCode(403, "Access denied");
 
         var response = _reportLogic.ResolveReport(id, dto);
@@ -52,18 +54,18 @@ public class ReportController : ControllerBase
     [HttpDelete("{id}")]
     public IActionResult Delete([FromRoute] int id)
     {
-        if (!HttpContext.IsAdmin())
+        var currentUser = HttpContext.Items["CurrentUser"] as UserEntity;
+        if (currentUser?.Role != UserRole.Admin)
             return StatusCode(403, "Access denied");
 
         var response = _reportLogic.DeleteReport(id);
         return response.IsSuccess ? NoContent() : NotFound(response.Message);
     }
 
-   
     [HttpPost]
     public IActionResult Create([FromBody] ReportCreateDto dto)
     {
-        var currentUser = HttpContext.GetCurrentUser();
+        var currentUser = HttpContext.Items["CurrentUser"] as UserEntity;
         if (currentUser == null)
             return Unauthorized("Not authenticated");
 
