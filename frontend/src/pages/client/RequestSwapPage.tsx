@@ -1,12 +1,18 @@
 ﻿import { useParams, Link } from 'react-router-dom';
-import { mockBooks } from '@/data/mockBooks';
+import { useBook } from '@/hooks/useBooks';
 import { SwapBookInfo } from '@/components/client/swap/SwapBookInfo';
 import { SwapForm } from '@/components/client/swap/SwapForm';
 import { SwapNotAvailableView } from '@/components/client/swap/SwapNotAvailableView';
 
 export function RequestSwapPage() {
     const { id } = useParams<{ id: string }>();
-    const book = mockBooks.find((b) => b.id === id);
+    const { book, isLoading } = useBook(id!);
+
+    if (isLoading) return (
+        <div className="min-h-[60vh] flex items-center justify-center">
+            <p className="text-[var(--color-text-muted)]">Loading...</p>
+        </div>
+    );
 
     if (!book) {
         return (

@@ -5,9 +5,6 @@ import { ReportsTable } from '@/components/admin/reports/ReportsTable';
 import { useReports } from '@/context/ReportsContext';
 import { useNotifications } from '@/context/NotificationsContext';
 
-const DEMO_USER_ID = 'user1';
-
-
 function StatusDropdown({ value, options, onChange }: {
     value: string;
     options: { value: string; label: string }[];
@@ -90,7 +87,6 @@ export function AdminReportsPage() {
     const { addNotification } = useNotifications();
     const [statusFilter, setStatusFilter] = useState<ReportStatus | 'all'>('all');
 
-    // Doar reports de tip user
     const userReports = reports.filter((r) => r.type === 'user');
     const openCount = userReports.filter((r) => r.status === 'open').length;
 
@@ -99,9 +95,10 @@ export function AdminReportsPage() {
     );
 
     function handleResolve(id: string, note: string, action: string) {
-        if (action === 'warning' || action === 'ban_user') {
+        const report = reports.find(r => r.id === id);
+        if ((action === 'warning' || action === 'ban_user') && report) {
             addNotification({
-                userId: DEMO_USER_ID,
+                userId: report.targetId,
                 type: action === 'warning' ? 'warning' : 'ban',
                 title: action === 'warning' ? 'You have received a warning' : 'Your account has been banned',
                 message: note,

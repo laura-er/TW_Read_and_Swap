@@ -1,21 +1,45 @@
 import { useParams, Link } from 'react-router-dom';
 import { MapPin, Calendar, Flag } from 'lucide-react';
-import { useState } from 'react';
-import { mockAdminUsers } from '@/data/mockAdminData';
-import { mockBooks } from '@/data/mockBooks';
+import { useState, useEffect } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { Avatar } from '@/components/ui/Avatar';
 import { BookCard } from '@/components/client/BookCard';
 import { ReportModal } from '@/components/shared/ReportModal';
+import axiosInstance from '@/api/axiosInstance';
+import type { Book } from '@/types';
 
 export function PublicProfilePage() {
     const { username } = useParams<{ username: string }>();
     const { user: currentUser } = useAuth();
     const [showReport, setShowReport] = useState(false);
+    const [profileUser, setProfileUser] = useState<any>(null);
+    const [userBooks, setUserBooks] = useState<Book[]>([]);
+    const [notFound, setNotFound] = useState(false);
 
-    const profileUser = mockAdminUsers.find((u) => u.username === username);
+    useEffect(() => {
+        if (!username) return;
+        axiosInstance.get('/api/users/list')
+            .then(res => {
+                const found = res.data.find((u: any) => u.username === username);
+                if (!found) { setNotFound(true); return; }
+                setProfileUser(found);
+                return axiosInstance.get(`/api/books/owner/${found.id}`);
+            })
+            .then(res => {
+                if (!res) return;
+                setUserBooks(res.data.map((b: any) => ({
+                    ...b,
+                    id: String(b.id),
+                    ownerId: String(b.ownerId),
+                    rating: b.rating ?? 0,
+                    reviewCount: b.reviewCount ?? 0,
+                    createdAt: b.createdAt ?? new Date().toISOString(),
+                })));
+            })
+            .catch(() => setNotFound(true));
+    }, [username]);
 
-    if (!profileUser) {
+    if (notFound || (!profileUser && !notFound)) {
         return (
             <main className="container mx-auto px-4 py-16 max-w-4xl text-center">
                 <p className="text-5xl mb-4">👤</p>
@@ -27,24 +51,24 @@ export function PublicProfilePage() {
         );
     }
 
-    // Nu afisa profilul propriu ca public
-    if (currentUser?.username === profileUser.username) {
+    if (currentUser?.username === profileUser?.username) {
         return (
             <main className="container mx-auto px-4 py-16 max-w-4xl text-center">
                 <p className="text-[var(--color-text-muted)] text-sm">
-                    This is your profile. <Link to="/profile" className="text-[var(--color-accent)] hover:underline">Go to your profile</Link>
+                    This is your profile.{' '}
+                    <Link to="/profile" className="text-[var(--color-accent)] hover:underline">
+                        Go to your profile
+                    </Link>
                 </p>
             </main>
         );
     }
 
-    const userBooks = mockBooks.filter((b) => b.ownerId === profileUser.id);
-
     return (
         <main className="container mx-auto px-4 py-8 max-w-4xl">
             {showReport && (
                 <ReportModal
-                    targetId={profileUser.id}
+                    targetId={String(profileUser.id)}
                     targetName={profileUser.username}
                     type="user"
                     onClose={() => setShowReport(false)}
@@ -58,17 +82,19 @@ export function PublicProfilePage() {
                     <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
                         <div className="flex items-end gap-4">
                             <div className="-mt-10 flex-shrink-0 ring-4 ring-[var(--color-surface)] rounded-full">
-                                <Avatar src={profileUser.avatarUrl} name={profileUser.name} size="xl" />
+                                <Avatar src="" name={profileUser.firstName + ' ' + profileUser.lastName} size="xl" />
                             </div>
                             <div className="pb-1">
-                                <h1 className="text-xl font-bold text-[var(--color-text)]">{profileUser.name}</h1>
+                                <h1 className="text-xl font-bold text-[var(--color-text)]">
+                                    {profileUser.firstName} {profileUser.lastName}
+                                </h1>
                                 <p className="text-sm text-[var(--color-text-muted)]">@{profileUser.username}</p>
                                 <div className="mt-1 flex flex-wrap items-center gap-3 text-xs text-[var(--color-text-muted)]">
                                     <span className="flex items-center gap-1">
                                         <Calendar className="h-3 w-3" />
-                                        Joined {new Date(profileUser.joinedAt).toLocaleDateString('en-GB', { month: 'long', year: 'numeric' })}
+                                        Joined {new Date(profileUser.createdAt).toLocaleDateString('en-GB', { month: 'long', year: 'numeric' })}
                                     </span>
-                                    <span>{profileUser.booksCount} books · {profileUser.swapsCompleted} swaps</span>
+                                    <span>{userBooks.length} books</span>
                                 </div>
                             </div>
                         </div>
@@ -100,4 +126,3 @@ export function PublicProfilePage() {
         </main>
     );
 }
-

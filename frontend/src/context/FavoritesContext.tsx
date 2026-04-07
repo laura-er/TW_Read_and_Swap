@@ -1,11 +1,12 @@
-import { createContext, useContext, useState } from 'react';
+import { createContext, useContext, useState, useEffect } from 'react';
 import type { ReactNode } from 'react';
+import axiosInstance from '@/api/axiosInstance';
 import { useAuth } from '@/context/AuthContext';
 
 interface FavoritesContextValue {
     favorites: string[];
-    isFavorite: (id: string) => boolean;
-    toggleFavorite: (id: string) => void;
+    isFavorite: (bookId: string) => boolean;
+    toggleFavorite: (bookId: string) => Promise<void>;
     showLoginModal: boolean;
     closeLoginModal: () => void;
 }
@@ -13,28 +14,57 @@ interface FavoritesContextValue {
 const FavoritesContext = createContext<FavoritesContextValue | null>(null);
 
 export function FavoritesProvider({ children }: { children: ReactNode }) {
-    const { isAuthenticated } = useAuth();
+    const { user, isAuthenticated } = useAuth();
     const [favorites, setFavorites] = useState<string[]>([]);
+    const [favoriteIds, setFavoriteIds] = useState<Record<string, number>>({});
     const [showLoginModal, setShowLoginModal] = useState(false);
 
-    const isFavorite = (id: string) => favorites.includes(id);
+    useEffect(() => {
+        if (!user) {
+            setFavorites([]);
+            setFavoriteIds({});
+            return;
+        }
+        axiosInstance.get(`/api/favorites/user/${user.id}`)
+            .then(res => {
+                const map: Record<string, number> = {};
+                const bookIds: string[] = [];
+                res.data.forEach((f: any) => {
+                    map[String(f.bookId)] = f.id;
+                    bookIds.push(String(f.bookId));
+                });
+                setFavoriteIds(map);
+                setFavorites(bookIds);
+            })
+            .catch(() => {});
+    }, [user]);
 
-    const toggleFavorite = (id: string) => {
+    const isFavorite = (bookId: string) => favorites.includes(bookId);
+
+    const toggleFavorite = async (bookId: string) => {
         if (!isAuthenticated) {
             setShowLoginModal(true);
             return;
         }
-        setFavorites((prev) =>
-            prev.includes(id) ? prev.filter((fid) => fid !== id) : [...prev, id]
-        );
+        if (isFavorite(bookId)) {
+            const favId = favoriteIds[bookId];
+            await axiosInstance.delete(`/api/favorites/${favId}`);
+            setFavorites(prev => prev.filter(id => id !== bookId));
+            setFavoriteIds(prev => { const n = { ...prev }; delete n[bookId]; return n; });
+        } else {
+            const res = await axiosInstance.post('/api/favorites', { bookId: Number(bookId) });
+            setFavorites(prev => [...prev, bookId]);
+            if (res.data?.id) {
+                setFavoriteIds(prev => ({ ...prev, [bookId]: res.data.id }));
+            }
+        }
     };
 
-    const closeLoginModal = () => setShowLoginModal(false);
-
     return (
-        <FavoritesContext.Provider
-            value={{ favorites, isFavorite, toggleFavorite, showLoginModal, closeLoginModal }}
-        >
+        <FavoritesContext.Provider value={{
+            favorites, isFavorite, toggleFavorite,
+            showLoginModal, closeLoginModal: () => setShowLoginModal(false),
+        }}>
             {children}
         </FavoritesContext.Provider>
     );

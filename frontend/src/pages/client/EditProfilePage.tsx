@@ -5,6 +5,7 @@ import { EditProfileHeader } from '@/components/client/edit-profile/EditProfileH
 import { AvatarUpload } from '@/components/client/edit-profile/AvatarUpload';
 import { EditProfileForm } from '@/components/client/edit-profile/EditProfileForm';
 import { EditProfileActions } from '@/components/client/edit-profile/EditProfileActions';
+import axiosInstance from '@/api/axiosInstance';
 import type { User } from '@/types';
 
 type FormFields = Pick<User, 'name' | 'username' | 'email' | 'bio' | 'location'>;
@@ -13,7 +14,6 @@ type FormErrors = Partial<Record<keyof FormFields, string>>;
 function validate(fields: FormFields): FormErrors {
   const errors: FormErrors = {};
 
-  // Full name = FirstName in backend (StringLength 30, MinimumLength 2)
   if (!fields.name.trim()) {
     errors.name = 'Full name is required.';
   } else if (fields.name.trim().length < 2) {
@@ -22,7 +22,6 @@ function validate(fields: FormFields): FormErrors {
     errors.name = 'Full name cannot exceed 30 characters.';
   }
 
-  // Username (StringLength 30, MinimumLength 2)
   if (!fields.username.trim()) {
     errors.username = 'Username is required.';
   } else if (fields.username.trim().length < 2) {
@@ -33,7 +32,6 @@ function validate(fields: FormFields): FormErrors {
     errors.username = 'Only lowercase letters, numbers, dots and underscores.';
   }
 
-  // Email (StringLength 100)
   if (!fields.email.trim()) {
     errors.email = 'Email is required.';
   } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(fields.email)) {
@@ -64,7 +62,6 @@ export function EditProfilePage() {
   const handleChange = (updated: Partial<FormFields>) => {
     setFields((prev) => ({ ...prev, ...updated }));
     setSaved(false);
-    // Sterge eroarea pentru campul modificat
     const updatedKey = Object.keys(updated)[0] as keyof FormFields;
     if (errors[updatedKey]) {
       setErrors((prev) => ({ ...prev, [updatedKey]: undefined }));
@@ -81,16 +78,22 @@ export function EditProfilePage() {
     setErrors({});
     setIsLoading(true);
 
-    // TODO: replace with real API call
-    await new Promise((r) => setTimeout(r, 800));
-
-    if (user) {
-      login({ ...user, ...fields, avatarUrl });
+    try {
+      await axiosInstance.put(`/api/users/${user?.id}`, {
+        firstName: fields.name,
+        username: fields.username,
+        phone: user?.phone ?? '',
+      });
+      if (user) {
+        login({ ...user, ...fields, avatarUrl });
+      }
+      setSaved(true);
+      setTimeout(() => navigate('/profile'), 1000);
+    } catch {
+      setErrors({ name: 'Failed to save. Please try again.' });
+    } finally {
+      setIsLoading(false);
     }
-
-    setIsLoading(false);
-    setSaved(true);
-    setTimeout(() => navigate('/profile'), 1000);
   };
 
   return (
