@@ -1,6 +1,6 @@
-using BookSwap.Api.Helpers;
 using BookSwap.BusinessLayer;
 using BookSwap.BusinessLayer.Interfaces;
+using BookSwap.Domain.Entities.User;
 using BookSwap.Domain.Models.Favorite;
 using Microsoft.AspNetCore.Mvc;
 
@@ -21,12 +21,11 @@ public class FavoriteController : ControllerBase
     [HttpGet("user/{userId}")]
     public IActionResult GetByUser([FromRoute] int userId)
     {
-        var currentUser = HttpContext.GetCurrentUser();
+        var currentUser = HttpContext.Items["CurrentUser"] as UserEntity;
         if (currentUser == null)
             return Unauthorized("Not authenticated");
 
-        // Un user poate vedea doar favoritele lui, adminul pe ale oricui
-        if (currentUser.Id != userId && !HttpContext.IsAdmin())
+        if (currentUser.Id != userId && currentUser.Role != UserRole.Admin)
             return StatusCode(403, "Access denied");
 
         var response = _favoriteLogic.GetFavoritesByUser(userId);
@@ -36,7 +35,7 @@ public class FavoriteController : ControllerBase
     [HttpPost]
     public IActionResult Add([FromBody] FavoriteCreateDto dto)
     {
-        var currentUser = HttpContext.GetCurrentUser();
+        var currentUser = HttpContext.Items["CurrentUser"] as UserEntity;
         if (currentUser == null)
             return Unauthorized("Not authenticated");
 
@@ -49,7 +48,7 @@ public class FavoriteController : ControllerBase
     [HttpDelete("{id}")]
     public IActionResult Remove([FromRoute] int id)
     {
-        var currentUser = HttpContext.GetCurrentUser();
+        var currentUser = HttpContext.Items["CurrentUser"] as UserEntity;
         if (currentUser == null)
             return Unauthorized("Not authenticated");
 

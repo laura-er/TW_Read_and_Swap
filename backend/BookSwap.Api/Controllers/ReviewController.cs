@@ -1,6 +1,6 @@
-using BookSwap.Api.Helpers;
 using BookSwap.BusinessLayer;
 using BookSwap.BusinessLayer.Interfaces;
+using BookSwap.Domain.Entities.User;
 using BookSwap.Domain.Models.Review;
 using Microsoft.AspNetCore.Mvc;
 
@@ -51,7 +51,7 @@ public class ReviewController : ControllerBase
     [HttpPost]
     public IActionResult Create([FromBody] ReviewCreateDto dto)
     {
-        var currentUser = HttpContext.GetCurrentUser();
+        var currentUser = HttpContext.Items["CurrentUser"] as UserEntity;
         if (currentUser == null)
             return Unauthorized("Not authenticated");
 
@@ -64,7 +64,7 @@ public class ReviewController : ControllerBase
     [HttpPut("{id}")]
     public IActionResult Update([FromRoute] int id, [FromBody] ReviewUpdateDto dto)
     {
-        var currentUser = HttpContext.GetCurrentUser();
+        var currentUser = HttpContext.Items["CurrentUser"] as UserEntity;
         if (currentUser == null)
             return Unauthorized("Not authenticated");
 
@@ -73,7 +73,7 @@ public class ReviewController : ControllerBase
             return NotFound(reviewResponse.Message);
 
         var review = reviewResponse.Data as ReviewDto;
-        if (review!.UserId != currentUser.Id && !HttpContext.IsAdmin())
+        if (review!.UserId != currentUser.Id && currentUser.Role != UserRole.Admin)
             return StatusCode(403, "Access denied");
 
         var response = _reviewLogic.UpdateReview(id, dto);
@@ -83,7 +83,7 @@ public class ReviewController : ControllerBase
     [HttpDelete("{id}")]
     public IActionResult Delete([FromRoute] int id)
     {
-        var currentUser = HttpContext.GetCurrentUser();
+        var currentUser = HttpContext.Items["CurrentUser"] as UserEntity;
         if (currentUser == null)
             return Unauthorized("Not authenticated");
 
@@ -92,7 +92,7 @@ public class ReviewController : ControllerBase
             return NotFound(reviewResponse.Message);
 
         var review = reviewResponse.Data as ReviewDto;
-        if (review!.UserId != currentUser.Id && !HttpContext.IsAdmin())
+        if (review!.UserId != currentUser.Id && currentUser.Role != UserRole.Admin)
             return StatusCode(403, "Access denied");
 
         var response = _reviewLogic.DeleteReview(id);

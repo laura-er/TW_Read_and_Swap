@@ -1,6 +1,6 @@
-using BookSwap.Api.Helpers;
 using BookSwap.BusinessLayer;
 using BookSwap.BusinessLayer.Interfaces;
+using BookSwap.Domain.Entities.User;
 using BookSwap.Domain.Models.Swap;
 using Microsoft.AspNetCore.Mvc;
 
@@ -17,11 +17,12 @@ public class SwapController : ControllerBase
         var bl = new BusinessLogic();
         _swapLogic = bl.GetSwapLogic();
     }
-    
+
     [HttpGet]
     public IActionResult GetAll()
     {
-        if (!HttpContext.IsAdmin())
+        var currentUser = HttpContext.Items["CurrentUser"] as UserEntity;
+        if (currentUser?.Role != UserRole.Admin)
             return StatusCode(403, "Access denied");
 
         var response = _swapLogic.GetAllSwaps();
@@ -31,7 +32,7 @@ public class SwapController : ControllerBase
     [HttpGet("{id}")]
     public IActionResult GetById([FromRoute] int id)
     {
-        var currentUser = HttpContext.GetCurrentUser();
+        var currentUser = HttpContext.Items["CurrentUser"] as UserEntity;
         if (currentUser == null)
             return Unauthorized("Not authenticated");
 
@@ -42,11 +43,11 @@ public class SwapController : ControllerBase
     [HttpGet("requester/{requesterId}")]
     public IActionResult GetByRequester([FromRoute] int requesterId)
     {
-        var currentUser = HttpContext.GetCurrentUser();
+        var currentUser = HttpContext.Items["CurrentUser"] as UserEntity;
         if (currentUser == null)
             return Unauthorized("Not authenticated");
 
-        if (currentUser.Id != requesterId && !HttpContext.IsAdmin())
+        if (currentUser.Id != requesterId && currentUser.Role != UserRole.Admin)
             return StatusCode(403, "Access denied");
 
         var response = _swapLogic.GetSwapsByRequester(requesterId);
@@ -56,21 +57,21 @@ public class SwapController : ControllerBase
     [HttpGet("owner/{ownerId}")]
     public IActionResult GetByOwner([FromRoute] int ownerId)
     {
-        var currentUser = HttpContext.GetCurrentUser();
+        var currentUser = HttpContext.Items["CurrentUser"] as UserEntity;
         if (currentUser == null)
             return Unauthorized("Not authenticated");
 
-        if (currentUser.Id != ownerId && !HttpContext.IsAdmin())
+        if (currentUser.Id != ownerId && currentUser.Role != UserRole.Admin)
             return StatusCode(403, "Access denied");
 
         var response = _swapLogic.GetSwapsByOwner(ownerId);
         return response.IsSuccess ? Ok(response.Data) : BadRequest(response.Message);
     }
-    
+
     [HttpPost]
     public IActionResult Create([FromBody] SwapCreateDto dto)
     {
-        var currentUser = HttpContext.GetCurrentUser();
+        var currentUser = HttpContext.Items["CurrentUser"] as UserEntity;
         if (currentUser == null)
             return Unauthorized("Not authenticated");
 
@@ -83,7 +84,7 @@ public class SwapController : ControllerBase
     [HttpPut("{id}/status")]
     public IActionResult UpdateStatus([FromRoute] int id, [FromBody] SwapUpdateDto dto)
     {
-        var currentUser = HttpContext.GetCurrentUser();
+        var currentUser = HttpContext.Items["CurrentUser"] as UserEntity;
         if (currentUser == null)
             return Unauthorized("Not authenticated");
 
@@ -94,7 +95,7 @@ public class SwapController : ControllerBase
     [HttpDelete("{id}")]
     public IActionResult Delete([FromRoute] int id)
     {
-        var currentUser = HttpContext.GetCurrentUser();
+        var currentUser = HttpContext.Items["CurrentUser"] as UserEntity;
         if (currentUser == null)
             return Unauthorized("Not authenticated");
 
