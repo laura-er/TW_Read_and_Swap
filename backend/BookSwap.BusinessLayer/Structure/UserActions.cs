@@ -19,16 +19,20 @@ public class UserActions
         if (exists)
             return new ServiceResponse { IsSuccess = false, Message = "Email already in use" };
 
+        var usernameExists = db.Users.Any(u => u.Username == dto.Username);
+        if (usernameExists)
+            return new ServiceResponse { IsSuccess = false, Message = "Username already in use" };
+
         var user = new UserEntity
         {
-            FirstName = dto.FirstName,
-            LastName = dto.LastName,
-            Username = dto.Username,
-            Email = dto.Email,
-            Phone = dto.Phone,
+            FirstName    = dto.FirstName,
+            LastName     = dto.LastName,
+            Username     = dto.Username,
+            Email        = dto.Email,
+            Phone        = dto.Phone,
             PasswordHash = BCrypt.Net.BCrypt.HashPassword(dto.Password),
-            Role = UserRole.User,
-            CreatedAt = DateTime.UtcNow
+            Role         = UserRole.User,
+            CreatedAt    = DateTime.UtcNow
         };
 
         try
@@ -57,19 +61,18 @@ public class UserActions
             return new ServiceResponse { IsSuccess = false, Message = "Invalid credentials" };
 
         var tokenService = new TokenService();
-        user.SessionId = tokenService.GenerateToken();
-        db.SaveChanges();
+        var token = tokenService.GenerateToken(user);
 
         var userInfo = new UserInfoDto
         {
-            Id = user.Id,
+            Id        = user.Id,
             FirstName = user.FirstName,
-            LastName = user.LastName,
-            Username = user.Username,
-            Email = user.Email,
-            Phone = user.Phone,
-            Role = user.Role.ToString().ToLower(),
-            SessionId = user.SessionId,
+            LastName  = user.LastName,
+            Username  = user.Username,
+            Email     = user.Email,
+            Phone     = user.Phone,
+            Role      = user.Role.ToString().ToLower(),
+            Token = token,
             CreatedAt = user.CreatedAt
         };
 
@@ -78,23 +81,6 @@ public class UserActions
 
     protected ServiceResponse LogoutAction(int userId)
     {
-        using var db = new BookSwapDbContext(DbSession.GetOptions());
-
-        var user = db.Users.Find(userId);
-        if (user == null)
-            return new ServiceResponse { IsSuccess = false, Message = "User not found" };
-
-        user.SessionId = string.Empty;
-
-        try
-        {
-            db.SaveChanges();
-        }
-        catch (Exception)
-        {
-            return new ServiceResponse { IsSuccess = false, Message = "Logout failed" };
-        }
-
         return new ServiceResponse { IsSuccess = true, Message = "Logged out" };
     }
 
@@ -104,18 +90,17 @@ public class UserActions
 
         var user = db.Users.Find(id);
         if (user == null)
-            return new ServiceResponse { IsSuccess = false, Message = "User not found" }; 
+            return new ServiceResponse { IsSuccess = false, Message = "User not found" };
 
         var userInfo = new UserInfoDto
         {
-            Id = user.Id,
+            Id        = user.Id,
             FirstName = user.FirstName,
-            LastName = user.LastName,
-            Username = user.Username,
-            Email = user.Email,
-            Phone = user.Phone,
-            Role = user.Role.ToString().ToLower(),
-            SessionId = user.SessionId,
+            LastName  = user.LastName,
+            Username  = user.Username,
+            Email     = user.Email,
+            Phone     = user.Phone,
+            Role      = user.Role.ToString().ToLower(),
             CreatedAt = user.CreatedAt
         };
 
@@ -129,14 +114,13 @@ public class UserActions
         var list = db.Users
             .Select(u => new UserInfoDto
             {
-                Id = u.Id,
+                Id        = u.Id,
                 FirstName = u.FirstName,
-                LastName = u.LastName,
-                Username = u.Username,
-                Email = u.Email,
-                Phone = u.Phone,
-                Role = u.Role.ToString().ToLower(),
-                SessionId = u.SessionId,
+                LastName  = u.LastName,
+                Username  = u.Username,
+                Email     = u.Email,
+                Phone     = u.Phone,
+                Role      = u.Role.ToString().ToLower(),
                 CreatedAt = u.CreatedAt
             }).ToList();
 
@@ -152,8 +136,8 @@ public class UserActions
             return new ServiceResponse { IsSuccess = false, Message = "User not found" };
 
         user.FirstName = dto.FirstName;
-        user.Username = dto.Username;
-        user.Phone = dto.Phone;
+        user.Username  = dto.Username;
+        user.Phone     = dto.Phone;
 
         try
         {
@@ -213,3 +197,4 @@ public class UserActions
         return new ServiceResponse { IsSuccess = true, Message = $"Role changed to {newRole}" };
     }
 }
+

@@ -1,3 +1,4 @@
+using BookSwap.Api.Helpers;
 using BookSwap.BusinessLayer;
 using BookSwap.BusinessLayer.Interfaces;
 using BookSwap.Domain.Models.Book;
@@ -17,6 +18,7 @@ public class BookController : ControllerBase
         _bookLogic = bl.GetBookLogic();
     }
 
+    // ── PUBLIC ──────────────────────────────────────────
     [HttpGet]
     public IActionResult GetAllBooks()
     {
@@ -25,7 +27,22 @@ public class BookController : ControllerBase
             return BadRequest(response.Message);
         return Ok(response.Data);
     }
-    
+
+    [HttpGet("search")]
+    public IActionResult SearchBooks(
+        [FromQuery] string? search,
+        [FromQuery] string? genre,
+        [FromQuery] string? condition,
+        [FromQuery] bool? isAvailable,
+        [FromQuery] string? sort,
+        [FromQuery] string? order)
+    {
+        var response = _bookLogic.SearchBooks(search, genre, condition, isAvailable, sort, order);
+        if (!response.IsSuccess)
+            return BadRequest(response.Message);
+        return Ok(response.Data);
+    }
+
     [HttpGet("owner/{ownerId}")]
     public IActionResult GetBooksByOwner([FromRoute] int ownerId)
     {
@@ -44,9 +61,16 @@ public class BookController : ControllerBase
         return Ok(response.Data);
     }
 
+    // ── AUTENTIFICAT ─────────────────────────────────────
     [HttpPost]
     public IActionResult CreateBook([FromBody] BookCreateDto dto)
     {
+        var currentUser = HttpContext.GetCurrentUser();
+        if (currentUser == null)
+            return Unauthorized("Not authenticated");
+
+        dto.OwnerId = currentUser.Id;
+
         var response = _bookLogic.CreateBook(dto);
         if (!response.IsSuccess)
             return BadRequest(response.Message);
@@ -56,6 +80,18 @@ public class BookController : ControllerBase
     [HttpPut("{id}")]
     public IActionResult UpdateBook([FromRoute] int id, [FromBody] BookUpdateDto dto)
     {
+        var currentUser = HttpContext.GetCurrentUser();
+        if (currentUser == null)
+            return Unauthorized("Not authenticated");
+
+        var bookResponse = _bookLogic.GetBookById(id);
+        if (!bookResponse.IsSuccess)
+            return NotFound(bookResponse.Message);
+
+        var book = bookResponse.Data as BookDto;
+        if (book!.OwnerId != currentUser.Id && !HttpContext.IsAdmin())
+            return StatusCode(403, "Access denied");
+
         var response = _bookLogic.UpdateBook(id, dto);
         if (!response.IsSuccess)
             return NotFound(response.Message);
@@ -65,10 +101,21 @@ public class BookController : ControllerBase
     [HttpDelete("{id}")]
     public IActionResult DeleteBook([FromRoute] int id)
     {
+        var currentUser = HttpContext.GetCurrentUser();
+        if (currentUser == null)
+            return Unauthorized("Not authenticated");
+
+        var bookResponse = _bookLogic.GetBookById(id);
+        if (!bookResponse.IsSuccess)
+            return NotFound(bookResponse.Message);
+
+        var book = bookResponse.Data as BookDto;
+        if (book!.OwnerId != currentUser.Id && !HttpContext.IsAdmin())
+            return StatusCode(403, "Access denied");
+
         var response = _bookLogic.DeleteBook(id);
         if (!response.IsSuccess)
             return NotFound(response.Message);
         return NoContent();
     }
 }
-

@@ -8,6 +8,7 @@ export interface User {
   location: string;
   joinedAt: string;
   role: 'user' | 'admin';
+  token?: string;
   booksCount?: number;
   swapsCompleted?: number;
   favoritesCount?: number;
