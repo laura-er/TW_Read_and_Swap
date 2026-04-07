@@ -16,4 +16,9 @@ public class BusinessLogic
     {
         return new BookLogic();
     }
+
+    public IReportLogic GetReportLogic()
+    {
+        return new ReportLogic();
+    }
 }
