@@ -14,7 +14,7 @@ public class SwapActions
         var swaps = db.SwapRequests.Select(s => new SwapDto
         {
             Id = s.Id,
-            Status = s.Status,
+            Status = s.Status.ToString(),
             Message = s.Message,
             RequesterId = s.RequesterId,
             OwnerId = s.OwnerId,
@@ -32,7 +32,7 @@ public class SwapActions
             return new ServiceResponse { IsSuccess = false, Message = "Swap not found" };
         return new ServiceResponse { IsSuccess = true, Data = new SwapDto
         {
-            Id = s.Id, Status = s.Status, Message = s.Message,
+            Id = s.Id, Status = s.Status.ToString(), Message = s.Message,
             RequesterId = s.RequesterId, OwnerId = s.OwnerId,
             BookOfferedId = s.BookOfferedId, BookRequestedId = s.BookRequestedId
         }};
@@ -44,7 +44,7 @@ public class SwapActions
         var swaps = db.SwapRequests.Where(s => s.RequesterId == requesterId)
             .Select(s => new SwapDto
             {
-                Id = s.Id, Status = s.Status, Message = s.Message,
+                Id = s.Id, Status = s.Status.ToString(), Message = s.Message,
                 RequesterId = s.RequesterId, OwnerId = s.OwnerId,
                 BookOfferedId = s.BookOfferedId, BookRequestedId = s.BookRequestedId
             }).ToList();
@@ -57,7 +57,7 @@ public class SwapActions
         var swaps = db.SwapRequests.Where(s => s.OwnerId == ownerId)
             .Select(s => new SwapDto
             {
-                Id = s.Id, Status = s.Status, Message = s.Message,
+                Id = s.Id, Status = s.Status.ToString(), Message = s.Message,
                 RequesterId = s.RequesterId, OwnerId = s.OwnerId,
                 BookOfferedId = s.BookOfferedId, BookRequestedId = s.BookRequestedId
             }).ToList();
@@ -79,7 +79,7 @@ public class SwapActions
 
         var swap = new SwapRequestEntity
         {
-            Status = "pending",
+            Status = SwapStatus.Pending,
             Message = dto.Message,
             CreatedAt = DateTime.UtcNow,
             UpdatedAt = DateTime.UtcNow,
@@ -102,7 +102,10 @@ public class SwapActions
         if (swap == null)
             return new ServiceResponse { IsSuccess = false, Message = "Swap not found" };
 
-        swap.Status = dto.Status;
+        if (!Enum.TryParse<SwapStatus>(dto.Status, ignoreCase: true, out var newStatus))
+            return new ServiceResponse { IsSuccess = false, Message = "Invalid status. Use: Pending, Accepted, Rejected, Cancelled" };
+
+        swap.Status = newStatus;
         swap.UpdatedAt = DateTime.UtcNow;
 
         try { db.SaveChanges(); }

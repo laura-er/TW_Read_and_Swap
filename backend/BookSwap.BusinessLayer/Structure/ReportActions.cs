@@ -8,8 +8,6 @@ namespace BookSwap.BusinessLayer.Structure;
 
 public class ReportActions
 {
-    public ReportActions() { }
-
     protected ServiceResponse GetAllReportsAction()
     {
         using var db = new BookSwapDbContext(DbSession.GetOptions());
@@ -18,16 +16,16 @@ public class ReportActions
             .OrderByDescending(r => r.CreatedAt)
             .Select(r => new ReportDto
             {
-                Id           = r.Id,
-                Type         = r.Type,
-                Reason       = r.Reason,
-                Status       = r.Status,
-                ReportedBy   = r.ReportedBy,
-                TargetId     = r.TargetId,
-                TargetName   = r.TargetName,
-                ResolveNote  = r.ResolveNote,
+                Id            = r.Id,
+                Type          = r.Type,
+                Reason        = r.Reason,
+                Status        = r.Status.ToString(),
+                ReportedBy    = r.Reporter.Username,
+                TargetId      = r.TargetId,
+                TargetName    = r.TargetName,
+                ResolveNote   = r.ResolveNote,
                 ResolveAction = r.ResolveAction,
-                CreatedAt    = r.CreatedAt
+                CreatedAt     = r.CreatedAt
             }).ToList();
 
         return new ServiceResponse { IsSuccess = true, Data = list };
@@ -41,13 +39,15 @@ public class ReportActions
         if (r == null)
             return new ServiceResponse { IsSuccess = false, Message = "Report not found" };
 
+        db.Entry(r).Reference(x => x.Reporter).Load();
+
         var dto = new ReportDto
         {
             Id            = r.Id,
             Type          = r.Type,
             Reason        = r.Reason,
-            Status        = r.Status,
-            ReportedBy    = r.ReportedBy,
+            Status        = r.Status.ToString(),
+            ReportedBy    = r.Reporter.Username,
             TargetId      = r.TargetId,
             TargetName    = r.TargetName,
             ResolveNote   = r.ResolveNote,
@@ -64,25 +64,17 @@ public class ReportActions
 
         var report = new ReportEntity
         {
-            Type              = dto.Type,
-            Reason            = dto.Reason,
-            Status            = "open",
-            ReportedBy        = username,
-            TargetId          = dto.TargetId,
-            TargetName        = dto.TargetName,
-            ReportedByUserId  = userId,
-            CreatedAt         = DateTime.UtcNow
+            Type             = dto.Type,
+            Reason           = dto.Reason,
+            Status           = ReportStatus.Open,
+            TargetId         = dto.TargetId,
+            TargetName       = dto.TargetName,
+            ReportedByUserId = userId,
+            CreatedAt        = DateTime.UtcNow
         };
 
-        try
-        {
-            db.Reports.Add(report);
-            db.SaveChanges();
-        }
-        catch (Exception)
-        {
-            return new ServiceResponse { IsSuccess = false, Message = "Create report failed" };
-        }
+        try { db.Reports.Add(report); db.SaveChanges(); }
+        catch (Exception) { return new ServiceResponse { IsSuccess = false, Message = "Create report failed" }; }
 
         return new ServiceResponse { IsSuccess = true, Message = "Report submitted" };
     }
@@ -95,20 +87,17 @@ public class ReportActions
         if (report == null)
             return new ServiceResponse { IsSuccess = false, Message = "Report not found" };
 
-        report.Status        = dto.Status;
+        if (!Enum.TryParse<ReportStatus>(dto.Status, ignoreCase: true, out var newStatus))
+            return new ServiceResponse { IsSuccess = false, Message = "Invalid status. Use: Open, Resolved, Dismissed" };
+
+        report.Status        = newStatus;
         report.ResolveNote   = dto.ResolveNote;
         report.ResolveAction = dto.ResolveAction;
 
-        try
-        {
-            db.SaveChanges();
-        }
-        catch (Exception)
-        {
-            return new ServiceResponse { IsSuccess = false, Message = "Resolve report failed" };
-        }
+        try { db.SaveChanges(); }
+        catch (Exception) { return new ServiceResponse { IsSuccess = false, Message = "Resolve report failed" }; }
 
-        return new ServiceResponse { IsSuccess = true, Message = $"Report {dto.Status}" };
+        return new ServiceResponse { IsSuccess = true, Message = $"Report {newStatus}" };
     }
 
     protected ServiceResponse DeleteReportAction(int id)
@@ -119,15 +108,8 @@ public class ReportActions
         if (report == null)
             return new ServiceResponse { IsSuccess = false, Message = "Report not found" };
 
-        try
-        {
-            db.Reports.Remove(report);
-            db.SaveChanges();
-        }
-        catch (Exception)
-        {
-            return new ServiceResponse { IsSuccess = false, Message = "Delete report failed" };
-        }
+        try { db.Reports.Remove(report); db.SaveChanges(); }
+        catch (Exception) { return new ServiceResponse { IsSuccess = false, Message = "Delete report failed" }; }
 
         return new ServiceResponse { IsSuccess = true, Message = "Report deleted" };
     }

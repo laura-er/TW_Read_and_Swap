@@ -1,6 +1,10 @@
 using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using BookSwap.Domain.Entities.Favorite;
+using BookSwap.Domain.Entities.Review;
+using BookSwap.Domain.Entities.Swap;
 using BookSwap.Domain.Entities.User;
 
 namespace BookSwap.Domain.Entities.Book
@@ -38,5 +42,10 @@ namespace BookSwap.Domain.Entities.Book
 
         public int OwnerId { get; set; }
         public UserEntity Owner { get; set; } = null!;
+
+        public ICollection<ReviewEntity> Reviews { get; set; } = new List<ReviewEntity>();
+        public ICollection<FavoriteEntity> Favorites { get; set; } = new List<FavoriteEntity>();
+        public ICollection<SwapRequestEntity> SwapRequestsAsOffered { get; set; } = new List<SwapRequestEntity>();
+        public ICollection<SwapRequestEntity> SwapRequestsAsRequested { get; set; } = new List<SwapRequestEntity>();
     }
 }
