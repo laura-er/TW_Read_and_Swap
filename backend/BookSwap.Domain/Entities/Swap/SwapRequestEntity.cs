@@ -6,7 +6,7 @@ namespace BookSwap.Domain.Entities.Swap;
 public class SwapRequestEntity
 {
     public int Id { get; set; }
-    public string Status { get; set; } = "pending";
+    public SwapStatus Status { get; set; } = SwapStatus.Pending;
     public string Message { get; set; } = string.Empty;
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;

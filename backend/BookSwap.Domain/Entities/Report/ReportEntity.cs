@@ -10,17 +10,13 @@ public class ReportEntity
 
     [Required]
     [StringLength(20)]
-    public string Type { get; set; } = string.Empty;        
+    public string Type { get; set; } = string.Empty;
 
     [Required]
     [StringLength(500)]
     public string Reason { get; set; } = string.Empty;
 
-    [StringLength(20)]
-    public string Status { get; set; } = "open";           
-
-    [StringLength(100)]
-    public string ReportedBy { get; set; } = string.Empty;  
+    public ReportStatus Status { get; set; } = ReportStatus.Open;
 
     public int TargetId { get; set; }
 
