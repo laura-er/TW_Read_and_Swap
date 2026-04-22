@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/Button';
 import { useAuth } from '@/context/AuthContext';
 import { EditBookModal } from './EditBookModal';
+import axiosInstance from '@/api/axiosInstance';
 import type { Book } from '@/types';
 
 interface BookCardActionsProps {
@@ -18,70 +19,63 @@ export function BookCardActions({ book, isOwner, onDelete, showOwnerActions = fa
     const [showEditModal, setShowEditModal] = useState(false);
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
-    const handleSave = (updated: Partial<Book>) => {
-        // TODO: trimite datele la backend
-        console.log('Updated book:', { ...book, ...updated });
+    const handleSave = async (updated: Partial<Book>) => {
+        try {
+            await axiosInstance.put(`/api/books/${book.id}`, {
+                title: updated.title ?? book.title,
+                author: updated.author ?? book.author,
+                genre: updated.genre ?? book.genre,
+                condition: updated.condition ?? book.condition,
+                coverUrl: updated.coverUrl ?? book.coverUrl,
+                description: updated.description ?? book.description,
+                isAvailable: updated.isAvailable ?? book.isAvailable,
+            });
+            window.location.reload();
+        } catch {
+            console.error('Failed to update book');
+        }
     };
 
     return (
         <>
             <div className="flex gap-2 mt-auto pt-2">
                 {isAuthenticated ? (
-                    <Link
-                        to={`/books/${book.id}`}
-                        className="flex-1 text-center py-2 px-3 rounded-lg border border-[var(--color-border)] text-[var(--color-text)] text-sm font-semibold hover:bg-[var(--color-surface-alt)] transition-all duration-200"
-                    >
+                    <Link to={`/books/${book.id}`}
+                          className="flex-1 text-center py-2 px-3 rounded-lg border border-[var(--color-border)] text-[var(--color-text)] text-sm font-semibold hover:bg-[var(--color-surface-alt)] transition-all duration-200">
                         View Details
                     </Link>
                 ) : (
-                    <button
-                        onClick={() => navigate('/sign-in')}
-                        className="flex-1 text-center py-2 px-3 rounded-lg border border-[var(--color-border)] text-[var(--color-text)] text-sm font-semibold hover:bg-[var(--color-surface-alt)] transition-all duration-200"
-                    >
+                    <button onClick={() => navigate('/sign-in')}
+                            className="flex-1 text-center py-2 px-3 rounded-lg border border-[var(--color-border)] text-[var(--color-text)] text-sm font-semibold hover:bg-[var(--color-surface-alt)] transition-all duration-200">
                         View Details
                     </button>
                 )}
 
                 {isOwner && showOwnerActions ? (
                     <div className="flex gap-2 flex-1">
-                        <button
-                            onClick={() => setShowEditModal(true)}
-                            className="flex-1 text-center py-2 px-3 rounded-lg bg-[var(--color-accent)] hover:bg-[var(--color-accent-hover)] text-white text-sm font-semibold transition-all duration-200 shadow-sm"
-                        >
+                        <button onClick={() => setShowEditModal(true)}
+                                className="flex-1 text-center py-2 px-3 rounded-lg bg-[var(--color-accent)] hover:bg-[var(--color-accent-hover)] text-white text-sm font-semibold transition-all duration-200 shadow-sm">
                             Edit
                         </button>
-                        <button
-                            onClick={() => setShowDeleteConfirm(true)}
-                            className="flex-1 text-center py-2 px-3 rounded-lg bg-red-600 hover:bg-red-700 text-white text-sm font-semibold transition-all duration-200 shadow-sm"
-                        >
+                        <button onClick={() => setShowDeleteConfirm(true)}
+                                className="flex-1 text-center py-2 px-3 rounded-lg bg-red-600 hover:bg-red-700 text-white text-sm font-semibold transition-all duration-200 shadow-sm">
                             Delete
                         </button>
                     </div>
                 ) : isOwner ? null : book.isAvailable ? (
-                    <Link
-                        to={`/swap/${book.id}`}
-                        className="flex-1 text-center py-2 px-3 rounded-lg bg-[var(--color-accent)] hover:bg-[var(--color-accent-hover)] text-white text-sm font-semibold transition-all duration-200 shadow-sm"
-                    >
+                    <Link to={`/swap/${book.id}`}
+                          className="flex-1 text-center py-2 px-3 rounded-lg bg-[var(--color-accent)] hover:bg-[var(--color-accent-hover)] text-white text-sm font-semibold transition-all duration-200 shadow-sm">
                         Request Swap
                     </Link>
                 ) : (
-                    <Button
-                        disabled
-                        variant="secondary"
-                        size="sm"
-                        className="flex-1 justify-center opacity-50 cursor-not-allowed"
-                    >
+                    <Button disabled variant="secondary" size="sm" className="flex-1 justify-center opacity-50 cursor-not-allowed">
                         Not Available
                     </Button>
                 )}
             </div>
 
             {showEditModal && (
-                <EditBookModal
-                    book={book}
-                    onClose={() => setShowEditModal(false)}
-                    onSave={handleSave}
-                />
+                <EditBookModal book={book} onClose={() => setShowEditModal(false)} onSave={handleSave} />
             )}
 
             {showDeleteConfirm && (
@@ -97,13 +91,8 @@ export function BookCardActions({ book, isOwner, onDelete, showOwnerActions = fa
                             <Button variant="secondary" size="sm" className="flex-1" onClick={() => setShowDeleteConfirm(false)}>
                                 Cancel
                             </Button>
-                            <button
-                                onClick={() => {
-                                    onDelete?.(book.id);
-                                    setShowDeleteConfirm(false);
-                                }}
-                                className="flex-1 py-2 px-3 rounded-lg bg-red-600 hover:bg-red-700 text-white text-sm font-semibold transition-all duration-200"
-                            >
+                            <button onClick={() => { onDelete?.(book.id); setShowDeleteConfirm(false); }}
+                                    className="flex-1 py-2 px-3 rounded-lg bg-red-600 hover:bg-red-700 text-white text-sm font-semibold transition-all duration-200">
                                 Delete
                             </button>
                         </div>

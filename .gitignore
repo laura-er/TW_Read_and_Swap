@@ -1,2 +1,32 @@
-https://stackblitz.com/storage/blobs/eyJfcmFpbHMiOnsiZGF0YSI6MTU0NDA5NDIwLCJwdXIiOiJibG9iX2lkIn19--8182c5f559394ed73e3d5fa1a216e376b8a73ac2/.gitignore
+﻿# Backend build
+backend/bin/
+backend/obj/
+backend/.idea/
+backend/**/.idea/
+backend/**/bin/
+backend/**/obj/
+
+# Frontend
+frontend/node_modules/
+frontend/dist/
+frontend/.idea/
+
+# Environment
 .env
+.env.local
+backend/**/appsettings.Development.json
+backend/**/appsettings.Production.json
+
+# IDE
+.idea/
+.vscode/
+*.user
+*.suo
+
+# Logs
+*.log
+
+# Misc
+.DS_Store
+*.tsbuildinfo
+package-lock.json

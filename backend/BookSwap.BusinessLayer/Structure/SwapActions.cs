@@ -14,7 +14,7 @@ public class SwapActions
         var swaps = db.SwapRequests.Select(s => new SwapDto
         {
             Id = s.Id,
-            Status = s.Status.ToString(),
+            Status = s.Status.ToString().ToLower(),
             Message = s.Message,
             RequesterId = s.RequesterId,
             OwnerId = s.OwnerId,
@@ -32,9 +32,13 @@ public class SwapActions
             return new ServiceResponse { IsSuccess = false, Message = "Swap not found" };
         return new ServiceResponse { IsSuccess = true, Data = new SwapDto
         {
-            Id = s.Id, Status = s.Status.ToString(), Message = s.Message,
-            RequesterId = s.RequesterId, OwnerId = s.OwnerId,
-            BookOfferedId = s.BookOfferedId, BookRequestedId = s.BookRequestedId
+            Id = s.Id,
+            Status = s.Status.ToString().ToLower(),
+            Message = s.Message,
+            RequesterId = s.RequesterId,
+            OwnerId = s.OwnerId,
+            BookOfferedId = s.BookOfferedId,
+            BookRequestedId = s.BookRequestedId
         }};
     }
 
@@ -44,9 +48,13 @@ public class SwapActions
         var swaps = db.SwapRequests.Where(s => s.RequesterId == requesterId)
             .Select(s => new SwapDto
             {
-                Id = s.Id, Status = s.Status.ToString(), Message = s.Message,
-                RequesterId = s.RequesterId, OwnerId = s.OwnerId,
-                BookOfferedId = s.BookOfferedId, BookRequestedId = s.BookRequestedId
+                Id = s.Id,
+                Status = s.Status.ToString().ToLower(),
+                Message = s.Message,
+                RequesterId = s.RequesterId,
+                OwnerId = s.OwnerId,
+                BookOfferedId = s.BookOfferedId,
+                BookRequestedId = s.BookRequestedId
             }).ToList();
         return new ServiceResponse { IsSuccess = true, Data = swaps };
     }
@@ -57,9 +65,13 @@ public class SwapActions
         var swaps = db.SwapRequests.Where(s => s.OwnerId == ownerId)
             .Select(s => new SwapDto
             {
-                Id = s.Id, Status = s.Status.ToString(), Message = s.Message,
-                RequesterId = s.RequesterId, OwnerId = s.OwnerId,
-                BookOfferedId = s.BookOfferedId, BookRequestedId = s.BookRequestedId
+                Id = s.Id,
+                Status = s.Status.ToString().ToLower(),
+                Message = s.Message,
+                RequesterId = s.RequesterId,
+                OwnerId = s.OwnerId,
+                BookOfferedId = s.BookOfferedId,
+                BookRequestedId = s.BookRequestedId
             }).ToList();
         return new ServiceResponse { IsSuccess = true, Data = swaps };
     }
@@ -76,6 +88,15 @@ public class SwapActions
             return new ServiceResponse { IsSuccess = false, Message = "BookOffered not found" };
         if (!db.Books.Any(b => b.Id == dto.BookRequestedId))
             return new ServiceResponse { IsSuccess = false, Message = "BookRequested not found" };
+
+        // Verificare duplicate
+        var duplicate = db.SwapRequests.Any(s =>
+            s.RequesterId == dto.RequesterId &&
+            s.BookRequestedId == dto.BookRequestedId &&
+            (s.Status == SwapStatus.Pending || s.Status == SwapStatus.Accepted));
+
+        if (duplicate)
+            return new ServiceResponse { IsSuccess = false, Message = "You already have an active swap request for this book" };
 
         var swap = new SwapRequestEntity
         {

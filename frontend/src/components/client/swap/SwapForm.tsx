@@ -1,10 +1,10 @@
 ﻿import { useState, useRef, useEffect, useCallback } from 'react';
 import ReactDOM from 'react-dom';
 import { useNavigate, Link } from 'react-router-dom';
-import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
 import { SwapGuidelinesBox } from './SwapGuidelinesBox';
 import { useAuth } from '@/context/AuthContext';
+import { useSwaps } from '@/context/SwapContext';
 import axiosInstance from '@/api/axiosInstance';
 import type { Book } from '@/types';
 
@@ -168,6 +168,7 @@ function BookDropdown({ value, options, onChange, hasError }: BookDropdownProps)
 export function SwapForm({ book }: SwapFormProps) {
     const navigate = useNavigate();
     const { user } = useAuth();
+    const { refresh } = useSwaps();
     const [formData, setFormData] = useState<SwapFormData>({
         offeredBookId: '',
         message: '',
@@ -226,9 +227,18 @@ export function SwapForm({ book }: SwapFormProps) {
                 bookRequestedId: Number(book.id),
                 message: formData.message,
             });
+            refresh();
             navigate(`/swap/${book.id}/success`);
-        } catch {
-            setErrors({ offeredBookId: 'Failed to send swap request. Please try again.' });
+        } catch (err: any) {
+            const msg = err?.response?.data;
+            if (typeof msg === 'string' && msg.includes('already have an active swap')) {
+                refresh();
+                navigate(`/swap/${book.id}/success?duplicate=true`);
+            } else if (typeof msg === 'string' && msg.length < 100) {
+                setErrors({ offeredBookId: msg });
+            } else {
+                setErrors({ offeredBookId: 'Failed to send swap request. Please try again.' });
+            }
         } finally {
             setIsLoading(false);
         }
@@ -244,7 +254,6 @@ export function SwapForm({ book }: SwapFormProps) {
             </p>
 
             <form onSubmit={handleSubmit} className="flex flex-col gap-5">
-                {/* Select book to offer */}
                 <div className="flex flex-col gap-1.5">
                     <label className="text-sm font-medium text-[var(--color-text)]">
                         Book to Offer <span className="text-red-500">*</span>
@@ -266,7 +275,6 @@ export function SwapForm({ book }: SwapFormProps) {
                     </p>
                 </div>
 
-                {/* Message — optional */}
                 <div className="flex flex-col gap-1.5">
                     <label className="text-sm font-medium text-[var(--color-text)]">
                         Message
@@ -281,7 +289,6 @@ export function SwapForm({ book }: SwapFormProps) {
                     />
                 </div>
 
-                {/* Contact Email — required */}
                 <div className="flex flex-col gap-1.5">
                     <label className="text-sm font-medium text-[var(--color-text)]">
                         Contact Email <span className="text-red-500">*</span>

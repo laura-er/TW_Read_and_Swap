@@ -18,7 +18,6 @@ public class SwapController : ControllerBase
         _swapLogic = bl.GetSwapLogic();
     }
 
-    // Doar Admin vede toate swap-urile
     [HttpGet]
     public IActionResult GetAll()
     {
@@ -32,7 +31,6 @@ public class SwapController : ControllerBase
         return response.IsSuccess ? Ok(response.Data) : BadRequest(response.Message);
     }
 
-    // User autentificat vede un swap specific (doar dacă e al lui sau e admin)
     [HttpGet("{id}")]
     public IActionResult GetById([FromRoute] int id)
     {
@@ -53,7 +51,6 @@ public class SwapController : ControllerBase
         return Ok(response.Data);
     }
 
-    // User vede swap-urile lui ca Requester
     [HttpGet("requester/{requesterId}")]
     public IActionResult GetByRequester([FromRoute] int requesterId)
     {
@@ -68,7 +65,6 @@ public class SwapController : ControllerBase
         return response.IsSuccess ? Ok(response.Data) : BadRequest(response.Message);
     }
 
-    // User vede swap-urile lui ca Owner
     [HttpGet("owner/{ownerId}")]
     public IActionResult GetByOwner([FromRoute] int ownerId)
     {
@@ -83,7 +79,6 @@ public class SwapController : ControllerBase
         return response.IsSuccess ? Ok(response.Data) : BadRequest(response.Message);
     }
 
-    // Doar user autentificat poate crea un swap
     [HttpPost]
     public IActionResult Create([FromBody] SwapCreateDto dto)
     {
@@ -94,10 +89,11 @@ public class SwapController : ControllerBase
         dto.RequesterId = currentUser.Id;
 
         var response = _swapLogic.CreateSwap(dto);
-        return response.IsSuccess ? StatusCode(201, response.Message) : BadRequest(response.Message);
+        return response.IsSuccess
+            ? StatusCode(201, response.Message)
+            : BadRequest(response.Message);
     }
 
-    // Doar owner sau admin poate actualiza statusul
     [HttpPut("{id}/status")]
     public IActionResult UpdateStatus([FromRoute] int id, [FromBody] SwapUpdateDto dto)
     {
@@ -110,14 +106,16 @@ public class SwapController : ControllerBase
             return NotFound(swapResponse.Message);
 
         var swap = swapResponse.Data as SwapDto;
-        if (currentUser.Role != UserRole.Admin && currentUser.Id != swap!.OwnerId)
+
+        if (currentUser.Role != UserRole.Admin &&
+            currentUser.Id != swap!.OwnerId &&
+            currentUser.Id != swap!.RequesterId)
             return StatusCode(403, "Access denied");
 
         var response = _swapLogic.UpdateSwapStatus(id, dto);
         return response.IsSuccess ? Ok(response.Message) : NotFound(response.Message);
     }
 
-    // Doar requester sau admin poate șterge un swap
     [HttpDelete("{id}")]
     public IActionResult Delete([FromRoute] int id)
     {

@@ -16,13 +16,22 @@ public class TokenService
 
     public TokenService()
     {
+        var basePath = AppContext.BaseDirectory;
         var config = new ConfigurationBuilder()
-            .AddJsonFile("appsettings.Development.json", optional: false)
+            .AddJsonFile(Path.Combine(basePath, "appsettings.Development.json"), optional: true)
+            .AddJsonFile("appsettings.Development.json", optional: true)
+            .AddInMemoryCollection(new Dictionary<string, string?>
+            {
+                ["Jwt:Key"]            = "BookSwapSuperSecretKey2026!XyZ#abc",
+                ["Jwt:Issuer"]         = "BookSwapApi",
+                ["Jwt:Audience"]       = "BookSwapClient",
+                ["Jwt:ExpiresInHours"] = "24"
+            })
             .Build();
 
-        _key = config["Jwt:Key"]!;
-        _issuer = config["Jwt:Issuer"]!;
-        _audience = config["Jwt:Audience"]!;
+        _key            = config["Jwt:Key"]!;
+        _issuer         = config["Jwt:Issuer"]!;
+        _audience       = config["Jwt:Audience"]!;
         _expiresInHours = int.Parse(config["Jwt:ExpiresInHours"]!);
     }
 

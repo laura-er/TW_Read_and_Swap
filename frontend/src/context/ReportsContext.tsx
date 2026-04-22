@@ -1,6 +1,7 @@
 import { createContext, useContext, useState, useEffect } from 'react';
 import type { ReactNode } from 'react';
 import axiosInstance from '@/api/axiosInstance';
+import { useAuth } from '@/context/AuthContext';
 import type { ReportedIssue, ReportStatus } from '@/types/admin';
 
 interface ReportsContextType {
@@ -14,6 +15,7 @@ interface ReportsContextType {
 const ReportsContext = createContext<ReportsContextType | null>(null);
 
 export function ReportsProvider({ children }: { children: ReactNode }) {
+    const { user } = useAuth();
     const [reports, setReports] = useState<ReportedIssue[]>([]);
     const [isLoading, setIsLoading] = useState(false);
     const [tick, setTick] = useState(0);
@@ -21,6 +23,11 @@ export function ReportsProvider({ children }: { children: ReactNode }) {
     const refresh = () => setTick(t => t + 1);
 
     useEffect(() => {
+        if (!user || user.role !== 'admin') {
+            setReports([]);
+            setIsLoading(false);
+            return;
+        }
         setIsLoading(true);
         axiosInstance.get('/api/reports')
             .then(res => {
@@ -39,7 +46,7 @@ export function ReportsProvider({ children }: { children: ReactNode }) {
             })
             .catch(() => {})
             .finally(() => setIsLoading(false));
-    }, [tick]);
+    }, [tick, user]);
 
     const addReport = async (report: Omit<ReportedIssue, 'id' | 'createdAt' | 'status'>) => {
         await axiosInstance.post('/api/reports', {
@@ -72,3 +79,4 @@ export function useReports(): ReportsContextType {
     if (!ctx) throw new Error('useReports must be used within ReportsProvider');
     return ctx;
 }
+

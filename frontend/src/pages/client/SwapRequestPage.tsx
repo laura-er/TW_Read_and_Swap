@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import type { SwapStatus } from '@/types';
 import { useSwaps } from '@/context/SwapContext';
 import { useAuth } from '@/context/AuthContext';
 import { SwapStatsBar } from '@/components/client/swaps/SwapStatsBar';
@@ -7,6 +6,7 @@ import { SwapTabs } from '@/components/client/swaps/SwapTabs';
 import { SwapStatusFilter } from '@/components/client/swaps/SwapStatusFilter';
 import { SwapCard } from '@/components/client/swaps/SwapCard';
 import { SwapEmptyState } from '@/components/client/swaps/SwapEmptyState';
+import type { SwapStatus } from '@/types';
 
 type Tab = 'received' | 'sent' | 'completed';
 type FilterStatus = 'all' | SwapStatus;
@@ -19,17 +19,30 @@ export function SwapRequestPage() {
 
     const currentUserId = user?.id ?? '';
 
-    const received = incoming.filter(s => s.status === 'pending' || s.status === 'declined');
-    const sent = outgoing.filter(s => s.status === 'pending' || s.status === 'declined');
-    const completed = [...incoming, ...outgoing].filter(s => s.status === 'accepted' || s.status === 'completed');
+    // Received = swap-uri primite care sunt pending sau rejected
+    const received = incoming.filter(s =>
+        s.status === 'pending' || s.status === 'rejected'
+    );
+
+    // Sent = swap-uri trimise care sunt pending, rejected sau cancelled
+    const sent = outgoing.filter(s =>
+        s.status === 'pending' || s.status === 'rejected' || s.status === 'cancelled'
+    );
+
+    // Accepted = swap-uri acceptate
+    const accepted = [...incoming, ...outgoing].filter(s => s.status === 'accepted');
 
     const activeList = activeTab === 'received' ? received
         : activeTab === 'sent' ? sent
-        : completed;
+            : accepted;
 
     const filtered = activeTab === 'completed'
-        ? completed
+        ? accepted
         : activeList.filter(s => filterStatus === 'all' || s.status === filterStatus);
+
+    const handleCancel = async (id: string) => {
+        await updateStatus(id, 'cancelled');
+    };
 
     return (
         <div className="mx-auto max-w-4xl px-4 py-10 sm:px-6">
@@ -40,13 +53,17 @@ export function SwapRequestPage() {
                 <p className="text-sm text-[var(--color-text-muted)]">Manage your book swap requests</p>
             </div>
 
-            <SwapStatsBar receivedCount={received.length} sentCount={sent.length} completedCount={completed.length} />
+            <SwapStatsBar
+                receivedCount={received.length}
+                sentCount={sent.length}
+                completedCount={accepted.length}
+            />
             <SwapTabs
                 activeTab={activeTab}
                 onTabChange={setActiveTab}
                 receivedCount={received.length}
                 sentCount={sent.length}
-                completedCount={completed.length}
+                completedCount={accepted.length}
             />
 
             {activeTab !== 'completed' && (
@@ -57,14 +74,14 @@ export function SwapRequestPage() {
                 {filtered.length === 0 ? (
                     <SwapEmptyState tab={activeTab === 'completed' ? 'received' : activeTab} />
                 ) : (
-                    filtered.map((swap: any) => (
+                    filtered.map((swap) => (
                         <SwapCard
                             key={swap.id}
                             swap={swap}
                             currentUserId={currentUserId}
                             onAccept={(id) => updateStatus(id, 'accepted')}
-                            onDecline={(id) => updateStatus(id, 'declined')}
-                            onCancel={removeSwap}
+                            onDecline={(id) => updateStatus(id, 'rejected')}
+                            onCancel={handleCancel}
                         />
                     ))
                 )}

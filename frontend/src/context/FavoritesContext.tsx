@@ -19,7 +19,7 @@ export function FavoritesProvider({ children }: { children: ReactNode }) {
     const [favoriteIds, setFavoriteIds] = useState<Record<string, number>>({});
     const [showLoginModal, setShowLoginModal] = useState(false);
 
-    useEffect(() => {
+    const loadFavorites = () => {
         if (!user) {
             setFavorites([]);
             setFavoriteIds({});
@@ -37,6 +37,10 @@ export function FavoritesProvider({ children }: { children: ReactNode }) {
                 setFavorites(bookIds);
             })
             .catch(() => {});
+    };
+
+    useEffect(() => {
+        loadFavorites();
     }, [user]);
 
     const isFavorite = (bookId: string) => favorites.includes(bookId);
@@ -48,15 +52,49 @@ export function FavoritesProvider({ children }: { children: ReactNode }) {
         }
         if (isFavorite(bookId)) {
             const favId = favoriteIds[bookId];
+            if (!favId) {
+                // favId lipseste — reincarcam favoritele si incercam din nou
+                await axiosInstance.get(`/api/favorites/user/${user!.id}`)
+                    .then(res => {
+                        const map: Record<string, number> = {};
+                        const bookIds: string[] = [];
+                        res.data.forEach((f: any) => {
+                            map[String(f.bookId)] = f.id;
+                            bookIds.push(String(f.bookId));
+                        });
+                        setFavoriteIds(map);
+                        setFavorites(bookIds);
+                        const id = map[bookId];
+                        if (id) {
+                            axiosInstance.delete(`/api/favorites/${id}`)
+                                .then(() => {
+                                    setFavorites(prev => prev.filter(i => i !== bookId));
+                                    setFavoriteIds(prev => { const n = { ...prev }; delete n[bookId]; return n; });
+                                })
+                                .catch(() => {});
+                        }
+                    })
+                    .catch(() => {});
+                return;
+            }
             await axiosInstance.delete(`/api/favorites/${favId}`);
             setFavorites(prev => prev.filter(id => id !== bookId));
             setFavoriteIds(prev => { const n = { ...prev }; delete n[bookId]; return n; });
         } else {
-            const res = await axiosInstance.post('/api/favorites', { bookId: Number(bookId) });
-            setFavorites(prev => [...prev, bookId]);
-            if (res.data?.id) {
-                setFavoriteIds(prev => ({ ...prev, [bookId]: res.data.id }));
-            }
+            await axiosInstance.post('/api/favorites', { bookId: Number(bookId) });
+            // reincarcam favoritele pentru a obtine ID-ul corect
+            await axiosInstance.get(`/api/favorites/user/${user!.id}`)
+                .then(res => {
+                    const map: Record<string, number> = {};
+                    const bookIds: string[] = [];
+                    res.data.forEach((f: any) => {
+                        map[String(f.bookId)] = f.id;
+                        bookIds.push(String(f.bookId));
+                    });
+                    setFavoriteIds(map);
+                    setFavorites(bookIds);
+                })
+                .catch(() => {});
         }
     };
 
@@ -75,3 +113,4 @@ export function useFavorites(): FavoritesContextValue {
     if (!ctx) throw new Error('useFavorites must be used inside FavoritesProvider');
     return ctx;
 }
+

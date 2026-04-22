@@ -16,12 +16,11 @@ import type { ProfileTab } from '@/components/client/profile/ProfileTabs';
 import { useFavorites } from '@/context/FavoritesContext';
 import type { Book } from '@/types';
 
-
 export function ProfilePage() {
     const { user } = useAuth();
     const isAdmin = user?.role === 'admin';
     const { incoming, outgoing } = useSwaps();
-const swaps = [...incoming, ...outgoing];
+    const swaps = [...incoming, ...outgoing];
     const [searchParams] = useSearchParams();
     const tabParam = searchParams.get('tab');
     const initialTab: ProfileTab = tabParam
@@ -31,6 +30,7 @@ const swaps = [...incoming, ...outgoing];
     const tabsRef = useRef<HTMLDivElement>(null);
 
     const [userBooks, setUserBooks] = useState<Book[]>([]);
+    const [allBooks, setAllBooks] = useState<Book[]>([]);
 
     useEffect(() => {
         if (!user?.id) return;
@@ -50,6 +50,22 @@ const swaps = [...incoming, ...outgoing];
     }, [user?.id]);
 
     useEffect(() => {
+        axiosInstance.get('/api/books')
+            .then((res) => {
+                const mapped = res.data.map((b: any) => ({
+                    ...b,
+                    id: String(b.id),
+                    ownerId: String(b.ownerId),
+                    rating: b.rating ?? 0,
+                    reviewCount: b.reviewCount ?? 0,
+                    createdAt: b.createdAt ?? new Date().toISOString(),
+                }));
+                setAllBooks(mapped);
+            })
+            .catch(() => {});
+    }, []);
+
+    useEffect(() => {
         if (tabParam) {
             const resolved = (tabParam.charAt(0).toUpperCase() + tabParam.slice(1)) as ProfileTab;
             setActiveTab(resolved);
@@ -66,8 +82,8 @@ const swaps = [...incoming, ...outgoing];
     const { favorites, toggleFavorite } = useFavorites();
 
     const favoriteBooks = useMemo(
-        () => userBooks.filter((b) => favorites.includes(b.id)),
-        [favorites, userBooks]
+        () => allBooks.filter((b) => favorites.includes(b.id)),
+        [favorites, allBooks]
     );
 
     const handleDeleteBook = (id: string) => {
@@ -124,22 +140,24 @@ const swaps = [...incoming, ...outgoing];
                         ) : (
                             <ProfileStats
                                 favoritesCount={favoriteBooks.length}
-                                swapsCount={swaps.filter((s) => s.status === 'completed').length}
+                                swapsCount={swaps.filter((s) => s.status === 'accepted').length}
                                 booksCount={userBooks.length}
                             />
                         )}
                     </div>
                 </div>
 
-                {!isAdmin && <div className="mb-4 rounded-[20px] overflow-hidden shadow-lg"
-                                  style={{
-                                      background: 'var(--lib-card)',
-                                      border: '1px solid var(--lib-border)',
-                                      backdropFilter: 'blur(20px)',
-                                  }}
-                                  ref={tabsRef}>
-                    <ProfileTabs active={activeTab} onChange={setActiveTab} />
-                </div>}
+                {!isAdmin && (
+                    <div className="mb-4 rounded-[20px] overflow-hidden shadow-lg"
+                         style={{
+                             background: 'var(--lib-card)',
+                             border: '1px solid var(--lib-border)',
+                             backdropFilter: 'blur(20px)',
+                         }}
+                         ref={tabsRef}>
+                        <ProfileTabs active={activeTab} onChange={setActiveTab} />
+                    </div>
+                )}
 
                 {!isAdmin && activeTab === 'Favorites' && (
                     <div id="favorites-section">
