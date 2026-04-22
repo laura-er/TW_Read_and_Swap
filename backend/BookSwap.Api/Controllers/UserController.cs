@@ -108,6 +108,10 @@ public class UserController : ControllerBase
         var currentUser = HttpContext.Items["CurrentUser"] as UserEntity;
         if (currentUser?.Role != UserRole.Admin)
             return StatusCode(403, "Access denied");
+
+        if (currentUser.Id == id)
+            return BadRequest("You cannot delete your own account");
+
         var response = _userLogic.DeleteUser(id);
         if (!response.IsSuccess)
             return NotFound(response.Message);

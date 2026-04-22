@@ -142,8 +142,66 @@ public class UserActions
         var user = db.Users.Find(id);
         if (user == null)
             return new ServiceResponse { IsSuccess = false, Message = "User not found" };
-        try { db.Users.Remove(user); db.SaveChanges(); }
-        catch (Exception) { return new ServiceResponse { IsSuccess = false, Message = "Delete failed" }; }
+
+        try
+        {
+            // 1. Șterge swap-urile unde userul e requester sau owner
+            var swaps = db.SwapRequests
+                .Where(s => s.RequesterId == id || s.OwnerId == id)
+                .ToList();
+            db.SwapRequests.RemoveRange(swaps);
+
+            // 2. Șterge favoritele userului
+            var favorites = db.Favorites
+                .Where(f => f.UserId == id)
+                .ToList();
+            db.Favorites.RemoveRange(favorites);
+
+            // 3. Șterge review-urile userului
+            var reviews = db.Reviews
+                .Where(r => r.UserId == id)
+                .ToList();
+            db.Reviews.RemoveRange(reviews);
+
+            // 4. Șterge rapoartele făcute de user
+            var reports = db.Reports
+                .Where(r => r.ReportedByUserId == id)
+                .ToList();
+            db.Reports.RemoveRange(reports);
+
+            // 5. Șterge cărțile userului
+            // Mai întâi swap-urile asociate cărților userului
+            var bookIds = db.Books.Where(b => b.OwnerId == id).Select(b => b.Id).ToList();
+            if (bookIds.Any())
+            {
+                var bookSwaps = db.SwapRequests
+                    .Where(s => bookIds.Contains(s.BookOfferedId) || bookIds.Contains(s.BookRequestedId))
+                    .ToList();
+                db.SwapRequests.RemoveRange(bookSwaps);
+
+                var bookFavorites = db.Favorites
+                    .Where(f => bookIds.Contains(f.BookId))
+                    .ToList();
+                db.Favorites.RemoveRange(bookFavorites);
+
+                var bookReviews = db.Reviews
+                    .Where(r => bookIds.Contains(r.BookId))
+                    .ToList();
+                db.Reviews.RemoveRange(bookReviews);
+
+                var books = db.Books.Where(b => b.OwnerId == id).ToList();
+                db.Books.RemoveRange(books);
+            }
+
+            // 6. Șterge userul
+            db.Users.Remove(user);
+            db.SaveChanges();
+        }
+        catch (Exception ex)
+        {
+            return new ServiceResponse { IsSuccess = false, Message = $"Delete failed: {ex.Message}" };
+        }
+
         return new ServiceResponse { IsSuccess = true, Message = "User deleted" };
     }
 

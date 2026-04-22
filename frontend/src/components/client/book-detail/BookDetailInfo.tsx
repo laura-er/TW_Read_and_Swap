@@ -1,5 +1,8 @@
+import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import type { Book } from '@/types';
 import { Avatar } from '@/components/ui/Avatar';
+import axiosInstance from '@/api/axiosInstance';
 
 interface BookDetailInfoProps {
     book: Book;
@@ -8,6 +11,19 @@ interface BookDetailInfoProps {
 }
 
 export function BookDetailInfo({ book, averageRating, reviewCount }: BookDetailInfoProps) {
+    const [owner, setOwner] = useState<{ username: string; firstName: string; lastName: string } | null>(null);
+
+    useEffect(() => {
+        if (!book.ownerId) return;
+        axiosInstance.get(`/api/users/${book.ownerId}`)
+            .then(res => setOwner({
+                username: res.data.username,
+                firstName: res.data.firstName,
+                lastName: res.data.lastName,
+            }))
+            .catch(() => setOwner(null));
+    }, [book.ownerId]);
+
     return (
         <div className="flex flex-col gap-4">
 
@@ -17,7 +33,6 @@ export function BookDetailInfo({ book, averageRating, reviewCount }: BookDetailI
                     {book.title}
                 </h1>
                 <p className="text-sm text-(--color-accent) font-semibold mb-3">by {book.author}</p>
-
                 <div className="flex items-center gap-2 flex-wrap p-3 bg-(--color-surface-alt) rounded-xl">
                     <div className="flex items-center gap-1.5 px-2.5 py-1 bg-yellow-400/10 rounded-lg border border-yellow-400/20">
                         <div className="flex gap-0.5">
@@ -30,10 +45,9 @@ export function BookDetailInfo({ book, averageRating, reviewCount }: BookDetailI
                         <span className="text-sm font-bold text-(--color-text)">{averageRating}</span>
                         <span className="text-xs text-(--color-text-muted)">({reviewCount})</span>
                     </div>
-
                     <span className="bg-(--color-accent)/10 text-(--color-accent) px-2.5 py-1 rounded-full font-semibold border border-(--color-accent)/20 text-xs capitalize">
-            {book.genre}
-          </span>
+                        {book.genre}
+                    </span>
                 </div>
             </div>
 
@@ -48,13 +62,25 @@ export function BookDetailInfo({ book, averageRating, reviewCount }: BookDetailI
             {/* Owner */}
             <div className="rounded-2xl border border-(--color-border) bg-(--color-surface) p-4">
                 <h2 className="text-sm font-bold uppercase tracking-widest text-(--color-text-muted) mb-3">Owner</h2>
-                <div className="flex items-center gap-3 p-3 bg-(--color-surface-alt) rounded-xl">
-                    <Avatar name={book.ownerId} size="sm" />
+                <Link
+                    to={owner ? `/profile/${owner.username}` : '#'}
+                    className="flex items-center gap-3 p-3 bg-(--color-surface-alt) rounded-xl hover:opacity-80 transition-opacity"
+                    style={{ textDecoration: 'none' }}
+                >
+                    <Avatar
+                        name={owner ? `${owner.firstName} ${owner.lastName}` : book.ownerId}
+                        size="sm"
+                    />
                     <div>
-                        <p className="text-sm font-bold text-(--color-text)">{book.ownerId}</p>
+                        <p className="text-sm font-bold text-(--color-text)">
+                            {owner ? `${owner.firstName} ${owner.lastName}` : book.ownerId}
+                        </p>
+                        <p className="text-xs text-(--color-accent)">
+                            {owner ? `@${owner.username}` : ''}
+                        </p>
                         <p className="text-xs text-(--color-text-muted)">Member of Read &amp; Swap</p>
                     </div>
-                </div>
+                </Link>
             </div>
         </div>
     );

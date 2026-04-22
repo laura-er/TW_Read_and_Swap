@@ -199,12 +199,31 @@ public class BookActions
 
         try
         {
+            // Șterge swap-urile asociate cărții
+            var swaps = db.SwapRequests
+                .Where(s => s.BookOfferedId == id || s.BookRequestedId == id)
+                .ToList();
+            db.SwapRequests.RemoveRange(swaps);
+
+            // Șterge favoritele asociate cărții
+            var favorites = db.Favorites
+                .Where(f => f.BookId == id)
+                .ToList();
+            db.Favorites.RemoveRange(favorites);
+
+            // Șterge review-urile asociate cărții
+            var reviews = db.Reviews
+                .Where(r => r.BookId == id)
+                .ToList();
+            db.Reviews.RemoveRange(reviews);
+
+            // Acum șterge cartea
             db.Books.Remove(book);
             db.SaveChanges();
         }
-        catch (Exception)
+        catch (Exception ex)
         {
-            return new ServiceResponse { IsSuccess = false, Message = "Delete book failed" };
+            return new ServiceResponse { IsSuccess = false, Message = $"Delete book failed: {ex.Message}" };
         }
 
         return new ServiceResponse { IsSuccess = true, Message = "Book deleted" };
