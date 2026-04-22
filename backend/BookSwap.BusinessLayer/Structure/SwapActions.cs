@@ -89,6 +89,15 @@ public class SwapActions
         if (!db.Books.Any(b => b.Id == dto.BookRequestedId))
             return new ServiceResponse { IsSuccess = false, Message = "BookRequested not found" };
 
+        // Verificare duplicate
+        var duplicate = db.SwapRequests.Any(s =>
+            s.RequesterId == dto.RequesterId &&
+            s.BookRequestedId == dto.BookRequestedId &&
+            (s.Status == SwapStatus.Pending || s.Status == SwapStatus.Accepted));
+
+        if (duplicate)
+            return new ServiceResponse { IsSuccess = false, Message = "You already have an active swap request for this book" };
+
         var swap = new SwapRequestEntity
         {
             Status = SwapStatus.Pending,

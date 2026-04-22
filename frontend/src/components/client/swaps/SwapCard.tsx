@@ -10,8 +10,17 @@ import { formatRelativeDate } from '@/utils/formatDate';
 type StatusVariant = 'warning' | 'success' | 'danger' | 'default';
 
 const statusVariant: Record<string, StatusVariant> = {
-    pending: 'warning', accepted: 'success',
-    declined: 'danger', completed: 'default',
+    pending:   'warning',
+    accepted:  'success',
+    rejected:  'danger',
+    cancelled: 'default',
+};
+
+const statusLabel: Record<string, string> = {
+    pending:   'Pending',
+    accepted:  'Accepted',
+    rejected:  'Declined',
+    cancelled: 'Cancelled',
 };
 
 interface SwapCardProps {
@@ -62,7 +71,9 @@ export function SwapCard({ swap, currentUserId, onAccept, onDecline, onCancel }:
                         {formatRelativeDate(swap.createdAt)}
                     </p>
                 </div>
-                <Badge variant={statusVariant[swap.status]}>{swap.status}</Badge>
+                <Badge variant={statusVariant[swap.status] ?? 'default'}>
+                    {statusLabel[swap.status] ?? swap.status}
+                </Badge>
             </div>
 
             {/* Books exchange */}
@@ -129,7 +140,7 @@ export function SwapCard({ swap, currentUserId, onAccept, onDecline, onCancel }:
                 </div>
             )}
 
-            {(swap.status === 'accepted' || swap.status === 'completed') && (
+            {swap.status === 'accepted' && (
                 <div style={{ display: 'flex', justifyContent: 'flex-end', paddingTop: '10px',
                     borderTop: '1px solid var(--navbar-border)' }}>
                     <button onClick={() => setShowReport(true)}
