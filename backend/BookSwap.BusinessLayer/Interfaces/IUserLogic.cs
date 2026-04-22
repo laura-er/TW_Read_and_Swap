@@ -9,6 +9,7 @@ public interface IUserLogic
     ServiceResponse Login(LoginDto dto);
     ServiceResponse Logout(int userId);
     ServiceResponse GetUserById(int id);
+    ServiceResponse GetUserByUsername(string username);
     ServiceResponse GetUserList();
     ServiceResponse UpdateUser(int id, UserUpdateDto dto);
     ServiceResponse DeleteUser(int id);

@@ -42,7 +42,6 @@ public class UserController : ControllerBase
         var currentUser = HttpContext.Items["CurrentUser"] as UserEntity;
         if (currentUser == null)
             return Unauthorized("Not authenticated");
-
         _userLogic.Logout(currentUser.Id);
         return Ok("Logged out");
     }
@@ -53,11 +52,31 @@ public class UserController : ControllerBase
         var currentUser = HttpContext.Items["CurrentUser"] as UserEntity;
         if (currentUser?.Role != UserRole.Admin)
             return StatusCode(403, "Access denied");
-
         var response = _userLogic.GetUserList();
         if (!response.IsSuccess)
             return BadRequest(response.Message);
         return Ok(response.Data);
+    }
+
+    // Endpoint PUBLIC pentru găsire user după username — folosit de PublicProfilePage
+    [HttpGet("by-username/{username}")]
+    public IActionResult GetByUsername([FromRoute] string username)
+    {
+        var response = _userLogic.GetUserByUsername(username);
+        if (!response.IsSuccess)
+            return NotFound(response.Message);
+        return Ok(response.Data);
+    }
+
+    // Endpoint PUBLIC pentru numărul total de useri — folosit de StatsBar
+    [HttpGet("count")]
+    public IActionResult GetUserCount()
+    {
+        var response = _userLogic.GetUserList();
+        if (!response.IsSuccess)
+            return Ok(0);
+        var list = response.Data as List<object>;
+        return Ok(list?.Count ?? 0);
     }
 
     [HttpGet("{id}")]
@@ -75,10 +94,8 @@ public class UserController : ControllerBase
         var currentUser = HttpContext.Items["CurrentUser"] as UserEntity;
         if (currentUser == null)
             return Unauthorized("Not authenticated");
-
         if (currentUser.Id != id && currentUser.Role != UserRole.Admin)
             return StatusCode(403, "Access denied");
-
         var response = _userLogic.UpdateUser(id, dto);
         if (!response.IsSuccess)
             return NotFound(response.Message);
@@ -91,7 +108,6 @@ public class UserController : ControllerBase
         var currentUser = HttpContext.Items["CurrentUser"] as UserEntity;
         if (currentUser?.Role != UserRole.Admin)
             return StatusCode(403, "Access denied");
-
         var response = _userLogic.DeleteUser(id);
         if (!response.IsSuccess)
             return NotFound(response.Message);
@@ -104,7 +120,6 @@ public class UserController : ControllerBase
         var currentUser = HttpContext.Items["CurrentUser"] as UserEntity;
         if (currentUser?.Role != UserRole.Admin)
             return StatusCode(403, "Access denied");
-
         var response = _userLogic.ChangeRole(id, dto);
         if (!response.IsSuccess)
             return BadRequest(response.Message);

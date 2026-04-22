@@ -8,7 +8,7 @@ interface SwapHistoryTabProps {
 }
 
 export function SwapHistoryTab({ swaps, currentUserId }: SwapHistoryTabProps) {
-    const completed = swaps.filter((s) => s.status === 'accepted' || s.status === 'completed');
+    const completed = swaps.filter((s) => s.status === 'accepted');
 
     if (completed.length === 0) {
         return (
@@ -19,7 +19,7 @@ export function SwapHistoryTab({ swaps, currentUserId }: SwapHistoryTabProps) {
                     </svg>
                 </div>
                 <h3 className="font-['Playfair_Display'] font-bold text-[var(--color-text)] mb-1">Swap History</h3>
-                <p className="text-sm text-[var(--color-text-muted)]">Your completed swaps will appear here.</p>
+                <p className="text-sm text-[var(--color-text-muted)]">Your accepted swaps will appear here.</p>
             </div>
         );
     }
@@ -28,7 +28,6 @@ export function SwapHistoryTab({ swaps, currentUserId }: SwapHistoryTabProps) {
         <div className="flex flex-col gap-4">
             {completed.map((swap) => {
                 const isOwner = swap.ownerId === currentUserId;
-
                 return (
                     <div key={swap.id} className="rounded-2xl p-5" style={{ background: 'var(--lib-card)', border: '1px solid var(--lib-border)', backdropFilter: 'blur(16px)' }}>
                         <div className="flex items-center justify-between mb-4">
@@ -38,32 +37,23 @@ export function SwapHistoryTab({ swaps, currentUserId }: SwapHistoryTabProps) {
                                 </p>
                                 <p className="text-xs text-[var(--color-text-muted)]">{formatRelativeDate(swap.updatedAt)}</p>
                             </div>
-                            <span className="text-xs font-semibold text-green-600 bg-green-100 dark:bg-green-900/30 px-2.5 py-1 rounded-full">
-                                Completed
-                            </span>
+                            <span className="text-xs font-semibold text-green-600 bg-green-100 px-2.5 py-1 rounded-full">Accepted</span>
                         </div>
-
                         <div className="flex items-center gap-3">
-                            <Link
-                                to={`/books/${swap.bookRequestedId}`}
-                                className="flex-1 flex items-center gap-3 p-3 rounded-xl hover:border-[var(--color-accent)] border border-transparent transition-all"
-                                style={{ background: 'var(--lib-stats)' }}
-                            >
+                            <Link to={`/books/${swap.bookRequestedId}`}
+                                  className="flex-1 flex items-center gap-3 p-3 rounded-xl border border-transparent hover:border-[var(--color-accent)] transition-all"
+                                  style={{ background: 'var(--lib-stats)' }}>
                                 <div className="min-w-0">
                                     <p className="text-xs text-[var(--color-text-muted)] mb-0.5">{isOwner ? 'You gave:' : 'You received:'}</p>
                                     <p className="text-sm font-semibold text-[var(--color-text)] truncate">Book #{swap.bookRequestedId}</p>
                                 </div>
                             </Link>
-
                             <svg className="w-5 h-5 shrink-0 text-[var(--color-accent)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
                             </svg>
-
-                            <Link
-                                to={`/books/${swap.bookOfferedId}`}
-                                className="flex-1 flex items-center gap-3 p-3 rounded-xl hover:border-[var(--color-accent)] border border-transparent transition-all"
-                                style={{ background: 'var(--lib-stats)' }}
-                            >
+                            <Link to={`/books/${swap.bookOfferedId}`}
+                                  className="flex-1 flex items-center gap-3 p-3 rounded-xl border border-transparent hover:border-[var(--color-accent)] transition-all"
+                                  style={{ background: 'var(--lib-stats)' }}>
                                 <div className="min-w-0">
                                     <p className="text-xs text-[var(--color-text-muted)] mb-0.5">{isOwner ? 'You received:' : 'You gave:'}</p>
                                     <p className="text-sm font-semibold text-[var(--color-text)] truncate">Book #{swap.bookOfferedId}</p>

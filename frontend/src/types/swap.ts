@@ -7,7 +7,7 @@ export interface SwapRequest {
   ownerId: string;
   bookOfferedId: string;
   bookRequestedId: string;
-  status: 'pending' | 'accepted' | 'declined' | 'completed';
+  status: 'pending' | 'accepted' | 'rejected' | 'completed';
   message?: string;
   createdAt: string;
   updatedAt: string;

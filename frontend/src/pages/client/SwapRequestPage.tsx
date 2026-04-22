@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import type { SwapStatus } from '@/types';
 import { useSwaps } from '@/context/SwapContext';
 import { useAuth } from '@/context/AuthContext';
 import { SwapStatsBar } from '@/components/client/swaps/SwapStatsBar';
@@ -7,6 +6,7 @@ import { SwapTabs } from '@/components/client/swaps/SwapTabs';
 import { SwapStatusFilter } from '@/components/client/swaps/SwapStatusFilter';
 import { SwapCard } from '@/components/client/swaps/SwapCard';
 import { SwapEmptyState } from '@/components/client/swaps/SwapEmptyState';
+import type { SwapStatus } from '@/types';
 
 type Tab = 'received' | 'sent' | 'completed';
 type FilterStatus = 'all' | SwapStatus;
@@ -19,13 +19,13 @@ export function SwapRequestPage() {
 
     const currentUserId = user?.id ?? '';
 
-    const received = incoming.filter(s => s.status === 'pending' || s.status === 'declined');
-    const sent = outgoing.filter(s => s.status === 'pending' || s.status === 'declined');
-    const completed = [...incoming, ...outgoing].filter(s => s.status === 'accepted' || s.status === 'completed');
+    const received  = incoming.filter(s => s.status === 'pending' || s.status === 'rejected');
+    const sent      = outgoing.filter(s => s.status === 'pending' || s.status === 'rejected');
+    const completed = [...incoming, ...outgoing].filter(s => s.status === 'accepted');
 
     const activeList = activeTab === 'received' ? received
         : activeTab === 'sent' ? sent
-        : completed;
+            : completed;
 
     const filtered = activeTab === 'completed'
         ? completed
@@ -39,20 +39,11 @@ export function SwapRequestPage() {
                 </h1>
                 <p className="text-sm text-[var(--color-text-muted)]">Manage your book swap requests</p>
             </div>
-
             <SwapStatsBar receivedCount={received.length} sentCount={sent.length} completedCount={completed.length} />
-            <SwapTabs
-                activeTab={activeTab}
-                onTabChange={setActiveTab}
-                receivedCount={received.length}
-                sentCount={sent.length}
-                completedCount={completed.length}
-            />
-
+            <SwapTabs activeTab={activeTab} onTabChange={setActiveTab} receivedCount={received.length} sentCount={sent.length} completedCount={completed.length} />
             {activeTab !== 'completed' && (
                 <SwapStatusFilter active={filterStatus} onChange={setFilterStatus} />
             )}
-
             <div className="flex flex-col gap-4">
                 {filtered.length === 0 ? (
                     <SwapEmptyState tab={activeTab === 'completed' ? 'received' : activeTab} />
@@ -63,7 +54,7 @@ export function SwapRequestPage() {
                             swap={swap}
                             currentUserId={currentUserId}
                             onAccept={(id) => updateStatus(id, 'accepted')}
-                            onDecline={(id) => updateStatus(id, 'declined')}
+                            onDecline={(id) => updateStatus(id, 'rejected')}
                             onCancel={removeSwap}
                         />
                     ))

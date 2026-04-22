@@ -7,8 +7,8 @@ export function StatsBar() {
     const [userCount, setUserCount] = useState(0);
 
     useEffect(() => {
-        axiosInstance.get('/api/users/list')
-            .then((res) => setUserCount(res.data.length))
+        axiosInstance.get('/api/users/count')
+            .then((res) => setUserCount(res.data))
             .catch(() => setUserCount(0));
     }, []);
 
@@ -20,12 +20,7 @@ export function StatsBar() {
     ];
 
     return (
-        <section style={{
-            background: 'var(--lib-stats)',
-            backdropFilter: 'blur(14px)',
-            borderTop: '1px solid var(--lib-border)',
-            borderBottom: '1px solid var(--lib-border)',
-        }}>
+        <section style={{ background: 'var(--lib-stats)', backdropFilter: 'blur(14px)', borderTop: '1px solid var(--lib-border)', borderBottom: '1px solid var(--lib-border)' }}>
             <div className="mx-auto max-w-7xl px-4 py-8 grid grid-cols-2 md:grid-cols-4">
                 {stats.map(({ value, label, icon }, i) => (
                     <div key={label} className="flex flex-col items-center text-center px-6 py-2"
