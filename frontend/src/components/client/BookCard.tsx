@@ -50,6 +50,7 @@ export function BookCard({ book, onDelete, showOwnerActions = false }: BookCardP
                     isAvailable={book.isAvailable}
                     isFavorite={isFavorite(book.id)}
                     onFavoriteToggle={() => toggleFavorite(book.id)}
+                    isOwner={isOwner}
                 />
             </div>
 

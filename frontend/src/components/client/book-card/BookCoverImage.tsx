@@ -7,10 +7,11 @@ interface BookCoverImageProps {
     isAvailable: boolean;
     isFavorite: boolean;
     onFavoriteToggle: () => void;
+    isOwner?: boolean;
 }
 
 export function BookCoverImage({
-                                   id, title, coverUrl, isAvailable, isFavorite, onFavoriteToggle,
+                                   id, title, coverUrl, isAvailable, isFavorite, onFavoriteToggle, isOwner = false,
                                }: BookCoverImageProps) {
     return (
         <div className="relative w-full h-full">
@@ -28,7 +29,8 @@ export function BookCoverImage({
                 )}
             </Link>
 
-            {/* Favorite button — top-left of image */}
+            {/* Favorite button — ascuns dacă ești proprietarul */}
+            {!isOwner && (
             <button
                 onClick={onFavoriteToggle}
                 className="absolute top-2 left-2 bg-(--color-surface)/90 backdrop-blur-sm p-1.5 rounded-full shadow-md hover:scale-110 transition-transform z-10"
@@ -47,6 +49,7 @@ export function BookCoverImage({
                     />
                 </svg>
             </button>
+            )}
         </div>
     );
 }

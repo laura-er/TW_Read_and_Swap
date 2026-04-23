@@ -1,4 +1,4 @@
-﻿import { useState } from 'react';
+﻿import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Flag } from 'lucide-react';
 import type { SwapRequest } from '@/types';
@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { ReportModal } from '@/components/shared/ReportModal';
 import { formatRelativeDate } from '@/utils/formatDate';
+import axiosInstance from '@/api/axiosInstance';
 
 type StatusVariant = 'warning' | 'success' | 'danger' | 'default';
 
@@ -32,9 +33,27 @@ interface SwapCardProps {
 }
 
 export function SwapCard({ swap, currentUserId, onAccept, onDecline, onCancel }: SwapCardProps) {
-    const isOwner = swap.ownerId === currentUserId;
+    const isOwner = String(swap.ownerId) === String(currentUserId);
     const otherUserId = isOwner ? swap.requesterId : swap.ownerId;
+
+    const [otherUsername, setOtherUsername] = useState<string>(`User #${otherUserId}`);
+    const [bookOfferedTitle, setBookOfferedTitle] = useState<string>(`Book #${swap.bookOfferedId}`);
+    const [bookRequestedTitle, setBookRequestedTitle] = useState<string>(`Book #${swap.bookRequestedId}`);
     const [showReport, setShowReport] = useState(false);
+
+    useEffect(() => {
+        axiosInstance.get(`/api/users/${otherUserId}`)
+            .then(res => setOtherUsername(res.data.username ?? `User #${otherUserId}`))
+            .catch(() => {});
+
+        axiosInstance.get(`/api/books/${swap.bookOfferedId}`)
+            .then(res => setBookOfferedTitle(res.data.title ?? `Book #${swap.bookOfferedId}`))
+            .catch(() => {});
+
+        axiosInstance.get(`/api/books/${swap.bookRequestedId}`)
+            .then(res => setBookRequestedTitle(res.data.title ?? `Book #${swap.bookRequestedId}`))
+            .catch(() => {});
+    }, [swap.bookOfferedId, swap.bookRequestedId, otherUserId]);
 
     const bookPanelStyle: React.CSSProperties = {
         flex: 1, display: 'flex', alignItems: 'center', gap: '10px',
@@ -55,7 +74,7 @@ export function SwapCard({ swap, currentUserId, onAccept, onDecline, onCancel }:
             {showReport && (
                 <ReportModal
                     targetId={otherUserId}
-                    targetName={`User #${otherUserId}`}
+                    targetName={otherUsername}
                     type="user"
                     onClose={() => setShowReport(false)}
                 />
@@ -65,7 +84,7 @@ export function SwapCard({ swap, currentUserId, onAccept, onDecline, onCancel }:
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '14px' }}>
                 <div>
                     <p style={{ fontSize: '13px', fontWeight: 600, color: 'var(--navbar-text)' }}>
-                        {isOwner ? `From user #${swap.requesterId}` : `To user #${swap.ownerId}`}
+                        {isOwner ? `From ${otherUsername}` : `To ${otherUsername}`}
                     </p>
                     <p style={{ fontSize: '11px', color: 'var(--navbar-text-muted)' }}>
                         {formatRelativeDate(swap.createdAt)}
@@ -87,7 +106,7 @@ export function SwapCard({ swap, currentUserId, onAccept, onDecline, onCancel }:
                         </p>
                         <p style={{ fontSize: '12px', fontWeight: 600, color: 'var(--navbar-text)',
                             overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                            Book #{swap.bookRequestedId}
+                            {bookRequestedTitle}
                         </p>
                     </div>
                 </Link>
@@ -107,7 +126,7 @@ export function SwapCard({ swap, currentUserId, onAccept, onDecline, onCancel }:
                         </p>
                         <p style={{ fontSize: '12px', fontWeight: 600, color: 'var(--navbar-text)',
                             overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                            Book #{swap.bookOfferedId}
+                            {bookOfferedTitle}
                         </p>
                     </div>
                 </Link>

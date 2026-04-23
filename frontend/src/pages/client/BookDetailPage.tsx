@@ -90,6 +90,8 @@ export function BookDetailPage() {
         return <BookDetailNotFound />;
     }
 
+    const isOwner = !!user && String(user.id) === String(book.ownerId);
+
     const averageRating = reviews.length > 0
         ? (reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length).toFixed(1)
         : book.rating?.toFixed(1) ?? 'N/A';
@@ -126,7 +128,7 @@ export function BookDetailPage() {
                             baseRating={book.rating}
                             baseReviewCount={book.reviewCount}
                         />
-                        {isAuthenticated && (
+                        {isAuthenticated && !isOwner && (
                             <div className="bg-(--color-surface) p-6 rounded-2xl shadow-xl border border-(--color-border)">
                                 <button
                                     onClick={() => setShowReviewForm(!showReviewForm)}
@@ -140,7 +142,7 @@ export function BookDetailPage() {
                             </div>
                         )}
 
-                        {showReviewForm && isAuthenticated && (
+                        {showReviewForm && isAuthenticated && !isOwner && (
                             <BookDetailAddReview onSubmit={handleAddReview} />
                         )}
 

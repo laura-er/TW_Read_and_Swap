@@ -129,6 +129,24 @@ public class SwapActions
         swap.Status = newStatus;
         swap.UpdatedAt = DateTime.UtcNow;
 
+        // Când swap-ul e acceptat, marchează ambele cărți ca indisponibile
+        if (newStatus == SwapStatus.Accepted)
+        {
+            var bookOffered = db.Books.Find(swap.BookOfferedId);
+            var bookRequested = db.Books.Find(swap.BookRequestedId);
+            if (bookOffered != null) bookOffered.IsAvailable = false;
+            if (bookRequested != null) bookRequested.IsAvailable = false;
+        }
+
+        // Când swap-ul e respins sau anulat, re-activează ambele cărți
+        if (newStatus == SwapStatus.Rejected || newStatus == SwapStatus.Cancelled)
+        {
+            var bookOffered = db.Books.Find(swap.BookOfferedId);
+            var bookRequested = db.Books.Find(swap.BookRequestedId);
+            if (bookOffered != null) bookOffered.IsAvailable = true;
+            if (bookRequested != null) bookRequested.IsAvailable = true;
+        }
+
         try { db.SaveChanges(); }
         catch (Exception) { return new ServiceResponse { IsSuccess = false, Message = "Update swap failed" }; }
 
