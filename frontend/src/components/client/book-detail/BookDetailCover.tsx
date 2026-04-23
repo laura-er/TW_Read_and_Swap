@@ -1,4 +1,5 @@
 import { useFavorites } from '@/context/FavoritesContext';
+import { useAuth } from '@/context/AuthContext';
 import { Link } from 'react-router-dom';
 import type { Book } from '@/types';
 import { Badge } from '@/components/ui/Badge';
@@ -18,7 +19,9 @@ interface BookDetailCoverProps {
 
 export function BookDetailCover({ book }: BookDetailCoverProps) {
     const { isFavorite: checkFavorite, toggleFavorite } = useFavorites();
+    const { user } = useAuth();
     const isFavorite = checkFavorite(book.id);
+    const isOwner = !!user && String(user.id) === String(book.ownerId);
 
     return (
         <div className="lg:col-span-1">
@@ -38,7 +41,7 @@ export function BookDetailCover({ book }: BookDetailCoverProps) {
                         </div>
                     )}
                     <div className="absolute top-3 left-3">
-                        {book.isAvailable ? (
+                        {!isOwner && (book.isAvailable ? (
                             <span className="flex items-center gap-1.5 bg-green-500 text-white px-3 py-1.5 rounded-full text-xs font-bold shadow-lg">
                 <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
                 Available
@@ -47,13 +50,14 @@ export function BookDetailCover({ book }: BookDetailCoverProps) {
                             <span className="bg-black/50 backdrop-blur-sm text-white/80 px-3 py-1.5 rounded-full text-xs font-bold">
                 Unavailable
               </span>
-                        )}
+                        ))}
                     </div>
                 </div>
 
                 {/* Actions + Stats */}
                 <div className="p-4 flex flex-col gap-3">
 
+                    {!isOwner && (
                     <button
                         onClick={() => toggleFavorite(book.id)}
                         className="w-full flex items-center justify-center gap-2 py-2 px-3 rounded-lg border border-(--color-border) text-(--color-text) text-sm font-semibold hover:bg-(--color-surface-alt) transition-all duration-200"
@@ -66,8 +70,9 @@ export function BookDetailCover({ book }: BookDetailCoverProps) {
                         </svg>
                         {isFavorite ? 'Remove from Favorites' : 'Add to Favorites'}
                     </button>
+                    )}
 
-                    {book.isAvailable ? (
+                    {!isOwner && (book.isAvailable ? (
                         <Link
                             to={`/swap/${book.id}`}
                             className="w-full flex items-center justify-center gap-2 py-2 px-3 rounded-lg bg-(--color-accent) hover:bg-(--color-accent-hover) text-white text-sm font-semibold transition-all duration-200 shadow-sm"
@@ -81,7 +86,7 @@ export function BookDetailCover({ book }: BookDetailCoverProps) {
                         <button disabled className="w-full py-2 px-3 rounded-lg border border-(--color-border) text-(--color-text-muted) text-sm font-semibold opacity-50 cursor-not-allowed">
                             Not Available
                         </button>
-                    )}
+                    ))}
 
                     {/* Stats */}
                     <div className="pt-3 border-t border-(--color-border) flex flex-col gap-1.5">

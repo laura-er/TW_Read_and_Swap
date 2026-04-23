@@ -55,9 +55,9 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
-// ── Seed admin implicit 
 using (var db = new BookSwapDbContext(DbSession.GetOptions()))
 {
+    // Seed admin
     var adminExists = db.Users.Any(u => u.Role == UserRole.Admin);
     if (!adminExists)
     {
@@ -74,6 +74,9 @@ using (var db = new BookSwapDbContext(DbSession.GetOptions()))
         });
         db.SaveChanges();
     }
+
+    // Seed date de test
+    DbInitializer.Seed(db);
 }
 
 if (app.Environment.IsDevelopment())

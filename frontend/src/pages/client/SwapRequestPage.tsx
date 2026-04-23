@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { useSwaps } from '@/context/SwapContext';
 import { useAuth } from '@/context/AuthContext';
-import { SwapStatsBar } from '@/components/client/swaps/SwapStatsBar';
 import { SwapTabs } from '@/components/client/swaps/SwapTabs';
 import { SwapStatusFilter } from '@/components/client/swaps/SwapStatusFilter';
 import { SwapCard } from '@/components/client/swaps/SwapCard';
@@ -53,11 +52,6 @@ export function SwapRequestPage() {
                 <p className="text-sm text-[var(--color-text-muted)]">Manage your book swap requests</p>
             </div>
 
-            <SwapStatsBar
-                receivedCount={received.length}
-                sentCount={sent.length}
-                completedCount={accepted.length}
-            />
             <SwapTabs
                 activeTab={activeTab}
                 onTabChange={setActiveTab}
