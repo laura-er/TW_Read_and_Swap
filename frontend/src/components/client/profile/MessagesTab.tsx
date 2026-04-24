@@ -1,6 +1,7 @@
 import { Bell, CheckCheck } from 'lucide-react';
 import { useNotifications } from '@/context/NotificationsContext';
 import { useAuth } from '@/context/AuthContext';
+import { useLanguage } from '@/context/LanguageContext';
 import { Button } from '@/components/ui/Button';
 import { ProfileEmptyState } from './ProfileEmptyState';
 
@@ -12,53 +13,31 @@ const typeStyles = {
 
 export function MessagesTab() {
     const { user } = useAuth();
+    const { t } = useLanguage();
     const { notifications, markAsRead, markAllAsRead } = useNotifications();
-
     const userId = user?.id ?? 'user1';
-    const messages = notifications.filter((n) => n.userId === userId);
-    const hasUnread = messages.some((m) => !m.isRead);
+    const messages = notifications.filter(n => n.userId === userId);
+    const hasUnread = messages.some(m => !m.isRead);
 
-    if (messages.length === 0) {
-        return (
-            <ProfileEmptyState
-                icon={<Bell className="h-12 w-12" />}
-                title="No messages yet"
-                description="You'll see notifications about swaps, warnings, and account activity here."
-            />
-        );
-    }
+    if (messages.length === 0) return (
+        <ProfileEmptyState icon={<Bell className="h-12 w-12" />} title={t.profile.noMessages} description={t.profile.noMessagesDesc} />
+    );
 
     return (
         <div className="flex flex-col gap-3">
             {hasUnread && (
                 <div className="flex justify-end">
-                    <Button variant="ghost" size="sm" onClick={() => markAllAsRead(userId)}>
-                        <CheckCheck className="w-4 h-4 mr-1" />
-                        Mark all as read
-                    </Button>
+                    <Button variant="ghost" size="sm" onClick={() => markAllAsRead(userId)}><CheckCheck className="w-4 h-4 mr-1" />{t.profile.markAllRead}</Button>
                 </div>
             )}
-            {messages.map((msg) => {
+            {messages.map(msg => {
                 const style = typeStyles[msg.type];
                 return (
-                    <div
-                        key={msg.id}
-                        onClick={() => !msg.isRead && markAsRead(msg.id)}
-                        className={`relative flex gap-4 p-4 rounded-xl border cursor-pointer transition-opacity ${style.bg} ${msg.isRead ? 'opacity-60' : 'opacity-100'}`}
-                    >
-                        {!msg.isRead && (
-                            <span className="absolute top-3 right-3 w-2 h-2 rounded-full bg-[var(--color-accent)]" />
-                        )}
+                    <div key={msg.id} onClick={() => !msg.isRead && markAsRead(msg.id)} className={`relative flex gap-4 p-4 rounded-xl border cursor-pointer transition-opacity ${style.bg} ${msg.isRead ? 'opacity-60' : 'opacity-100'}`}>
+                        {!msg.isRead && <span className="absolute top-3 right-3 w-2 h-2 rounded-full bg-[var(--color-accent)]" />}
                         <span className="text-2xl">{style.icon}</span>
                         <div className="flex flex-col gap-1 flex-1 min-w-0">
-                            <div className="flex items-center gap-2">
-                                <span className={`text-xs font-bold uppercase ${style.labelColor}`}>{style.label}</span>
-                                <span className="text-xs text-[var(--color-text-muted)]">
-                                    {new Date(msg.createdAt).toLocaleDateString('en-US', {
-                                        day: 'numeric', month: 'short', year: 'numeric',
-                                    })}
-                                </span>
-                            </div>
+                            <div className="flex items-center gap-2"><span className={`text-xs font-bold uppercase ${style.labelColor}`}>{style.label}</span><span className="text-xs text-[var(--color-text-muted)]">{new Date(msg.createdAt).toLocaleDateString('ro-RO', { day: 'numeric', month: 'short', year: 'numeric' })}</span></div>
                             <p className="text-sm font-semibold text-[var(--color-text)]">{msg.title}</p>
                             <p className="text-sm text-[var(--color-text-muted)]">{msg.message}</p>
                         </div>
