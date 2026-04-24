@@ -14,7 +14,7 @@ export function useBooks() {
                     ...b,
                     id: String(b.id),
                     ownerId: String(b.ownerId),
-                    rating: b.rating ?? 0,
+                    rating: (b.rating != null && b.rating > 0) ? b.rating : undefined,
                     reviewCount: b.reviewCount ?? 0,
                     createdAt: b.createdAt ?? new Date().toISOString(),
                 }));
@@ -38,13 +38,15 @@ export function useBook(id: string) {
     const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
+        if (!id) return;
+        setIsLoading(true);
         axiosInstance.get(`/api/books/${id}`)
             .then((res) => {
                 setBook({
                     ...res.data,
                     id: String(res.data.id),
                     ownerId: String(res.data.ownerId),
-                    rating: res.data.rating ?? 0,
+                    rating: (res.data.rating != null && res.data.rating > 0) ? res.data.rating : undefined,
                     reviewCount: res.data.reviewCount ?? 0,
                     createdAt: res.data.createdAt ?? new Date().toISOString(),
                 });

@@ -16,7 +16,7 @@ import { BookDetailNotFound } from '@/components/client/book-detail/BookDetailNo
 
 export function BookDetailPage() {
     const { id } = useParams<{ id: string }>();
-    const { book } = useBook(id ?? '');
+    const { book, isLoading } = useBook(id ?? '');
     const { books } = useBooks();
     const { isAuthenticated, user } = useAuth();
     const { t } = useLanguage();
@@ -25,8 +25,20 @@ export function BookDetailPage() {
 
     useEffect(() => {
         if (!id) return;
-        axiosInstance.get(`/api/reviews/book/${id}`).then(res => {
-            const mapped = res.data.map((r: any) => ({ id: String(r.id), bookId: String(r.bookId), userId: String(r.userId), rating: r.rating, comment: r.comment, createdAt: r.createdAt, author: { id: String(r.userId), name: `User #${r.userId}`, username: '', email: '', avatarUrl: '', bio: '', location: '', joinedAt: '', role: 'user' as const } }));
+        axiosInstance.get(`/api/reviews/book/${id}`).then(async res => {
+            const rawReviews = res.data;
+            const uniqueUserIds = [...new Set(rawReviews.map((r: any) => r.userId))] as number[];
+            const userMap: Record<number, { firstName: string; lastName: string; username: string }> = {};
+            await Promise.all(uniqueUserIds.map(uid =>
+                axiosInstance.get(`/api/users/${uid}`)
+                    .then(u => { userMap[uid] = { firstName: u.data.firstName, lastName: u.data.lastName, username: u.data.username }; })
+                    .catch(() => { userMap[uid] = { firstName: 'User', lastName: `#${uid}`, username: '' }; })
+            ));
+            const mapped = rawReviews.map((r: any) => {
+                const u = userMap[r.userId];
+                const fullName = u ? `${u.firstName} ${u.lastName}`.trim() : `User #${r.userId}`;
+                return { id: String(r.id), bookId: String(r.bookId), userId: String(r.userId), rating: r.rating, comment: r.comment, createdAt: r.createdAt, author: { id: String(r.userId), name: fullName, username: u?.username ?? '', email: '', avatarUrl: '', bio: '', location: '', joinedAt: '', role: 'user' as const } };
+            });
             setReviews(mapped);
         }).catch(() => {});
     }, [id]);
@@ -36,12 +48,29 @@ export function BookDetailPage() {
         try {
             await axiosInstance.post('/api/reviews', { bookId: Number(book.id), rating, comment });
             const res = await axiosInstance.get(`/api/reviews/book/${book.id}`);
-            const mapped = res.data.map((r: any) => ({ id: String(r.id), bookId: String(r.bookId), userId: String(r.userId), rating: r.rating, comment: r.comment, createdAt: r.createdAt, author: { id: String(r.userId), name: `User #${r.userId}`, username: '', email: '', avatarUrl: '', bio: '', location: '', joinedAt: '', role: 'user' as const } }));
+            const rawReviews = res.data;
+            const uniqueUserIds = [...new Set(rawReviews.map((r: any) => r.userId))] as number[];
+            const userMap: Record<number, { firstName: string; lastName: string; username: string }> = {};
+            await Promise.all(uniqueUserIds.map(uid =>
+                axiosInstance.get(`/api/users/${uid}`)
+                    .then(u => { userMap[uid] = { firstName: u.data.firstName, lastName: u.data.lastName, username: u.data.username }; })
+                    .catch(() => { userMap[uid] = { firstName: 'User', lastName: `#${uid}`, username: '' }; })
+            ));
+            const mapped = rawReviews.map((r: any) => {
+                const u = userMap[r.userId];
+                const fullName = u ? `${u.firstName} ${u.lastName}`.trim() : `User #${r.userId}`;
+                return { id: String(r.id), bookId: String(r.bookId), userId: String(r.userId), rating: r.rating, comment: r.comment, createdAt: r.createdAt, author: { id: String(r.userId), name: fullName, username: u?.username ?? '', email: '', avatarUrl: '', bio: '', location: '', joinedAt: '', role: 'user' as const } };
+            });
             setReviews(mapped);
             setShowReviewForm(false);
         } catch {}
     }
 
+    if (isLoading) return (
+        <div className="min-h-screen flex items-center justify-center">
+            <div className="w-8 h-8 rounded-full border-2 border-(--color-accent) border-t-transparent animate-spin" />
+        </div>
+    );
     if (!book) return <BookDetailNotFound />;
 
     const isOwner = !!user && String(user.id) === String(book.ownerId);
@@ -60,7 +89,7 @@ export function BookDetailPage() {
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
                     <BookDetailCover book={book} />
                     <div className="lg:col-span-2 space-y-6">
-                        <BookDetailInfo book={book} averageRating={averageRating} reviewCount={reviewCount} />
+                        <BookDetailInfo book={book} averageRating={averageRating} reviewCount={reviewCount} isOwner={isOwner} />
                         <BookDetailReviewStats reviews={reviews} baseRating={book.rating} baseReviewCount={book.reviewCount} />
                         {isAuthenticated && !isOwner && (
                             <div className="bg-(--color-surface) p-6 rounded-2xl shadow-xl border border-(--color-border)">

@@ -75,7 +75,7 @@ public class UserController : ControllerBase
         var response = _userLogic.GetUserList();
         if (!response.IsSuccess)
             return Ok(0);
-        var list = response.Data as List<object>;
+        var list = response.Data as System.Collections.ICollection;
         return Ok(list?.Count ?? 0);
     }
 

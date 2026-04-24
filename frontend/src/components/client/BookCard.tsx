@@ -40,7 +40,7 @@ export function BookCard({ book, onDelete, showOwnerActions = false }: BookCardP
                     {isAuthenticated && <Badge variant={conditionVariant[book.condition]}>{book.condition}</Badge>}
                     <span className="text-xs font-semibold px-2 py-0.5 rounded-full capitalize" style={{ color: 'var(--navbar-text-muted)', background: 'var(--color-surface-alt)' }}>{book.genre}</span>
                 </div>
-                {isAuthenticated && <BookCardOwner ownerId={book.ownerId} />}
+                {isAuthenticated && !isOwner && <BookCardOwner ownerId={book.ownerId} />}
                 {!isAuthenticated && <p className="text-xs text-(--color-text-muted) italic">Sign in to see more details</p>}
                 <div className="mt-auto">
                     {isAuthenticated ? (

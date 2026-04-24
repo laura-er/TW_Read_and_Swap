@@ -6,9 +6,12 @@ import { useLanguage } from '@/context/LanguageContext';
 import type { Book } from '@/types';
 
 export function FeaturedBooks() {
-    const { books } = useBooks();
+    const { books, isLoading } = useBooks();
     const { t, language } = useLanguage();
-    const featured = books.filter((b) => b.isAvailable).slice(0, 4);
+    const featured = [...books]
+        .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+        .filter((b) => b.isAvailable)
+        .slice(0, 4);
 
     const dustTitle = language === 'ro' ? 'Ai cărți care adună praf?' : 'Have books gathering dust?';
     const dustDesc = language === 'ro' ? 'Listează-le gratuit și lasă pe altcineva să se bucure de ele' : 'List them for free and let someone else enjoy them';
@@ -29,7 +32,12 @@ export function FeaturedBooks() {
                     <Link to="/books"><Button variant="ghost" size="sm">{t.featured.viewAll}</Button></Link>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 items-stretch">
-                    {featured.map((book) => <BookCardWrapper key={book.id} book={book} />)}
+                    {isLoading
+                        ? Array.from({ length: 4 }).map((_, i) => (
+                            <div key={i} className="rounded-[24px] border border-(--color-border) bg-(--color-surface) min-h-[160px] animate-pulse" style={{ background: 'var(--lib-card)', border: '1px solid var(--lib-border)' }} />
+                        ))
+                        : featured.map((book) => <BookCardWrapper key={book.id} book={book} />)
+                    }
                 </div>
                 <div className="mt-12 rounded-[24px] overflow-hidden" style={{ background: 'var(--color-accent)' }}>
                     <div className="flex flex-col sm:flex-row items-center justify-between gap-4 px-8 py-7">

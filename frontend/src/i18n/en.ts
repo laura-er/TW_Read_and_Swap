@@ -11,7 +11,7 @@ export const en = {
     browseCatalog: 'Browse Catalog', joinReaders: 'Join thousands of readers already swapping books',
     quote: 'A reader lives a thousand lives before he dies. The man who never reads lives only one.',
   },
-  stats: { booksAvailable: 'Books Available', activeReaders: 'Active Readers', swapsCompleted: 'Swaps Completed', genres: 'Genres' },
+  stats: { booksAvailable: 'Books Available', activeReaders: 'Registered Users', swapsCompleted: 'Swaps Completed', genres: 'Genres' },
   howItWorks: {
     badge: 'Simple Process', title: 'How It Works', subtitle: 'Three simple steps to your next favourite book',
     step1Title: 'List Your Books', step1Desc: "Add books you've finished reading and want to pass on.",

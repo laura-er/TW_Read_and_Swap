@@ -32,10 +32,10 @@ export function BookCardActions({ book, isOwner, onDelete, showOwnerActions = fa
                     <button onClick={() => navigate('/sign-in')} className="flex-1 text-center py-2 px-3 rounded-lg border border-[var(--color-border)] text-[var(--color-text)] text-sm font-semibold hover:bg-[var(--color-surface-alt)] transition-all duration-200">{t.books.viewDetails}</button>
                 )}
                 {isOwner && showOwnerActions ? (
-                    <div className="flex gap-2 flex-1">
+                    <>
                         <button onClick={() => setShowEditModal(true)} className="flex-1 text-center py-2 px-3 rounded-lg bg-[var(--color-accent)] hover:bg-[var(--color-accent-hover)] text-white text-sm font-semibold transition-all duration-200 shadow-sm">{t.books.edit}</button>
                         <button onClick={() => setShowDeleteConfirm(true)} className="flex-1 text-center py-2 px-3 rounded-lg bg-red-600 hover:bg-red-700 text-white text-sm font-semibold transition-all duration-200 shadow-sm">{t.books.delete}</button>
-                    </div>
+                    </>
                 ) : isOwner ? null : book.isAvailable ? (
                     <Link to={`/swap/${book.id}`} className="flex-1 text-center py-2 px-3 rounded-lg bg-[var(--color-accent)] hover:bg-[var(--color-accent-hover)] text-white text-sm font-semibold transition-all duration-200 shadow-sm">{t.books.requestSwap}</Link>
                 ) : (

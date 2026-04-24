@@ -25,7 +25,9 @@ public class BookActions
                 CoverUrl    = b.CoverUrl,
                 Description = b.Description,
                 IsAvailable = b.IsAvailable,
-                OwnerId     = b.OwnerId
+                OwnerId     = b.OwnerId,
+                ReviewCount = b.Reviews.Count,
+                Rating      = b.Reviews.Count > 0 ? b.Reviews.Average(r => (double)r.Rating) : (double?)null
             }).ToList();
 
         return new ServiceResponse { IsSuccess = true, Data = books };
@@ -75,7 +77,9 @@ public class BookActions
             CoverUrl    = b.CoverUrl,
             Description = b.Description,
             IsAvailable = b.IsAvailable,
-            OwnerId     = b.OwnerId
+            OwnerId     = b.OwnerId,
+            ReviewCount = b.Reviews.Count,
+            Rating      = b.Reviews.Count > 0 ? b.Reviews.Average(r => (double)r.Rating) : (double?)null
         }).ToList();
 
         return new ServiceResponse { IsSuccess = true, Data = books };
@@ -97,7 +101,9 @@ public class BookActions
                 CoverUrl    = b.CoverUrl,
                 Description = b.Description,
                 IsAvailable = b.IsAvailable,
-                OwnerId     = b.OwnerId
+                OwnerId     = b.OwnerId,
+                ReviewCount = b.Reviews.Count,
+                Rating      = b.Reviews.Count > 0 ? b.Reviews.Average(r => (double)r.Rating) : (double?)null
             }).ToList();
 
         return new ServiceResponse { IsSuccess = true, Data = books };
@@ -107,24 +113,27 @@ public class BookActions
     {
         using var db = new BookSwapDbContext(DbSession.GetOptions());
 
-        var book = db.Books.Find(id);
+        var book = db.Books
+            .Where(b => b.Id == id)
+            .Select(b => new BookDto
+            {
+                Id          = b.Id,
+                Title       = b.Title,
+                Author      = b.Author,
+                Genre       = b.Genre,
+                Condition   = b.Condition,
+                CoverUrl    = b.CoverUrl,
+                Description = b.Description,
+                IsAvailable = b.IsAvailable,
+                OwnerId     = b.OwnerId,
+                ReviewCount = b.Reviews.Count,
+                Rating      = b.Reviews.Count > 0 ? b.Reviews.Average(r => (double)r.Rating) : (double?)null
+            }).FirstOrDefault();
+
         if (book == null)
             return new ServiceResponse { IsSuccess = false, Message = "Book not found" };
 
-        var dto = new BookDto
-        {
-            Id          = book.Id,
-            Title       = book.Title,
-            Author      = book.Author,
-            Genre       = book.Genre,
-            Condition   = book.Condition,
-            CoverUrl    = book.CoverUrl,
-            Description = book.Description,
-            IsAvailable = book.IsAvailable,
-            OwnerId     = book.OwnerId
-        };
-
-        return new ServiceResponse { IsSuccess = true, Data = dto };
+        return new ServiceResponse { IsSuccess = true, Data = book };
     }
 
     protected ServiceResponse CreateBookAction(BookCreateDto dto)
