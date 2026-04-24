@@ -31,8 +31,8 @@ export function ProfilePage() {
     const [userBooks, setUserBooks] = useState<Book[]>([]);
     const [allBooks, setAllBooks] = useState<Book[]>([]);
 
-    useEffect(() => { if (!user?.id) return; axiosInstance.get(`/api/books/owner/${user.id}`).then((res) => { setUserBooks(res.data.map((b: any) => ({ ...b, id: String(b.id), ownerId: String(b.ownerId), rating: b.rating ?? 0, reviewCount: b.reviewCount ?? 0, createdAt: b.createdAt ?? new Date().toISOString() }))); }).catch(() => {}); }, [user?.id]);
-    useEffect(() => { axiosInstance.get('/api/books').then((res) => { setAllBooks(res.data.map((b: any) => ({ ...b, id: String(b.id), ownerId: String(b.ownerId), rating: b.rating ?? 0, reviewCount: b.reviewCount ?? 0, createdAt: b.createdAt ?? new Date().toISOString() }))); }).catch(() => {}); }, []);
+    useEffect(() => { if (!user?.id) return; axiosInstance.get(`/api/books/owner/${user.id}`).then((res) => { setUserBooks(res.data.map((b: any) => ({ ...b, id: String(b.id), ownerId: String(b.ownerId), rating: (b.rating != null && b.rating > 0) ? b.rating : undefined, reviewCount: b.reviewCount ?? 0, createdAt: b.createdAt ?? new Date().toISOString() }))); }).catch(() => {}); }, [user?.id]);
+    useEffect(() => { axiosInstance.get('/api/books').then((res) => { setAllBooks(res.data.map((b: any) => ({ ...b, id: String(b.id), ownerId: String(b.ownerId), rating: (b.rating != null && b.rating > 0) ? b.rating : undefined, reviewCount: b.reviewCount ?? 0, createdAt: b.createdAt ?? new Date().toISOString() }))); }).catch(() => {}); }, []);
     useEffect(() => { if (tabParam) { setActiveTab((tabParam.charAt(0).toUpperCase() + tabParam.slice(1)) as ProfileTab); } else { setActiveTab('Favorites'); } if (tabParam === 'favorites' && tabsRef.current) { setTimeout(() => { tabsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 150); } }, [tabParam]);
 
     const { favorites, toggleFavorite } = useFavorites();

@@ -3,10 +3,21 @@ import { Button } from '@/components/ui/Button';
 import { useLanguage } from '@/context/LanguageContext';
 import type { Book } from '@/types';
 
-interface BooksGridProps { books: Book[]; onClearFilters: () => void; }
+interface BooksGridProps { books: Book[]; onClearFilters: () => void; isLoading?: boolean; }
 
-export function BooksGrid({ books, onClearFilters }: BooksGridProps) {
+export function BooksGrid({ books, onClearFilters, isLoading = false }: BooksGridProps) {
     const { t } = useLanguage();
+
+    if (isLoading) {
+        return (
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 items-stretch">
+                {Array.from({ length: 6 }).map((_, i) => (
+                    <div key={i} className="rounded-[24px] border border-(--color-border) bg-(--color-surface) min-h-[160px] animate-pulse" />
+                ))}
+            </div>
+        );
+    }
+
     if (books.length === 0) {
         return (
             <div className="text-center py-24 bg-(--color-surface) border border-(--color-border) rounded-2xl">

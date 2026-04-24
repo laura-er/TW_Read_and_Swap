@@ -23,7 +23,7 @@ export function PublicProfilePage() {
         setLoading(true); setNotFound(false); setProfileUser(null); setUserBooks([]);
         axiosInstance.get(`/api/users/by-username/${username}`)
             .then(res => { setProfileUser(res.data); return axiosInstance.get(`/api/books/owner/${res.data.id}`); })
-            .then(res => { setUserBooks(res.data.map((b: any) => ({ ...b, id: String(b.id), ownerId: String(b.ownerId), rating: b.rating ?? 0, reviewCount: b.reviewCount ?? 0, createdAt: b.createdAt ?? new Date().toISOString() }))); })
+            .then(res => { setUserBooks(res.data.map((b: any) => ({ ...b, id: String(b.id), ownerId: String(b.ownerId), rating: (b.rating != null && b.rating > 0) ? b.rating : undefined, reviewCount: b.reviewCount ?? 0, createdAt: b.createdAt ?? new Date().toISOString() }))); })
             .catch(() => setNotFound(true))
             .finally(() => setLoading(false));
     }, [username]);

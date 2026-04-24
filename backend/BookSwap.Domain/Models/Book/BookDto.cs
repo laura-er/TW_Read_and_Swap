@@ -11,4 +11,6 @@ public class BookDto
     public string Description { get; set; } = string.Empty;
     public bool IsAvailable { get; set; }
     public int OwnerId { get; set; }
+    public double? Rating { get; set; }
+    public int ReviewCount { get; set; }
 }

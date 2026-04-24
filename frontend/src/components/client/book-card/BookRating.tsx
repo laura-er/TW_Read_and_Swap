@@ -1,8 +1,9 @@
 interface BookRatingProps {
-    rating: number;
+    rating?: number;
 }
 
 export function BookRating({ rating }: BookRatingProps) {
+    if (!rating || rating <= 0) return null;
     return (
         <div className="flex items-center gap-1">
             {[...Array(5)].map((_, i) => (

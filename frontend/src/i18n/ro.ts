@@ -13,7 +13,7 @@ export const ro: Translations = {
     browseCatalog: 'Răsfoiește Catalogul', joinReaders: 'Alătură-te miilor de cititori care fac deja schimburi',
     quote: 'Un cititor trăiește o mie de vieți înainte să moară. Cel care nu citește niciodată trăiește doar una.',
   },
-  stats: { booksAvailable: 'Cărți Disponibile', activeReaders: 'Cititori Activi', swapsCompleted: 'Schimburi Finalizate', genres: 'Genuri' },
+  stats: { booksAvailable: 'Cărți Disponibile', activeReaders: 'Utilizatori Înregistrați', swapsCompleted: 'Schimburi Finalizate', genres: 'Genuri' },
   howItWorks: {
     badge: 'Proces Simplu', title: 'Cum Funcționează', subtitle: 'Trei pași simpli spre următoarea ta carte preferată',
     step1Title: 'Listează Cărțile Tale', step1Desc: 'Adaugă cărțile pe care le-ai terminat de citit și vrei să le transmiți.',
