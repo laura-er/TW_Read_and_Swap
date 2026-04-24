@@ -7,6 +7,7 @@ import { AdminTabs } from '@/components/admin/AdminTabs';
 import { AdminSearchBar } from '@/components/admin/books-users/AdminSearchBar';
 import { AdminBooksTable } from '@/components/admin/books-users/AdminBooksTable';
 import { AdminUsersTable } from '@/components/admin/books-users/AdminUsersTable';
+import { useLanguage } from '@/context/LanguageContext';
 
 type ActiveTab = 'books' | 'users';
 
@@ -23,41 +24,38 @@ function exportToCsv(filename: string, rows: string[][]): void {
 
 export function AdminBooksUsersPage() {
     const [searchParams] = useSearchParams();
+    const { t } = useLanguage();
     const [activeTab, setActiveTab] = useState<ActiveTab>(
         searchParams.get('tab') === 'users' ? 'users' : 'books'
     );
 
     useEffect(() => {
-        if (searchParams.get('tab') === 'users') setActiveTab('users');
-        else setActiveTab('books');
+        setActiveTab(searchParams.get('tab') === 'users' ? 'users' : 'books');
     }, [searchParams]);
 
     const [search, setSearch] = useState('');
     const [books, setBooks] = useState<Book[]>([]);
     const [users, setUsers] = useState<AdminUser[]>([]);
 
-    // Încarcă cărțile din API
     useEffect(() => {
         axiosInstance.get('/api/books')
             .then((res) => {
-                const mapped = res.data.map((b: any) => ({
+                setBooks(res.data.map((b: any) => ({
                     ...b,
                     id: String(b.id),
                     ownerId: String(b.ownerId),
                     rating: b.rating ?? 0,
                     reviewCount: b.reviewCount ?? 0,
                     createdAt: b.createdAt ?? new Date().toISOString(),
-                }));
-                setBooks(mapped);
+                })));
             })
             .catch(() => console.error('Failed to load books'));
     }, []);
 
-    // Încarcă userii din API
     useEffect(() => {
         axiosInstance.get('/api/users/list')
             .then((res) => {
-                const mapped = res.data.map((u: any) => ({
+                setUsers(res.data.map((u: any) => ({
                     id: String(u.id),
                     name: u.firstName || u.username,
                     username: u.username,
@@ -68,8 +66,7 @@ export function AdminBooksUsersPage() {
                     booksCount: 0,
                     swapsCompleted: 0,
                     isBanned: false,
-                }));
-                setUsers(mapped);
+                })));
             })
             .catch(() => console.error('Failed to load users'));
     }, []);
@@ -87,21 +84,18 @@ export function AdminBooksUsersPage() {
             u.email.toLowerCase().includes(search.toLowerCase()),
     );
 
-    // Delete carte — cheamă API real
     function handleDeleteBook(id: string) {
         axiosInstance.delete(`/api/books/${id}`)
             .then(() => setBooks((prev) => prev.filter((b) => b.id !== id)))
             .catch(() => console.error('Failed to delete book'));
     }
 
-    // Delete user — cheamă API real
     function handleDeleteUser(id: string) {
         axiosInstance.delete(`/api/users/${id}`)
             .then(() => setUsers((prev) => prev.filter((u) => u.id !== id)))
             .catch(() => console.error('Failed to delete user'));
     }
 
-    // Ban/Unban — rămân locale (nu avem endpoint în backend încă)
     function handleBanUser(id: string) {
         setUsers((prev) => prev.map((u) => (u.id === id ? { ...u, isBanned: true } : u)));
     }
@@ -127,18 +121,18 @@ export function AdminBooksUsersPage() {
     }
 
     const tabs: { key: ActiveTab; label: string }[] = [
-        { key: 'books', label: `Books (${books.length})` },
-        { key: 'users', label: `Users (${users.length})` },
+        { key: 'books', label: `${t.admin.books} (${books.length})` },
+        { key: 'users', label: `${t.admin.users} (${users.length})` },
     ];
 
     return (
         <main>
             <div className="mb-6">
                 <h1 className="font-['Playfair_Display'] text-2xl font-bold text-[var(--color-text)]">
-                    Books & Users
+                    {t.admin.booksAndUsers}
                 </h1>
                 <p className="text-sm text-[var(--color-text-muted)] mt-1">
-                    Manage all books and user accounts
+                    {t.admin.manageAllBooks}
                 </p>
             </div>
 
@@ -153,8 +147,9 @@ export function AdminBooksUsersPage() {
                     <AdminSearchBar
                         value={search}
                         onChange={setSearch}
-                        placeholder="Search by title or author…"
+                        placeholder={t.admin.searchByTitle}
                         onExport={handleExportBooks}
+                        exportLabel={t.admin.exportCSV}
                     />
                     <AdminBooksTable books={filteredBooks} onDelete={handleDeleteBook} />
                 </>
@@ -165,8 +160,9 @@ export function AdminBooksUsersPage() {
                     <AdminSearchBar
                         value={search}
                         onChange={setSearch}
-                        placeholder="Search by name, username or email…"
+                        placeholder={t.admin.searchByUser}
                         onExport={handleExportUsers}
+                        exportLabel={t.admin.exportCSV}
                     />
                     <AdminUsersTable
                         users={filteredUsers}
