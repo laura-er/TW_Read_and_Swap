@@ -19,6 +19,7 @@ export function MessagesTab() {
     const messages = notifications.filter(n => n.userId === userId);
     const hasUnread = messages.some(m => !m.isRead);
 
+
     if (messages.length === 0) return (
         <ProfileEmptyState icon={<Bell className="h-12 w-12" />} title={t.profile.noMessages} description={t.profile.noMessagesDesc} />
     );

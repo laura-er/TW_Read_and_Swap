@@ -7,9 +7,9 @@ import { EditBookModal } from './EditBookModal';
 import axiosInstance from '@/api/axiosInstance';
 import type { Book } from '@/types';
 
-interface BookCardActionsProps { book: Book; isOwner: boolean; onDelete?: (id: string) => void; showOwnerActions?: boolean; }
+interface BookCardActionsProps { book: Book; isOwner: boolean; onDelete?: (id: string) => void; onUpdate?: (id: string, updated: Partial<Book>) => void; showOwnerActions?: boolean; }
 
-export function BookCardActions({ book, isOwner, onDelete, showOwnerActions = false }: BookCardActionsProps) {
+export function BookCardActions({ book, isOwner, onDelete, onUpdate, showOwnerActions = false }: BookCardActionsProps) {
     const { isAuthenticated } = useAuth();
     const { t } = useLanguage();
     const navigate = useNavigate();
@@ -19,7 +19,7 @@ export function BookCardActions({ book, isOwner, onDelete, showOwnerActions = fa
     const handleSave = async (updated: Partial<Book>) => {
         try {
             await axiosInstance.put(`/api/books/${book.id}`, { title: updated.title ?? book.title, author: updated.author ?? book.author, genre: updated.genre ?? book.genre, condition: updated.condition ?? book.condition, coverUrl: updated.coverUrl ?? book.coverUrl, description: updated.description ?? book.description, isAvailable: updated.isAvailable ?? book.isAvailable });
-            window.location.reload();
+            onUpdate?.(book.id, updated);
         } catch { console.error('Failed to update book'); }
     };
 
@@ -49,7 +49,7 @@ export function BookCardActions({ book, isOwner, onDelete, showOwnerActions = fa
                         <h2 className="text-lg font-bold text-[var(--color-text)]">{t.books.delete} Book</h2>
                         <p className="text-sm text-[var(--color-text-muted)]">Are you sure you want to delete <span className="font-semibold text-[var(--color-text)]">{book.title}</span>? This action cannot be undone.</p>
                         <div className="flex gap-2">
-                            <Button variant="secondary" size="sm" className="flex-1" onClick={() => setShowDeleteConfirm(false)}>{t.common.cancel}</Button>
+                            <Button variant="secondary" size="sm" className="flex-1 justify-center" onClick={() => setShowDeleteConfirm(false)}>{t.common.cancel}</Button>
                             <button onClick={() => { onDelete?.(book.id); setShowDeleteConfirm(false); }} className="flex-1 py-2 px-3 rounded-lg bg-red-600 hover:bg-red-700 text-white text-sm font-semibold transition-all duration-200">{t.books.delete}</button>
                         </div>
                     </div>

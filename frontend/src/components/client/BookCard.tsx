@@ -11,9 +11,9 @@ import { useNavigate } from 'react-router-dom';
 
 const conditionVariant: Record<Book['condition'], 'success' | 'info' | 'warning' | 'danger'> = { new: 'success', good: 'info', fair: 'warning', worn: 'danger' };
 
-interface BookCardProps { book: Book; onDelete?: (id: string) => void; showOwnerActions?: boolean; }
+interface BookCardProps { book: Book; onDelete?: (id: string) => void; onUpdate?: (id: string, updated: Partial<Book>) => void; showOwnerActions?: boolean; }
 
-export function BookCard({ book, onDelete, showOwnerActions = false }: BookCardProps) {
+export function BookCard({ book, onDelete, onUpdate, showOwnerActions = false }: BookCardProps) {
     const { isFavorite, toggleFavorite } = useFavorites();
     const { isAuthenticated, user } = useAuth();
     const { t } = useLanguage();
@@ -21,7 +21,7 @@ export function BookCard({ book, onDelete, showOwnerActions = false }: BookCardP
     const isOwner = !!user && user.id === book.ownerId;
 
     return (
-        <div className="group relative flex flex-row overflow-hidden rounded-[24px] hover:shadow-lg transition-all duration-300 min-h-[160px] h-full" style={{ background: 'var(--navbar-bg)', border: '1px solid var(--navbar-border)', backdropFilter: 'blur(12px)' }}>
+        <div className="group relative flex flex-row overflow-hidden rounded-[24px] hover:shadow-lg transition-all duration-300 min-h-[160px] h-full" style={{ background: 'var(--navbar-bg)', border: '1px solid var(--navbar-border)' }}>
             {!isOwner && (
                 <span className={`absolute top-2 right-2 z-20 text-xs font-bold px-2.5 py-1 rounded-full ${book.isAvailable ? 'bg-[#40916c] text-white' : 'bg-red-500 text-white'}`}>
                     {book.isAvailable ? t.books.available : t.books.unavailable}
@@ -44,7 +44,7 @@ export function BookCard({ book, onDelete, showOwnerActions = false }: BookCardP
                 {!isAuthenticated && <p className="text-xs text-(--color-text-muted) italic">Sign in to see more details</p>}
                 <div className="mt-auto">
                     {isAuthenticated ? (
-                        <BookCardActions book={book} isOwner={isOwner} onDelete={onDelete} showOwnerActions={showOwnerActions} />
+                        <BookCardActions book={book} isOwner={isOwner} onDelete={onDelete} onUpdate={onUpdate} showOwnerActions={showOwnerActions} />
                     ) : (
                         <button onClick={() => navigate('/sign-in')} className="w-full text-center py-2 px-3 rounded-[14px] bg-[var(--color-accent)] hover:bg-[var(--color-accent-hover)] text-white text-sm font-semibold transition-all duration-200">
                             Sign in to view
