@@ -46,7 +46,7 @@ export const en = {
     viewDetails: 'View Details', edit: 'Edit', delete: 'Delete', ownedBy: 'Owned by',
     addBook: 'Add Book', addFirstBook: 'Add your first book',
     noBooksListed: 'No books listed yet', noBooksDesc: "Books you've listed for swapping will appear here.",
-    backToBooks: '← Back to Books', aboutThisBook: 'About This Book', owner: 'Owner',
+    backToBooks: 'Back to Browse Books', backToBookDetails: 'Back to Book Details', aboutThisBook: 'About This Book', owner: 'Owner',
     memberOf: 'Member of Read & Swap', addReview: 'Add Review', cancel: 'Cancel',
     condition: 'Condition', genre: 'Genre', added: 'Added', similarBooks: 'Similar Books',
     ratingOverview: 'Rating Overview', wouldRecommend: 'would recommend', reviews: 'reviews',
@@ -160,7 +160,7 @@ export const en = {
     reportsAttention: 'require attention',
     searchPlaceholder: 'Search...',
   },
-  report: { title: 'Report', reason: 'Reason', submit: 'Submit Report', cancel: 'Cancel', placeholder: 'Describe the issue...' },
+  report: { title: 'Report', reason: 'Reason', submit: 'Submit Report', cancel: 'Cancel', placeholder: 'Describe the issue...', reportSubmitted: 'Report submitted', reviewSoon: 'Thank you. Our team will review this report as soon as possible.', reportBook: 'Report Book', reportUser: 'Report User', selectReason: 'Please select a reason.', reasonsBook: ['Condition is worse than described', 'Spam or duplicate listing', 'Inappropriate content', 'Misleading information', 'Other'], reasonsUser: ['Sending unsolicited messages', 'Did not complete agreed swap', 'Harassment or abusive behavior', 'Fake profile', 'Other'] },
   errors: { page500Title: 'Server Error', page500Subtitle: 'Something went wrong. Please try again later.', backHome: 'Back to Home', tryAgain: 'Try Again' },
   common: {
     loading: 'Loading...', save: 'Save', cancel: 'Cancel', delete: 'Delete', edit: 'Edit',
