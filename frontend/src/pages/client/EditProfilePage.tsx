@@ -20,7 +20,7 @@ function validate(fields: FormFields): FormErrors {
     if (!fields.username.trim()) errors.username = 'Username is required.';
     else if (fields.username.trim().length < 2) errors.username = 'Username must be at least 2 characters.';
     else if (fields.username.trim().length > 30) errors.username = 'Username cannot exceed 30 characters.';
-    else if (!/^[a-z0-9_.]+$/.test(fields.username)) errors.username = 'Only lowercase letters, numbers, dots and underscores.';
+    else if (!/^[a-zA-Z0-9_.]+$/.test(fields.username)) errors.username = 'Only lowercase letters, numbers, dots and underscores.';
     if (!fields.email.trim()) errors.email = 'Email is required.';
     else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(fields.email)) errors.email = 'Enter a valid email address.';
     else if (fields.email.length > 100) errors.email = 'Email cannot exceed 100 characters.';
