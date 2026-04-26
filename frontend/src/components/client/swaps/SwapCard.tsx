@@ -68,13 +68,7 @@ export function SwapCard({ swap, currentUserId, onAccept, onDecline, onCancel }:
                     )}
                 </div>
             )}
-            {swap.status === 'accepted' && (
-                <div style={{ display: 'flex', justifyContent: 'flex-end', paddingTop: '10px', borderTop: '1px solid var(--navbar-border)' }}>
-                    <button onClick={() => setShowReport(true)} style={{ display: 'flex', alignItems: 'center', gap: '5px', fontSize: '12px', color: '#c0392b', background: 'none', border: 'none', cursor: 'pointer', fontWeight: 500 }}>
-                        <Flag size={13} /> {t.swaps.reportUser}
-                    </button>
-                </div>
-            )}
+
         </div>
     );
 }

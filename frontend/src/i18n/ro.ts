@@ -48,7 +48,7 @@ export const ro: Translations = {
     viewDetails: 'Vezi Detalii', edit: 'Editează', delete: 'Șterge', ownedBy: 'Deținut de',
     addBook: 'Adaugă Carte', addFirstBook: 'Adaugă prima ta carte',
     noBooksListed: 'Nicio carte listată', noBooksDesc: 'Cărțile pe care le-ai listat pentru schimb vor apărea aici.',
-    backToBooks: '← Înapoi la Cărți', aboutThisBook: 'Despre Această Carte', owner: 'Proprietar',
+    backToBooks: 'Înapoi la Cărți', backToBookDetails: 'Înapoi la Detalii Carte', aboutThisBook: 'Despre Această Carte', owner: 'Proprietar',
     memberOf: 'Membru al Read & Swap', addReview: 'Adaugă Recenzie', cancel: 'Anulează',
     condition: 'Condiție', genre: 'Gen', added: 'Adăugat', similarBooks: 'Cărți Similare',
     ratingOverview: 'Prezentare Rating', wouldRecommend: 'ar recomanda', reviews: 'recenzii',
@@ -159,7 +159,7 @@ export const ro: Translations = {
     reportsAttention: 'necesită atenție',
     searchPlaceholder: 'Caută...',
   },
-  report: { title: 'Raportează', reason: 'Motiv', submit: 'Trimite Raportul', cancel: 'Anulează', placeholder: 'Descrie problema...' },
+  report: { title: 'Raportează', reason: 'Motiv', submit: 'Trimite Raportul', cancel: 'Anulează', placeholder: 'Descrie problema...', reportSubmitted: 'Raport trimis', reviewSoon: 'Mulțumim. Echipa noastră va analiza acest raport cât mai curând posibil.', reportBook: 'Raportează Cartea', reportUser: 'Raportează Utilizatorul', selectReason: 'Te rugăm să selectezi un motiv.', reasonsBook: ['Condiția este mai proastă decât descrisă', 'Spam sau duplicat', 'Conținut inadecvat', 'Informații înșelătoare', 'Altele'], reasonsUser: ['Trimitere de mesaje nesolicitate', 'Nu a finalizat schimbul agreat', 'Hărțuire sau comportament abuziv', 'Profil fals', 'Altele'] },
   errors: { page500Title: 'Eroare Server', page500Subtitle: 'Ceva a mers greșit. Te rugăm să încerci din nou mai târziu.', backHome: 'Înapoi Acasă', tryAgain: 'Încearcă Din Nou' },
   common: {
     loading: 'Se încarcă...', save: 'Salvează', cancel: 'Anulează', delete: 'Șterge', edit: 'Editează',

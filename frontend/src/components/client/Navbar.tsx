@@ -3,12 +3,18 @@ import { NavLink, Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 import { useTheme } from '@/context/ThemeContext';
 import { useLanguage } from '@/context/LanguageContext';
+import { useSwaps } from '@/context/SwapContext';
+import { useNotifications } from '@/context/NotificationsContext';
 import { Avatar } from '@/components/ui/Avatar';
 
 export function Navbar() {
   const { user, isAuthenticated, isAdmin, logout } = useAuth();
   const { toggleTheme, isDark } = useTheme();
   const { language, setLanguage, t } = useLanguage();
+  const { incoming } = useSwaps();
+  const pendingCount = incoming.filter(s => s.status === 'pending').length;
+  const { getUnreadCount, getUserNotifications } = useNotifications();
+  const hasUnreadMessages = user ? getUnreadCount(user.id) > 0 : false;
   const navigate = useNavigate();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -63,10 +69,17 @@ export function Navbar() {
             <nav className="hidden md:flex items-center gap-1">
               {navLinks.map(({ to, label }) => (
                   <NavLink key={to} to={to} end={to === '/'}
-                      className={({ isActive }) => ['px-3 py-1.5 rounded-2xl text-sm font-medium transition-all', isActive ? 'text-white' : 'hover:bg-white/10 transition-all'].join(' ')}
-                      style={({ isActive }) => ({ background: isActive ? 'var(--color-accent)' : 'transparent', color: isActive ? 'white' : 'var(--navbar-text-muted)' })}
+                           className={({ isActive }) => ['px-3 py-1.5 rounded-2xl text-sm font-medium transition-all', isActive ? 'text-white' : 'hover:bg-white/10 transition-all'].join(' ')}
+                           style={({ isActive }) => ({ background: isActive ? 'var(--color-accent)' : 'transparent', color: isActive ? 'white' : 'var(--navbar-text-muted)' })}
                   >
-                    {label}
+                    <span style={{ position: 'relative', display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+                      {label}
+                      {to === '/swaps' && pendingCount > 0 && (
+                          <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', minWidth: '18px', height: '18px', borderRadius: '9px', background: '#e05030', color: 'white', fontSize: '11px', fontWeight: 700, padding: '0 5px', lineHeight: 1 }}>
+                          {pendingCount}
+                        </span>
+                      )}
+                    </span>
                   </NavLink>
               ))}
             </nav>
@@ -96,8 +109,11 @@ export function Navbar() {
                         </Link>
                     )}
                     <div className="relative" ref={dropdownRef}>
-                      <button onClick={() => setDropdownOpen((p) => !p)} className="rounded-full focus:outline-none focus:ring-2 focus:ring-[var(--color-accent)]/40">
+                      <button onClick={() => setDropdownOpen((p) => !p)} className="rounded-full focus:outline-none focus:ring-2 focus:ring-[var(--color-accent)]/40" style={{ position: 'relative' }}>
                         <Avatar src={user.avatarUrl} name={user.name} size="sm" />
+                        {!isAdmin && hasUnreadMessages && (
+                            <span style={{ position: 'absolute', top: '0', right: '0', width: '9px', height: '9px', borderRadius: '50%', background: '#c0392b', border: '2px solid var(--navbar-bg)' }} />
+                        )}
                       </button>
                       {dropdownOpen && (
                           <div className="absolute right-0 mt-3 w-52 rounded-3xl overflow-hidden z-50 shadow-2xl" style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}>
@@ -108,16 +124,18 @@ export function Navbar() {
                             </div>
                             <div className="py-1.5 px-1.5">
                               {[
-                                { to: '/profile?tab=Favorites', icon: '👤', label: t.nav.myProfile },
-                                ...(!isAdmin ? [{ to: '/swaps', icon: '🔄', label: t.nav.mySwaps }] : []),
-                                { to: '/profile/edit', icon: '✏️', label: t.nav.editProfile },
-                                ...(!isAdmin ? [{ to: '/profile/share', icon: '🔗', label: t.nav.shareProfile }] : []),
-                                ...(isAdmin ? [{ to: '/admin', icon: '🔧', label: t.nav.adminDashboard, accent: true }] : []),
-                              ].map(({ to, icon, label, accent }) => (
+                                { to: '/profile?tab=Favorites', icon: '👤', label: t.nav.myProfile, dot: hasUnreadMessages },
+                                ...(!isAdmin ? [{ to: '/swaps', icon: '🔄', label: t.nav.mySwaps, dot: false }] : []),
+                                { to: '/profile/edit', icon: '✏️', label: t.nav.editProfile, dot: false },
+                                ...(!isAdmin ? [{ to: '/profile/share', icon: '🔗', label: t.nav.shareProfile, dot: false }] : []),
+                                ...(isAdmin ? [{ to: '/admin', icon: '🔧', label: t.nav.adminDashboard, accent: true, dot: false }] : []),
+                              ].map(({ to, icon, label, accent, dot }) => (
                                   <Link key={to} to={to} onClick={() => setDropdownOpen(false)}
-                                      className={`flex items-center gap-3 px-3 py-2 text-sm rounded-2xl hover:bg-[var(--color-surface-alt)] transition-colors ${accent ? 'font-medium' : ''}`}
-                                      style={{ color: accent ? 'var(--color-accent)' : 'var(--color-text)' }}>
-                                    <span>{icon}</span> {label}
+                                        className={`flex items-center gap-3 px-3 py-2 text-sm rounded-2xl hover:bg-[var(--color-surface-alt)] transition-colors ${accent ? 'font-medium' : ''}`}
+                                        style={{ color: accent ? 'var(--color-accent)' : 'var(--color-text)' }}>
+                                    <span>{icon}</span>
+                                    {label}
+                                    {dot && <span style={{ width: '7px', height: '7px', borderRadius: '50%', background: '#c0392b', marginLeft: 'auto', flexShrink: 0 }} />}
                                   </Link>
                               ))}
                             </div>

@@ -30,8 +30,8 @@ export function RequestSwapPage() {
     return (
         <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6">
             <Link to={`/books/${id}`} className="inline-flex items-center gap-1.5 text-sm text-(--color-text-muted) hover:text-(--color-text) mb-8 transition-colors group">
-                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
-                <span>{t.books.backToBooks}</span>
+                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
+                <span>{t.books.backToBookDetails}</span>
             </Link>
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 <div className="lg:col-span-1"><SwapBookInfo book={book} /></div>

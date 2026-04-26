@@ -82,7 +82,7 @@ export function BookDetailPage() {
             <div className="container mx-auto px-4 sm:px-6 py-8 pt-24 md:pt-10">
                 <div className="flex items-center justify-between mb-8">
                     <Link to="/books" className="inline-flex items-center gap-1.5 text-sm text-(--color-text-muted) hover:text-(--color-text) transition-colors group">
-                        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
+                        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
                         <span>{t.books.backToBooks}</span>
                     </Link>
                 </div>

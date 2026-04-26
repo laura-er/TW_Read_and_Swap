@@ -11,7 +11,7 @@ export function ProfileStats({ favoritesCount, swapsCount, booksCount }: Profile
         { icon: <Heart size={16} />, value: favoritesCount,     label: t.profile.favorites, color: '#c0392b' },
     ];
     return (
-        <div style={{ marginTop: '16px', display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px' }}>
             {stats.map(({ icon, value, label, color }) => (
                 <div key={label} style={{ borderRadius: '16px', padding: '14px', textAlign: 'center', background: 'var(--lib-stats)', border: '1px solid var(--lib-border)' }}>
                     <div style={{ display: 'flex', justifyContent: 'center', color, marginBottom: '4px' }}>{icon}</div>

@@ -38,6 +38,7 @@ export function ProfilePage() {
     const { favorites, toggleFavorite } = useFavorites();
     const favoriteBooks = useMemo(() => allBooks.filter((b) => favorites.includes(b.id)), [favorites, allBooks]);
     const handleDeleteBook = (id: string) => { axiosInstance.delete(`/api/books/${id}`).then(() => setUserBooks((prev) => prev.filter((b) => b.id !== id))).catch(() => {}); };
+    const handleUpdateBook = (id: string, updated: Partial<Book>) => { setUserBooks((prev) => prev.map((b) => b.id === id ? { ...b, ...updated } : b)); };
 
     if (!user) return null;
 
@@ -48,25 +49,27 @@ export function ProfilePage() {
             <div className="mx-auto max-w-6xl px-4 py-10">
                 <div className="mb-4 rounded-[24px] overflow-hidden shadow-2xl" style={{ border: '1px solid var(--lib-border)', backdropFilter: 'blur(20px)' }}>
                     <ProfileBanner user={user} isOwnProfile={true} />
-                    <div style={{ background: 'var(--lib-card)', padding: '0 20px 20px' }}>
-                        {isAdmin ? (
-                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px', padding: '16px 0 4px' }}>
-                                {[
-                                    { to: '/admin/books-users', icon: '📚', label: t.profile.manageBooks, desc: t.profile.viewEditBooks },
-                                    { to: '/admin/books-users?tab=users', icon: '👥', label: t.profile.manageUsers, desc: t.profile.banDeleteUsers },
-                                    { to: '/admin/reports', icon: '🚩', label: t.profile.reports, desc: t.profile.reviewReports },
-                                ].map(({ to, icon, label, desc }) => (
-                                    <Link key={label} to={to} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', padding: '20px 16px', borderRadius: '16px', background: 'var(--lib-stats)', border: '1px solid var(--lib-border)', textDecoration: 'none', transition: 'all 0.15s', cursor: 'pointer' }} onMouseEnter={e => (e.currentTarget.style.border = '1px solid var(--color-accent)')} onMouseLeave={e => (e.currentTarget.style.border = '1px solid var(--lib-border)')}>
-                                        <span style={{ fontSize: '28px' }}>{icon}</span>
-                                        <div style={{ textAlign: 'center' }}><p style={{ fontSize: '13px', fontWeight: 700, color: 'var(--lib-text)', marginBottom: '2px' }}>{label}</p><p style={{ fontSize: '11px', color: 'var(--lib-text-faint)' }}>{desc}</p></div>
-                                    </Link>
-                                ))}
-                            </div>
-                        ) : (
-                            <ProfileStats favoritesCount={favoriteBooks.length} swapsCount={swaps.filter((s) => s.status === 'accepted').length} booksCount={userBooks.length} />
-                        )}
-                    </div>
                 </div>
+                {isAdmin ? (
+                    <div className="mb-4 rounded-[24px] shadow-xl" style={{ background: 'var(--lib-card)', border: '1px solid var(--lib-border)', backdropFilter: 'blur(20px)', padding: '20px' }}>
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px' }}>
+                            {[
+                                { to: '/admin/books-users', icon: '📚', label: t.profile.manageBooks, desc: t.profile.viewEditBooks },
+                                { to: '/admin/books-users?tab=users', icon: '👥', label: t.profile.manageUsers, desc: t.profile.banDeleteUsers },
+                                { to: '/admin/reports', icon: '🚩', label: t.profile.reports, desc: t.profile.reviewReports },
+                            ].map(({ to, icon, label, desc }) => (
+                                <Link key={label} to={to} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', padding: '20px 16px', borderRadius: '16px', background: 'var(--lib-stats)', border: '1px solid var(--lib-border)', textDecoration: 'none', transition: 'all 0.15s', cursor: 'pointer' }} onMouseEnter={e => (e.currentTarget.style.border = '1px solid var(--color-accent)')} onMouseLeave={e => (e.currentTarget.style.border = '1px solid var(--lib-border)')}>
+                                    <span style={{ fontSize: '28px' }}>{icon}</span>
+                                    <div style={{ textAlign: 'center' }}><p style={{ fontSize: '13px', fontWeight: 700, color: 'var(--lib-text)', marginBottom: '2px' }}>{label}</p><p style={{ fontSize: '11px', color: 'var(--lib-text-faint)' }}>{desc}</p></div>
+                                </Link>
+                            ))}
+                        </div>
+                    </div>
+                ) : (
+                    <div className="mb-4 rounded-[24px] shadow-xl" style={{ background: 'var(--lib-card)', border: '1px solid var(--lib-border)', backdropFilter: 'blur(20px)', padding: '20px' }}>
+                        <ProfileStats favoritesCount={favoriteBooks.length} swapsCount={swaps.filter((s) => s.status === 'accepted').length} booksCount={userBooks.length} />
+                    </div>
+                )}
                 {!isAdmin && <div className="mb-4 rounded-[20px] overflow-hidden shadow-lg" style={{ background: 'var(--lib-card)', border: '1px solid var(--lib-border)', backdropFilter: 'blur(20px)' }} ref={tabsRef}><ProfileTabs active={activeTab} onChange={setActiveTab} /></div>}
                 {!isAdmin && activeTab === 'Favorites' && <div id="favorites-section"><FavoritesTab favorites={favoriteBooks} onRemove={(id) => toggleFavorite(id)} /></div>}
                 {!isAdmin && activeTab === 'My Books' && (
@@ -78,7 +81,7 @@ export function ProfilePage() {
                                 <p className="text-sm" style={{ color: 'var(--lib-text-muted)' }}>{userBooks.length} {t.profile.booksListed}</p>
                                 <Link to="/books/add" className="inline-flex items-center gap-2 rounded-2xl bg-[var(--color-accent)] px-3 py-1.5 text-sm font-medium text-white hover:bg-[var(--color-accent-hover)] transition-colors"><Plus className="h-4 w-4" />{t.books.addBook}</Link>
                             </div>
-                            <div className="flex flex-col gap-3">{userBooks.map((book) => <div key={book.id} style={{ borderRadius: '20px', overflow: 'hidden', background: 'var(--lib-card)', border: '1px solid var(--lib-border)', backdropFilter: 'blur(16px)', ['--color-surface' as string]: 'var(--lib-card)', ['--color-surface-alt' as string]: 'var(--lib-stats)', ['--color-border' as string]: 'var(--lib-border)', ['--color-text' as string]: 'var(--lib-text)', ['--color-text-muted' as string]: 'var(--lib-text-muted)' } as React.CSSProperties}><BookCard book={book} onDelete={handleDeleteBook} showOwnerActions={true} /></div>)}</div>
+                            <div className="flex flex-col gap-3">{userBooks.map((book) => <div key={book.id} style={{ borderRadius: '20px', background: 'var(--lib-card)', border: '1px solid var(--lib-border)', ['--color-surface' as string]: 'var(--lib-card)', ['--color-surface-alt' as string]: 'var(--lib-stats)', ['--color-border' as string]: 'var(--lib-border)', ['--color-text' as string]: 'var(--lib-text)', ['--color-text-muted' as string]: 'var(--lib-text-muted)' } as React.CSSProperties}><BookCard book={book} onDelete={handleDeleteBook} onUpdate={handleUpdateBook} showOwnerActions={true} /></div>)}</div>
                         </div>
                     )
                 )}
