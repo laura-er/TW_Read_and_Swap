@@ -65,9 +65,9 @@ export function SwapForm({ book }: SwapFormProps) {
 
     const validate = (): boolean => {
         const newErrors: Partial<SwapFormData> = {};
-        if (!formData.offeredBookId) newErrors.offeredBookId = 'Please select a book to offer.';
-        if (!formData.contactEmail) newErrors.contactEmail = 'Contact email is required.';
-        else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.contactEmail)) newErrors.contactEmail = 'Please enter a valid email address.';
+        if (!formData.offeredBookId) newErrors.offeredBookId = t.validation.selectBook;
+        if (!formData.contactEmail) newErrors.contactEmail = t.validation.emailRequired;
+        else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.contactEmail)) newErrors.contactEmail = t.validation.emailInvalid;
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
     };
@@ -85,7 +85,7 @@ export function SwapForm({ book }: SwapFormProps) {
             const msg = err?.response?.data;
             if (typeof msg === 'string' && msg.includes('already have an active swap')) { refresh(); navigate(`/swap/${book.id}/success?duplicate=true`); }
             else if (typeof msg === 'string' && msg.length < 100) setErrors({ offeredBookId: msg });
-            else setErrors({ offeredBookId: 'Failed to send swap request. Please try again.' });
+            else setErrors({ offeredBookId: t.validation.failedSwap });
         } finally { setIsLoading(false); }
     };
 
@@ -102,7 +102,7 @@ export function SwapForm({ book }: SwapFormProps) {
                 </div>
                 <div className="flex flex-col gap-1.5">
                     <label className="text-sm font-medium text-[var(--color-text)]">{t.swaps.message}<span className="ml-1 text-xs text-[var(--color-text-muted)] font-normal">{t.swaps.messageOptional}</span></label>
-                    <textarea rows={4} placeholder="Introduce yourself and explain why you'd like to swap..." value={formData.message} onChange={(e) => handleChange('message', e.target.value)} className="w-full rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] px-3 py-2 text-sm text-[var(--color-text)] placeholder:text-[var(--color-text-muted)] outline-none focus:border-[var(--color-accent)] focus:ring-2 focus:ring-[var(--color-accent)]/20 transition-all resize-none" />
+                    <textarea rows={4} placeholder={t.swaps.messagePlaceholder} value={formData.message} onChange={(e) => handleChange('message', e.target.value)} className="w-full rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] px-3 py-2 text-sm text-[var(--color-text)] placeholder:text-[var(--color-text-muted)] outline-none focus:border-[var(--color-accent)] focus:ring-2 focus:ring-[var(--color-accent)]/20 transition-all resize-none" />
                 </div>
                 <div className="flex flex-col gap-1.5">
                     <label className="text-sm font-medium text-[var(--color-text)]">{t.swaps.contactEmail} <span className="text-red-500">*</span></label>

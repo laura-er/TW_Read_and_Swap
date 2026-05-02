@@ -10,7 +10,7 @@ import type { Book } from '@/types';
 
 export function PublicProfilePage() {
     const { username } = useParams<{ username: string }>();
-    const { user: currentUser } = useAuth();
+    const { user: currentUser, isAdmin } = useAuth();
     const { t } = useLanguage();
     const [showReport, setShowReport] = useState(false);
     const [profileUser, setProfileUser] = useState<any>(null);
@@ -82,9 +82,11 @@ export function PublicProfilePage() {
                                 </div>
                             </div>
                         </div>
-                        <button onClick={() => setShowReport(true)} className="self-start sm:self-auto flex items-center gap-2 rounded-xl border px-3 py-2 text-xs font-medium transition-colors" style={{ borderColor: 'rgba(239,68,68,0.3)', color: '#ef4444' }} onMouseEnter={e => (e.currentTarget.style.background = 'rgba(239,68,68,0.05)')} onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}>
-                            <Flag className="h-3.5 w-3.5" /> Report User
-                        </button>
+                        {!isAdmin && (
+                            <button onClick={() => setShowReport(true)} className="self-start sm:self-auto flex items-center gap-2 rounded-xl border px-3 py-2 text-xs font-medium transition-colors" style={{ borderColor: 'rgba(239,68,68,0.3)', color: '#ef4444' }} onMouseEnter={e => (e.currentTarget.style.background = 'rgba(239,68,68,0.05)')} onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}>
+                                <Flag className="h-3.5 w-3.5" /> Report User
+                            </button>
+                        )}
                     </div>
                     <div className="mt-5 grid grid-cols-3 gap-3">
                         {[

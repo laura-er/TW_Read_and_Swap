@@ -66,6 +66,10 @@ export const ro: Translations = {
     genreSciFi: 'SF', genreFantasy: 'Fantasy', genreRomance: 'Romantică',
     genreBiography: 'Biografie', genreHistory: 'Istorie', genreSelfHelp: 'Dezvoltare personală', genreOther: 'Altele',
     moreIn: 'Mai multe în',
+    by: 'de',
+    noReviews: 'Nicio recenzie încă',
+    availableOnly: 'Doar',
+    clearFilters: 'Șterge filtrele',
   },
   addBook: {
     title: 'Împărtășește o Carte', subtitle: 'Listează o carte pe care vrei să o schimbi cu comunitatea',
@@ -104,6 +108,7 @@ export const ro: Translations = {
     requestAlreadyExists: 'Cerere deja existentă!',
     requestAlreadyExistsDesc: 'Ai deja o cerere de schimb activă pentru această carte.',
     requestSentDesc: 'Cererea ta a fost trimisă. Proprietarul va analiza oferta ta.',
+    messagePlaceholder: 'Prezintă-te și explică de ce ai vrea să faci schimbul...',
   },
   profile: {
     favorites: 'Favorite', myBooks: 'Cărțile Mele', swapHistory: 'Istoric Schimburi', messages: 'Mesaje',
@@ -121,6 +126,7 @@ export const ro: Translations = {
     noBooksDesc: 'Cărțile pe care le-ai listat pentru schimb vor apărea aici.',
     bookCol: 'Carte', genreCol: 'Gen', ratingCol: 'Rating', ownerCol: 'Proprietar',
     statusCol: 'Status', actionsCol: 'Acțiuni',
+    swapsDone: 'Schimburi Finalizate',
   },
   editProfile: {
     title: 'Editează Profilul', firstName: 'Prenume', username: 'Nume de utilizator', phone: 'Telefon',
@@ -165,5 +171,19 @@ export const ro: Translations = {
     loading: 'Se încarcă...', save: 'Salvează', cancel: 'Anulează', delete: 'Șterge', edit: 'Editează',
     close: 'Închide', search: 'Caută', filter: 'Filtrează', sortBy: 'Sortează după', noData: 'Nu există date disponibile',
     memberOf: 'Membru al Read & Swap', showing: 'Se afișează', of: 'din',
+  },
+  validation: {
+    titleRequired: 'Titlul este obligatoriu.',
+    titleMin: 'Titlul trebuie să aibă cel puțin 2 caractere.',
+    titleMax: 'Titlul nu poate depăși 200 de caractere.',
+    authorRequired: 'Autorul este obligatoriu.',
+    authorMin: 'Autorul trebuie să aibă cel puțin 2 caractere.',
+    authorMax: 'Autorul nu poate depăși 100 de caractere.',
+    descMax: 'Descrierea nu poate depăși 1000 de caractere.',
+    failedAdd: 'Nu s-a putut adăuga cartea. Încearcă din nou.',
+    selectBook: 'Te rugăm să selectezi o carte de oferit.',
+    emailRequired: 'Emailul de contact este obligatoriu.',
+    emailInvalid: 'Te rugăm să introduci o adresă de email validă.',
+    failedSwap: 'Nu s-a putut trimite cererea de schimb. Încearcă din nou.',
   },
 };

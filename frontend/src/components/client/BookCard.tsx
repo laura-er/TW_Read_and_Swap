@@ -8,6 +8,7 @@ import { useFavorites } from '@/context/FavoritesContext';
 import { useAuth } from '@/context/AuthContext';
 import { useLanguage } from '@/context/LanguageContext';
 import { useNavigate } from 'react-router-dom';
+import { genreLabel, conditionLabel } from '@/utils/bookLabels';
 
 const conditionVariant: Record<Book['condition'], 'success' | 'info' | 'warning' | 'danger'> = { new: 'success', good: 'info', fair: 'warning', worn: 'danger' };
 
@@ -37,8 +38,8 @@ export function BookCard({ book, onDelete, onUpdate, showOwnerActions = false }:
                 </div>
                 {isAuthenticated && book.rating !== undefined && <BookRating rating={book.rating} />}
                 <div className="flex items-center gap-1.5 flex-wrap">
-                    {isAuthenticated && <Badge variant={conditionVariant[book.condition]}>{book.condition}</Badge>}
-                    <span className="text-xs font-semibold px-2 py-0.5 rounded-full capitalize" style={{ color: 'var(--navbar-text-muted)', background: 'var(--color-surface-alt)' }}>{book.genre}</span>
+                    {isAuthenticated && <Badge variant={conditionVariant[book.condition]}>{conditionLabel(book.condition, t)}</Badge>}
+                    <span className="text-xs font-semibold px-2 py-0.5 rounded-full" style={{ color: 'var(--navbar-text-muted)', background: 'var(--color-surface-alt)' }}>{genreLabel(book.genre, t)}</span>
                 </div>
                 {isAuthenticated && !isOwner && <BookCardOwner ownerId={book.ownerId} />}
                 {!isAuthenticated && <p className="text-xs text-(--color-text-muted) italic">Sign in to see more details</p>}

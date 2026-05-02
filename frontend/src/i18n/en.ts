@@ -59,13 +59,15 @@ export const en = {
     sortBy: 'Sort by', newest: 'Newest', oldest: 'Oldest', titleAZ: 'Title A-Z', titleZA: 'Title Z-A',
     noResults: 'No books found', noResultsDesc: 'Try adjusting your search or filters.',
     booksFound: 'books found',
-    // Conditions translated
     conditionNew: 'New', conditionGood: 'Good', conditionFair: 'Fair', conditionWorn: 'Worn',
-    // Genres translated
     genreFiction: 'Fiction', genreNonFiction: 'Non-fiction', genreMystery: 'Mystery',
     genreSciFi: 'Sci-Fi', genreFantasy: 'Fantasy', genreRomance: 'Romance',
     genreBiography: 'Biography', genreHistory: 'History', genreSelfHelp: 'Self-help', genreOther: 'Other',
     moreIn: 'More in',
+    by: 'by',
+    noReviews: 'No reviews yet',
+    availableOnly: 'Only',
+    clearFilters: 'Clear filters',
   },
   addBook: {
     title: 'Share a Book', subtitle: 'List a book you want to swap with the community',
@@ -104,6 +106,7 @@ export const en = {
     requestAlreadyExists: 'Request Already Exists!',
     requestAlreadyExistsDesc: 'You already have an active swap request for this book.',
     requestSentDesc: 'Your request has been sent. The owner will review your offer and get back to you.',
+    messagePlaceholder: "Introduce yourself and explain why you'd like to swap...",
   },
   profile: {
     favorites: 'Favorites', myBooks: 'My Books', swapHistory: 'Swap History', messages: 'Messages',
@@ -119,9 +122,9 @@ export const en = {
     noMessagesDesc: "You'll see notifications about swaps, warnings, and account activity here.",
     markAllRead: 'Mark all as read',
     noBooksDesc: "Books you've listed for swapping will appear here.",
-    // Favorites table headers
     bookCol: 'Book', genreCol: 'Genre', ratingCol: 'Rating', ownerCol: 'Owner',
     statusCol: 'Status', actionsCol: 'Actions',
+    swapsDone: 'Swaps Done',
   },
   editProfile: {
     title: 'Edit Profile', firstName: 'First Name', username: 'Username', phone: 'Phone',
@@ -166,6 +169,20 @@ export const en = {
     loading: 'Loading...', save: 'Save', cancel: 'Cancel', delete: 'Delete', edit: 'Edit',
     close: 'Close', search: 'Search', filter: 'Filter', sortBy: 'Sort by', noData: 'No data available',
     memberOf: 'Member of Read & Swap', showing: 'Showing', of: 'of',
+  },
+  validation: {
+    titleRequired: 'Title is required.',
+    titleMin: 'Title must be at least 2 characters.',
+    titleMax: 'Title cannot exceed 200 characters.',
+    authorRequired: 'Author is required.',
+    authorMin: 'Author must be at least 2 characters.',
+    authorMax: 'Author cannot exceed 100 characters.',
+    descMax: 'Description cannot exceed 1000 characters.',
+    failedAdd: 'Failed to add book. Please try again.',
+    selectBook: 'Please select a book to offer.',
+    emailRequired: 'Contact email is required.',
+    emailInvalid: 'Please enter a valid email address.',
+    failedSwap: 'Failed to send swap request. Please try again.',
   },
 };
 

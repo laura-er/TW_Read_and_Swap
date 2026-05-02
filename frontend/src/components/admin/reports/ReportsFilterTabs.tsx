@@ -1,6 +1,6 @@
-import type { ReportType } from '@/types/admin';
+import { useLanguage } from '@/context/LanguageContext';
 
-type FilterTab = 'all' | ReportType;
+type FilterTab = 'all' | 'book' | 'user';
 
 interface ReportsFilterTabsProps {
     active: FilterTab;
@@ -9,10 +9,12 @@ interface ReportsFilterTabsProps {
 }
 
 export function ReportsFilterTabs({ active, onChange, counts }: ReportsFilterTabsProps) {
+    const { t } = useLanguage();
+
     const tabs: { key: FilterTab; label: string }[] = [
-        { key: 'all',  label: `All (${counts.all})` },
-        { key: 'book', label: `Books (${counts.book})` },
-        { key: 'user', label: `Users (${counts.user})` },
+        { key: 'all',  label: `${t.admin.reports} (${counts.all})` },
+        { key: 'book', label: `${t.admin.books} (${counts.book})` },
+        { key: 'user', label: `${t.admin.users} (${counts.user})` },
     ];
 
     return (

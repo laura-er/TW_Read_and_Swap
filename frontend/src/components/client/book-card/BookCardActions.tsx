@@ -10,7 +10,7 @@ import type { Book } from '@/types';
 interface BookCardActionsProps { book: Book; isOwner: boolean; onDelete?: (id: string) => void; onUpdate?: (id: string, updated: Partial<Book>) => void; showOwnerActions?: boolean; }
 
 export function BookCardActions({ book, isOwner, onDelete, onUpdate, showOwnerActions = false }: BookCardActionsProps) {
-    const { isAuthenticated } = useAuth();
+    const { isAuthenticated, isAdmin } = useAuth();
     const { t } = useLanguage();
     const navigate = useNavigate();
     const [showEditModal, setShowEditModal] = useState(false);
@@ -36,7 +36,7 @@ export function BookCardActions({ book, isOwner, onDelete, onUpdate, showOwnerAc
                         <button onClick={() => setShowEditModal(true)} className="flex-1 text-center py-2 px-3 rounded-lg bg-[var(--color-accent)] hover:bg-[var(--color-accent-hover)] text-white text-sm font-semibold transition-all duration-200 shadow-sm">{t.books.edit}</button>
                         <button onClick={() => setShowDeleteConfirm(true)} className="flex-1 text-center py-2 px-3 rounded-lg bg-red-600 hover:bg-red-700 text-white text-sm font-semibold transition-all duration-200 shadow-sm">{t.books.delete}</button>
                     </>
-                ) : isOwner ? null : book.isAvailable ? (
+                ) : isOwner ? null : isAdmin ? null : book.isAvailable ? (
                     <Link to={`/swap/${book.id}`} className="flex-1 text-center py-2 px-3 rounded-lg bg-[var(--color-accent)] hover:bg-[var(--color-accent-hover)] text-white text-sm font-semibold transition-all duration-200 shadow-sm">{t.books.requestSwap}</Link>
                 ) : (
                     <Button disabled variant="secondary" size="sm" className="flex-1 justify-center opacity-50 cursor-not-allowed">{t.books.notAvailable}</Button>
