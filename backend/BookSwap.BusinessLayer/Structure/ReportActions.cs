@@ -14,6 +14,7 @@ public class ReportActions
     {
         using var db = new BookSwapDbContext(DbSession.GetOptions());
         var list = db.Reports
+            .Where(r => r.Type == "user")
             .OrderByDescending(r => r.CreatedAt)
             .Select(r => new ReportDto
             {
@@ -56,10 +57,14 @@ public class ReportActions
 
     protected ServiceResponse CreateReportAction(ReportCreateDto dto, int userId, string username)
     {
+        // Acceptăm doar rapoarte de tip "user"
+        if (dto.Type != "user")
+            return new ServiceResponse { IsSuccess = false, Message = "Only user reports are allowed." };
+
         using var db = new BookSwapDbContext(DbSession.GetOptions());
         var report = new ReportEntity
         {
-            Type             = dto.Type,
+            Type             = "user",
             Reason           = dto.Reason,
             Status           = ReportStatus.Open,
             TargetId         = dto.TargetId,

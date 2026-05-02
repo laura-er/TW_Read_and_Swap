@@ -8,6 +8,8 @@ import { AdminSearchBar } from '@/components/admin/books-users/AdminSearchBar';
 import { AdminBooksTable } from '@/components/admin/books-users/AdminBooksTable';
 import { AdminUsersTable } from '@/components/admin/books-users/AdminUsersTable';
 import { useLanguage } from '@/context/LanguageContext';
+import { useNotifications } from '@/context/NotificationsContext';
+import { useBan } from '@/context/BanContext';
 
 type ActiveTab = 'books' | 'users';
 
@@ -22,9 +24,16 @@ function exportToCsv(filename: string, rows: string[][]): void {
     URL.revokeObjectURL(url);
 }
 
+const DURATION_LABELS: Record<string, string> = {
+    '1d': '1 zi', '3d': '3 zile', '7d': '7 zile', '30d': '30 de zile', 'permanent': 'permanent',
+};
+
 export function AdminBooksUsersPage() {
     const [searchParams] = useSearchParams();
     const { t } = useLanguage();
+    const { addNotification } = useNotifications();
+    const { banUser, unbanUser, isUserBanned } = useBan();
+
     const [activeTab, setActiveTab] = useState<ActiveTab>(
         searchParams.get('tab') === 'users' ? 'users' : 'books'
     );
@@ -65,7 +74,7 @@ export function AdminBooksUsersPage() {
                     joinedAt: u.createdAt ?? new Date().toISOString(),
                     booksCount: 0,
                     swapsCompleted: 0,
-                    isBanned: false,
+                    isBanned: isUserBanned(String(u.id)),
                 })));
             })
             .catch(() => console.error('Failed to load users'));
@@ -77,16 +86,24 @@ export function AdminBooksUsersPage() {
             b.author.toLowerCase().includes(search.toLowerCase()),
     );
 
-    const filteredUsers = users.filter(
+    const filteredUsers = users.map(u => ({ ...u, isBanned: isUserBanned(u.id) })).filter(
         (u) =>
             u.name.toLowerCase().includes(search.toLowerCase()) ||
             u.username.toLowerCase().includes(search.toLowerCase()) ||
             u.email.toLowerCase().includes(search.toLowerCase()),
     );
 
-    function handleDeleteBook(id: string) {
+    function handleDeleteBook(id: string, ownerId: string, bookTitle: string, ownerName: string, reason: string) {
         axiosInstance.delete(`/api/books/${id}`)
-            .then(() => setBooks((prev) => prev.filter((b) => b.id !== id)))
+            .then(() => {
+                setBooks((prev) => prev.filter((b) => b.id !== id));
+                addNotification({
+                    userId: ownerId,
+                    type: 'warning',
+                    title: `Cartea ta „${bookTitle}" a fost ștearsă`,
+                    message: `Motiv: ${reason}. Dacă crezi că această decizie este greșită, contactează echipa de suport.`,
+                });
+            })
             .catch(() => console.error('Failed to delete book'));
     }
 
@@ -96,12 +113,30 @@ export function AdminBooksUsersPage() {
             .catch(() => console.error('Failed to delete user'));
     }
 
-    function handleBanUser(id: string) {
-        setUsers((prev) => prev.map((u) => (u.id === id ? { ...u, isBanned: true } : u)));
+    function handleBanUser(id: string, duration: string, reason: string, customMessage: string) {
+        banUser(id, duration, reason, customMessage);
+        setUsers(prev => prev.map(u => u.id === id ? { ...u, isBanned: true } : u));
+        const durationLabel = DURATION_LABELS[duration] ?? duration;
+        const notifMessage = customMessage.trim()
+            ? `Motiv: ${reason}. ${customMessage.trim()}`
+            : `Motiv: ${reason}.`;
+        addNotification({
+            userId: id,
+            type: 'ban',
+            title: `Contul tău a fost suspendat pentru ${durationLabel}`,
+            message: notifMessage,
+        });
     }
 
     function handleUnbanUser(id: string) {
-        setUsers((prev) => prev.map((u) => (u.id === id ? { ...u, isBanned: false } : u)));
+        unbanUser(id);
+        setUsers(prev => prev.map(u => u.id === id ? { ...u, isBanned: false } : u));
+        addNotification({
+            userId: id,
+            type: 'info',
+            title: 'Suspendarea contului tău a fost ridicată',
+            message: 'Contul tău este din nou activ. Poți folosi platforma în mod normal. Te rugăm să respecți regulile comunității.',
+        });
     }
 
     function handleExportBooks() {
@@ -136,40 +171,19 @@ export function AdminBooksUsersPage() {
                 </p>
             </div>
 
-            <AdminTabs
-                tabs={tabs}
-                active={activeTab}
-                onChange={(tab) => { setActiveTab(tab); setSearch(''); }}
-            />
+            <AdminTabs tabs={tabs} active={activeTab} onChange={(tab) => { setActiveTab(tab); setSearch(''); }} />
 
             {activeTab === 'books' && (
                 <>
-                    <AdminSearchBar
-                        value={search}
-                        onChange={setSearch}
-                        placeholder={t.admin.searchByTitle}
-                        onExport={handleExportBooks}
-                        exportLabel={t.admin.exportCSV}
-                    />
-                    <AdminBooksTable books={filteredBooks} onDelete={handleDeleteBook} />
+                    <AdminSearchBar value={search} onChange={setSearch} placeholder={t.admin.searchByTitle} onExport={handleExportBooks} exportLabel={t.admin.exportCSV} />
+                    <AdminBooksTable books={filteredBooks} users={users} onDelete={handleDeleteBook} />
                 </>
             )}
 
             {activeTab === 'users' && (
                 <>
-                    <AdminSearchBar
-                        value={search}
-                        onChange={setSearch}
-                        placeholder={t.admin.searchByUser}
-                        onExport={handleExportUsers}
-                        exportLabel={t.admin.exportCSV}
-                    />
-                    <AdminUsersTable
-                        users={filteredUsers}
-                        onBan={handleBanUser}
-                        onUnban={handleUnbanUser}
-                        onDelete={handleDeleteUser}
-                    />
+                    <AdminSearchBar value={search} onChange={setSearch} placeholder={t.admin.searchByUser} onExport={handleExportUsers} exportLabel={t.admin.exportCSV} />
+                    <AdminUsersTable users={filteredUsers} onBan={handleBanUser} onUnban={handleUnbanUser} onDelete={handleDeleteUser} />
                 </>
             )}
         </main>

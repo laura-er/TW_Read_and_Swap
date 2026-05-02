@@ -125,7 +125,6 @@ export function Navbar() {
                             <div className="py-1.5 px-1.5">
                               {[
                                 { to: '/profile?tab=Favorites', icon: '👤', label: t.nav.myProfile, dot: hasUnreadMessages },
-                                ...(!isAdmin ? [{ to: '/swaps', icon: '🔄', label: t.nav.mySwaps, dot: false }] : []),
                                 { to: '/profile/edit', icon: '✏️', label: t.nav.editProfile, dot: false },
                                 ...(!isAdmin ? [{ to: '/profile/share', icon: '🔗', label: t.nav.shareProfile, dot: false }] : []),
                                 ...(isAdmin ? [{ to: '/admin', icon: '🔧', label: t.nav.adminDashboard, accent: true, dot: false }] : []),

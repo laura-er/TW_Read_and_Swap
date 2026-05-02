@@ -11,7 +11,7 @@ export function ProfileBanner({ user, isOwnProfile }: { user: User; isOwnProfile
     const [showReport, setShowReport] = useState(false);
     return (
         <>
-            {showReport && <ReportModal targetId={user.id} targetName={user.username} type="user" onClose={() => setShowReport(false)} />}
+            {showReport && <ReportModal targetId={user.id} targetName={user.username} onClose={() => setShowReport(false)} />}
             <div style={{ height: '70px', background: 'linear-gradient(135deg, var(--color-accent) 0%, rgba(154,74,30,0.4) 60%, rgba(200,150,60,0.2) 100%)', backdropFilter: 'blur(8px)', borderRadius: '24px 24px 0 0' }} />
             <div style={{ padding: '16px 24px 20px', background: 'var(--lib-card)', borderRadius: '0 0 24px 24px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '16px' }}>

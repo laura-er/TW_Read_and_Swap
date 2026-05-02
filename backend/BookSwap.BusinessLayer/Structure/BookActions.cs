@@ -1,3 +1,4 @@
+using Microsoft.EntityFrameworkCore;
 using BookSwap.DataAccessLayer;
 using BookSwap.DataAccessLayer.Context;
 using BookSwap.Domain.Entities.Book;
@@ -10,25 +11,30 @@ public class BookActions
 {
     public BookActions() { }
 
+    private static BookDto MapToDto(BookEntity b) => new BookDto
+    {
+        Id          = b.Id,
+        Title       = b.Title,
+        Author      = b.Author,
+        Genre       = b.Genre,
+        Condition   = b.Condition,
+        CoverUrl    = b.CoverUrl,
+        Description = b.Description,
+        IsAvailable = b.IsAvailable,
+        OwnerId     = b.OwnerId,
+        ReviewCount = b.Reviews.Count,
+        Rating      = b.Reviews.Count > 0 ? b.Reviews.Average(r => (double)r.Rating) : (double?)null
+    };
+
     protected ServiceResponse GetAllBooksAction()
     {
         using var db = new BookSwapDbContext(DbSession.GetOptions());
 
         var books = db.Books
-            .Select(b => new BookDto
-            {
-                Id          = b.Id,
-                Title       = b.Title,
-                Author      = b.Author,
-                Genre       = b.Genre,
-                Condition   = b.Condition,
-                CoverUrl    = b.CoverUrl,
-                Description = b.Description,
-                IsAvailable = b.IsAvailable,
-                OwnerId     = b.OwnerId,
-                ReviewCount = b.Reviews.Count,
-                Rating      = b.Reviews.Count > 0 ? b.Reviews.Average(r => (double)r.Rating) : (double?)null
-            }).ToList();
+            .Include(b => b.Reviews)
+            .ToList()
+            .Select(MapToDto)
+            .ToList();
 
         return new ServiceResponse { IsSuccess = true, Data = books };
     }
@@ -43,7 +49,7 @@ public class BookActions
     {
         using var db = new BookSwapDbContext(DbSession.GetOptions());
 
-        var query = db.Books.AsQueryable();
+        var query = db.Books.Include(b => b.Reviews).AsQueryable();
 
         if (!string.IsNullOrWhiteSpace(search))
             query = query.Where(b =>
@@ -67,20 +73,7 @@ public class BookActions
             _           => query.OrderByDescending(b => b.CreatedAt)
         };
 
-        var books = query.Select(b => new BookDto
-        {
-            Id          = b.Id,
-            Title       = b.Title,
-            Author      = b.Author,
-            Genre       = b.Genre,
-            Condition   = b.Condition,
-            CoverUrl    = b.CoverUrl,
-            Description = b.Description,
-            IsAvailable = b.IsAvailable,
-            OwnerId     = b.OwnerId,
-            ReviewCount = b.Reviews.Count,
-            Rating      = b.Reviews.Count > 0 ? b.Reviews.Average(r => (double)r.Rating) : (double?)null
-        }).ToList();
+        var books = query.ToList().Select(MapToDto).ToList();
 
         return new ServiceResponse { IsSuccess = true, Data = books };
     }
@@ -90,21 +83,11 @@ public class BookActions
         using var db = new BookSwapDbContext(DbSession.GetOptions());
 
         var books = db.Books
+            .Include(b => b.Reviews)
             .Where(b => b.OwnerId == ownerId)
-            .Select(b => new BookDto
-            {
-                Id          = b.Id,
-                Title       = b.Title,
-                Author      = b.Author,
-                Genre       = b.Genre,
-                Condition   = b.Condition,
-                CoverUrl    = b.CoverUrl,
-                Description = b.Description,
-                IsAvailable = b.IsAvailable,
-                OwnerId     = b.OwnerId,
-                ReviewCount = b.Reviews.Count,
-                Rating      = b.Reviews.Count > 0 ? b.Reviews.Average(r => (double)r.Rating) : (double?)null
-            }).ToList();
+            .ToList()
+            .Select(MapToDto)
+            .ToList();
 
         return new ServiceResponse { IsSuccess = true, Data = books };
     }
@@ -114,26 +97,13 @@ public class BookActions
         using var db = new BookSwapDbContext(DbSession.GetOptions());
 
         var book = db.Books
-            .Where(b => b.Id == id)
-            .Select(b => new BookDto
-            {
-                Id          = b.Id,
-                Title       = b.Title,
-                Author      = b.Author,
-                Genre       = b.Genre,
-                Condition   = b.Condition,
-                CoverUrl    = b.CoverUrl,
-                Description = b.Description,
-                IsAvailable = b.IsAvailable,
-                OwnerId     = b.OwnerId,
-                ReviewCount = b.Reviews.Count,
-                Rating      = b.Reviews.Count > 0 ? b.Reviews.Average(r => (double)r.Rating) : (double?)null
-            }).FirstOrDefault();
+            .Include(b => b.Reviews)
+            .FirstOrDefault(b => b.Id == id);
 
         if (book == null)
             return new ServiceResponse { IsSuccess = false, Message = "Book not found" };
 
-        return new ServiceResponse { IsSuccess = true, Data = book };
+        return new ServiceResponse { IsSuccess = true, Data = MapToDto(book) };
     }
 
     protected ServiceResponse CreateBookAction(BookCreateDto dto)

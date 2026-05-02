@@ -35,10 +35,20 @@ export function SwapCard({ swap, currentUserId, onAccept, onDecline, onCancel }:
 
     return (
         <div style={{ borderRadius: '20px', border: '1px solid var(--navbar-border)', background: 'var(--navbar-bg)', backdropFilter: 'blur(12px)', padding: '20px' }}>
-            {showReport && <ReportModal targetId={otherUserId} targetName={otherUsername} type="user" onClose={() => setShowReport(false)} />}
+            {showReport && <ReportModal targetId={otherUserId} targetName={otherUsername} onClose={() => setShowReport(false)} />}
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '14px' }}>
                 <div>
-                    <p style={{ fontSize: '13px', fontWeight: 600, color: 'var(--navbar-text)' }}>{isOwner ? `${t.swaps.from} ${otherUsername}` : `${t.swaps.to} ${otherUsername}`}</p>
+                    <p style={{ fontSize: '13px', fontWeight: 600, color: 'var(--navbar-text)' }}>
+                        {isOwner ? t.swaps.from : t.swaps.to}{' '}
+                        <Link
+                            to={`/profile/${otherUsername}`}
+                            style={{ color: 'var(--color-accent)', textDecoration: 'none' }}
+                            onMouseEnter={e => (e.currentTarget.style.textDecoration = 'underline')}
+                            onMouseLeave={e => (e.currentTarget.style.textDecoration = 'none')}
+                        >
+                            {otherUsername}
+                        </Link>
+                    </p>
                     <p style={{ fontSize: '11px', color: 'var(--navbar-text-muted)' }}>{formatRelativeDate(swap.createdAt)}</p>
                 </div>
                 <Badge variant={statusVariant[swap.status] ?? 'default'}>{statusLabel[swap.status] ?? swap.status}</Badge>
@@ -68,7 +78,6 @@ export function SwapCard({ swap, currentUserId, onAccept, onDecline, onCancel }:
                     )}
                 </div>
             )}
-
         </div>
     );
 }

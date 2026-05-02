@@ -75,15 +75,15 @@ export function AuthLayout() {
                 <div className="flex items-center justify-center gap-2 mt-1.5">
                     <div style={{ width: '20px', height: '1px', background: isDark ? 'rgba(212,112,58,0.4)' : 'rgba(180,120,40,0.4)' }} />
                     <span style={{ fontSize: '9px', letterSpacing: '0.14em', color: isDark ? '#6b5030' : '#9a7a40' }}>
-            BOOK EXCHANGE
-          </span>
+                        BOOK EXCHANGE
+                    </span>
                     <div style={{ width: '20px', height: '1px', background: isDark ? 'rgba(212,112,58,0.4)' : 'rgba(180,120,40,0.4)' }} />
                 </div>
             </div>
 
             {/* Card */}
             <div
-                className="w-full max-w-xs relative z-10"
+                className="w-full max-w-md relative z-10"
                 style={{
                     borderRadius: '22px',
                     background: isDark

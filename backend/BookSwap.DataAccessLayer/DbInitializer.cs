@@ -353,16 +353,6 @@ public static class DbInitializer
         {
             new ReportEntity
             {
-                Type              = "book",
-                Reason            = "Descrierea cărții este incorectă și înșelătoare.",
-                Status            = ReportStatus.Open,
-                TargetId          = books[10].Id,
-                TargetName        = books[10].Title,
-                ReportedByUserId  = users[0].Id,
-                CreatedAt         = DateTime.UtcNow.AddDays(-3),
-            },
-            new ReportEntity
-            {
                 Type              = "user",
                 Reason            = "Userul nu a răspuns după acceptarea swap-ului.",
                 Status            = ReportStatus.Open,
