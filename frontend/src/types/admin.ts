@@ -15,7 +15,7 @@ export interface ActivityItem {
     timestamp: string;
 }
 
-export type ReportType = 'book' | 'user';
+export type ReportType = 'user';
 export type ReportStatus = 'open' | 'resolved' | 'dismissed';
 
 export interface ReportedIssue {

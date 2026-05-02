@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { useTheme } from '@/context/ThemeContext';
 import { useLanguage } from '@/context/LanguageContext';
 import axiosInstance from '@/api/axiosInstance';
+import { TermsModal } from './TermsModal';
+import { PrivacyModal } from './PrivacyModal';
 
 type USignupData = { firstName: string; lastName: string; username: string; email: string; phone: string; password: string; confirm: string; };
 type FieldProps = { label: string; name: keyof USignupData; value: string; onChange: (e: React.ChangeEvent<HTMLInputElement>) => void; type?: string; ph: string; toggle?: boolean; show?: boolean; onToggle?: () => void; isDark: boolean; hasError?: boolean; };
@@ -33,6 +35,8 @@ export function SignUpForm() {
     const [isLoading, setIsLoading] = useState(false);
     const [showPass, setShowPass] = useState(false);
     const [showConfirm, setShowConfirm] = useState(false);
+    const [showTerms, setShowTerms] = useState(false);
+    const [showPrivacy, setShowPrivacy] = useState(false);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
@@ -60,27 +64,34 @@ export function SignUpForm() {
         } finally { setIsLoading(false); }
     };
 
+    const linkStyle: React.CSSProperties = { color: isDark ? '#d4703a' : '#9a4a1e', cursor: 'pointer', textDecoration: 'underline', background: 'none', border: 'none', padding: 0, fontSize: 'inherit', fontFamily: 'inherit' };
+
     return (
-        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '11px' }}>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
-                <Field label={t.auth.firstName} name="firstName" value={form.firstName} onChange={handleChange} ph="Jane" isDark={isDark} hasError={errorField === 'firstName'} />
-                <Field label={t.auth.lastName}  name="lastName"  value={form.lastName}  onChange={handleChange} ph="Doe"  isDark={isDark} hasError={errorField === 'lastName'} />
-            </div>
-            <Field label={t.auth.username} name="username" value={form.username} onChange={handleChange} ph="janedoe" isDark={isDark} hasError={errorField === 'username'} />
-            <Field label={t.auth.email}    name="email"    value={form.email}    onChange={handleChange} type="email" ph="you@example.com" isDark={isDark} hasError={errorField === 'email'} />
-            <Field label={t.auth.phone}    name="phone"    value={form.phone}    onChange={handleChange} ph="069123456" isDark={isDark} hasError={errorField === 'phone'} />
-            <Field label={t.auth.password} name="password" value={form.password} onChange={handleChange} ph="Min. 8 chars" toggle show={showPass} onToggle={() => setShowPass(p => !p)} isDark={isDark} hasError={errorField === 'password'} />
-            <Field label={t.auth.confirm}  name="confirm"  value={form.confirm}  onChange={handleChange} ph="Repeat password" toggle show={showConfirm} onToggle={() => setShowConfirm(p => !p)} isDark={isDark} hasError={errorField === 'confirm'} />
-            {error && <p style={{ fontSize: '11px', color: '#e05030', marginTop: '-2px' }}>⚠ {error}</p>}
-            <p style={{ fontSize: '10px', color: isDark ? '#5a4020' : '#8a6830', lineHeight: 1.5 }}>
-                {t.auth.terms}{' '}
-                <span style={{ color: isDark ? '#d4703a' : '#9a4a1e', cursor: 'pointer' }}>{t.auth.termsLink}</span>
-                {' '}{t.auth.and}{' '}
-                <span style={{ color: isDark ? '#d4703a' : '#9a4a1e', cursor: 'pointer' }}>{t.auth.privacyLink}</span>.
-            </p>
-            <button type="submit" disabled={isLoading} style={{ width: '100%', padding: '10px', borderRadius: '10px', border: 'none', cursor: isLoading ? 'not-allowed' : 'pointer', background: isDark ? 'linear-gradient(135deg, #d4703a, #b85a28)' : 'linear-gradient(135deg, #b8621e, #9a4a16)', color: 'white', fontSize: '12px', fontWeight: 600, boxShadow: isDark ? '0 4px 20px rgba(212,112,58,0.35)' : '0 4px 20px rgba(154,74,30,0.30)', opacity: isLoading ? 0.7 : 1 }}>
-                {isLoading ? t.auth.creating : t.auth.createBtn}
-            </button>
-        </form>
+        <>
+            <TermsModal isOpen={showTerms} onClose={() => setShowTerms(false)} />
+            <PrivacyModal isOpen={showPrivacy} onClose={() => setShowPrivacy(false)} />
+
+            <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '11px' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+                    <Field label={t.auth.firstName} name="firstName" value={form.firstName} onChange={handleChange} ph="Jane" isDark={isDark} hasError={errorField === 'firstName'} />
+                    <Field label={t.auth.lastName}  name="lastName"  value={form.lastName}  onChange={handleChange} ph="Doe"  isDark={isDark} hasError={errorField === 'lastName'} />
+                </div>
+                <Field label={t.auth.username} name="username" value={form.username} onChange={handleChange} ph="janedoe" isDark={isDark} hasError={errorField === 'username'} />
+                <Field label={t.auth.email}    name="email"    value={form.email}    onChange={handleChange} type="email" ph="you@example.com" isDark={isDark} hasError={errorField === 'email'} />
+                <Field label={t.auth.phone}    name="phone"    value={form.phone}    onChange={handleChange} ph="069123456" isDark={isDark} hasError={errorField === 'phone'} />
+                <Field label={t.auth.password} name="password" value={form.password} onChange={handleChange} ph="Min. 8 chars" toggle show={showPass} onToggle={() => setShowPass(p => !p)} isDark={isDark} hasError={errorField === 'password'} />
+                <Field label={t.auth.confirm}  name="confirm"  value={form.confirm}  onChange={handleChange} ph="Repeat password" toggle show={showConfirm} onToggle={() => setShowConfirm(p => !p)} isDark={isDark} hasError={errorField === 'confirm'} />
+                {error && <p style={{ fontSize: '11px', color: '#e05030', marginTop: '-2px' }}>⚠ {error}</p>}
+                <p style={{ fontSize: '10px', color: isDark ? '#5a4020' : '#8a6830', lineHeight: 1.5 }}>
+                    {t.auth.terms}{' '}
+                    <button type="button" style={linkStyle} onClick={() => setShowTerms(true)}>{t.auth.termsLink}</button>
+                    {' '}{t.auth.and}{' '}
+                    <button type="button" style={linkStyle} onClick={() => setShowPrivacy(true)}>{t.auth.privacyLink}</button>.
+                </p>
+                <button type="submit" disabled={isLoading} style={{ width: '100%', padding: '10px', borderRadius: '10px', border: 'none', cursor: isLoading ? 'not-allowed' : 'pointer', background: isDark ? 'linear-gradient(135deg, #d4703a, #b85a28)' : 'linear-gradient(135deg, #b8621e, #9a4a16)', color: 'white', fontSize: '12px', fontWeight: 600, boxShadow: isDark ? '0 4px 20px rgba(212,112,58,0.35)' : '0 4px 20px rgba(154,74,30,0.30)', opacity: isLoading ? 0.7 : 1 }}>
+                    {isLoading ? t.auth.creating : t.auth.createBtn}
+                </button>
+            </form>
+        </>
     );
 }

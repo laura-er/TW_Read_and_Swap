@@ -1,11 +1,13 @@
 import { useState, useEffect } from 'react';
 import axiosInstance from '@/api/axiosInstance';
 import type { Book } from '@/types';
+import { useBan } from '@/context/BanContext';
 
 export function useBooks() {
     const [books, setBooks] = useState<Book[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const { isUserBanned } = useBan();
 
     useEffect(() => {
         axiosInstance.get('/api/books')
@@ -18,18 +20,14 @@ export function useBooks() {
                     reviewCount: b.reviewCount ?? 0,
                     createdAt: b.createdAt ?? new Date().toISOString(),
                 }));
-                setBooks(mapped);
+                // Filtrează cărțile utilizatorilor banați
+                setBooks(mapped.filter((b: Book) => !isUserBanned(b.ownerId)));
             })
             .catch(() => setError('Failed to load books'))
             .finally(() => setIsLoading(false));
     }, []);
 
-    return {
-        books,
-        isLoading,
-        error,
-        totalPages: 1,
-    };
+    return { books, isLoading, error, totalPages: 1 };
 }
 
 export function useBook(id: string) {

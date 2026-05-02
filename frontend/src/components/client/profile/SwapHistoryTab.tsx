@@ -26,7 +26,7 @@ function SwapHistoryCard({ swap, currentUserId }: { swap: SwapRequest; currentUs
 
     return (
         <div className="rounded-2xl p-5" style={{ background: 'var(--lib-card)', border: '1px solid var(--lib-border)', backdropFilter: 'blur(16px)' }}>
-            {showReport && <ReportModal targetId={otherUserId} targetName={otherUsername} type="user" onClose={() => setShowReport(false)} />}
+            {showReport && <ReportModal targetId={otherUserId} targetName={otherUsername} onClose={() => setShowReport(false)} />}
             <div className="flex items-center justify-between mb-4">
                 <div>
                     <p className="text-sm font-semibold text-[var(--color-text)]">{t.profile.with} {otherUsername}</p>

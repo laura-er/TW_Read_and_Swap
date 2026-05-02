@@ -6,6 +6,7 @@ import { FavoritesProvider } from '@/context/FavoritesContext';
 import { NotificationsProvider } from '@/context/NotificationsContext';
 import { ReportsProvider } from '@/context/ReportsContext';
 import { LanguageProvider } from '@/context/LanguageContext';
+import { BanProvider } from '@/context/BanContext';
 import { router } from './router';
 
 export function App() {
@@ -14,13 +15,15 @@ export function App() {
             <LanguageProvider>
                 <AuthProvider>
                     <NotificationsProvider>
-                        <ReportsProvider>
-                            <FavoritesProvider>
-                                <SwapProvider>
-                                    <RouterProvider router={router} />
-                                </SwapProvider>
-                            </FavoritesProvider>
-                        </ReportsProvider>
+                        <BanProvider>
+                            <ReportsProvider>
+                                <FavoritesProvider>
+                                    <SwapProvider>
+                                        <RouterProvider router={router} />
+                                    </SwapProvider>
+                                </FavoritesProvider>
+                            </ReportsProvider>
+                        </BanProvider>
                     </NotificationsProvider>
                 </AuthProvider>
             </LanguageProvider>

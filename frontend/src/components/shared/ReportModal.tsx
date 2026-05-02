@@ -5,11 +5,14 @@ import { Button } from '@/components/ui/Button';
 import { useReports } from '@/context/ReportsContext';
 import { useAuth } from '@/context/AuthContext';
 import { useLanguage } from '@/context/LanguageContext';
-import type { ReportType } from '@/types/admin';
 
-interface ReportModalProps { targetId: string; targetName: string; type: ReportType; onClose: () => void; }
+interface ReportModalProps {
+    targetId: string;
+    targetName: string;
+    onClose: () => void;
+}
 
-export function ReportModal({ targetId, targetName, type, onClose }: ReportModalProps) {
+export function ReportModal({ targetId, targetName, onClose }: ReportModalProps) {
     const { addReport } = useReports();
     const { user } = useAuth();
     const { t } = useLanguage();
@@ -18,12 +21,18 @@ export function ReportModal({ targetId, targetName, type, onClose }: ReportModal
     const [submitted, setSubmitted] = useState(false);
     const [error, setError] = useState('');
 
-    const reasons = type === 'book' ? t.report.reasonsBook : t.report.reasonsUser;
+    const reasons = t.report.reasonsUser;
     const otherLabel = reasons[reasons.length - 1];
 
     function handleSubmit() {
         if (!selectedReason) { setError(t.report.selectReason); return; }
-        addReport({ type, targetId, targetName, reason: selectedReason === otherLabel && details.trim() ? details.trim() : selectedReason, reportedBy: user?.username ?? 'anonymous' });
+        addReport({
+            type: 'user',
+            targetId,
+            targetName,
+            reason: selectedReason === otherLabel && details.trim() ? details.trim() : selectedReason,
+            reportedBy: user?.username ?? 'anonymous',
+        });
         setSubmitted(true);
     }
 
@@ -44,7 +53,7 @@ export function ReportModal({ targetId, targetName, type, onClose }: ReportModal
                 <div className="flex items-center gap-3">
                     <Flag className="w-5 h-5 text-red-500" />
                     <div>
-                        <h2 className="text-lg font-bold text-[var(--color-text)]">{type === 'book' ? t.report.reportBook : t.report.reportUser}</h2>
+                        <h2 className="text-lg font-bold text-[var(--color-text)]">{t.report.reportUser}</h2>
                         <p className="text-sm text-[var(--color-text-muted)]">{targetName}</p>
                     </div>
                 </div>

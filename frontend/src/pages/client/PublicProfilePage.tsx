@@ -57,7 +57,7 @@ export function PublicProfilePage() {
 
     return (
         <main className="container mx-auto px-4 py-8 max-w-5xl">
-            {showReport && <ReportModal targetId={String(profileUser.id)} targetName={profileUser.username} type="user" onClose={() => setShowReport(false)} />}
+            {showReport && <ReportModal targetId={String(profileUser.id)} targetName={profileUser.username} onClose={() => setShowReport(false)} />}
             <Link to="/books" className="inline-flex items-center gap-1.5 text-xs text-[var(--color-text-muted)] hover:text-[var(--color-text)] mb-6 transition-colors"><ArrowLeft className="h-3.5 w-3.5" /> {t.books.backToBooks}</Link>
             <div className="mb-8 rounded-3xl overflow-hidden shadow-sm" style={{ border: '1px solid var(--color-border)', background: 'var(--color-surface)' }}>
                 <div className="relative h-40 overflow-hidden" style={{ background: 'linear-gradient(135deg, #9a4a1e 0%, #c4724e 50%, #e8a882 100%)' }}>
