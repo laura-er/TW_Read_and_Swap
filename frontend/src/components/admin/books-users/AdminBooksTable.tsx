@@ -4,22 +4,14 @@ import type { AdminUser } from '@/types/admin';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { useLanguage } from '@/context/LanguageContext';
+import { genreLabel, conditionLabel } from '@/utils/bookLabels';
 import { ConfirmDeleteBookModal } from './ConfirmDeleteBookModal';
 
-export function AdminBooksTable({
-    books,
-    users,
-    onDelete,
-}: {
-    books: Book[];
-    users: AdminUser[];
-    onDelete: (id: string, ownerId: string, bookTitle: string, ownerName: string, reason: string) => void;
-}) {
+export function AdminBooksTable({ books, users, onDelete }: { books: Book[]; users: AdminUser[]; onDelete: (id: string, ownerId: string, bookTitle: string, ownerName: string, reason: string) => void; }) {
     const { t } = useLanguage();
     const [deleteTarget, setDeleteTarget] = useState<Book | null>(null);
 
-    const getOwner = (ownerId: string): AdminUser | undefined =>
-        users.find(u => u.id === ownerId);
+    const getOwner = (ownerId: string): AdminUser | undefined => users.find(u => u.id === ownerId);
 
     return (
         <>
@@ -34,7 +26,6 @@ export function AdminBooksTable({
                 }}
                 onClose={() => setDeleteTarget(null)}
             />
-
             <div className="rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] overflow-hidden">
                 <table className="w-full text-sm">
                     <thead className="bg-[var(--color-surface-alt)]"><tr>
@@ -61,24 +52,17 @@ export function AdminBooksTable({
                                     </div>
                                 </td>
                                 <td className="px-4 py-3">
-                                    {owner ? (
-                                        <div>
-                                            <p className="text-sm text-[var(--color-text)] font-medium">{owner.name}</p>
-                                            <p className="text-xs text-[var(--color-text-muted)]">@{owner.username}</p>
-                                        </div>
-                                    ) : (
-                                        <span className="text-xs text-[var(--color-text-muted)]">—</span>
-                                    )}
+                                    {owner ? <div><p className="text-sm text-[var(--color-text)] font-medium">{owner.name}</p><p className="text-xs text-[var(--color-text-muted)]">@{owner.username}</p></div> : <span className="text-xs text-[var(--color-text-muted)]">—</span>}
                                 </td>
-                                <td className="px-4 py-3 text-[var(--color-text-muted)] capitalize">{book.genre}</td>
-                                <td className="px-4 py-3"><Badge variant="accent">{book.condition}</Badge></td>
+                                <td className="px-4 py-3 text-[var(--color-text-muted)]">{genreLabel(book.genre, t)}</td>
+                                <td className="px-4 py-3"><Badge variant="accent">{conditionLabel(book.condition, t)}</Badge></td>
                                 <td className="px-4 py-3"><Badge variant={book.isAvailable ? 'success' : 'default'}>{book.isAvailable ? t.admin.available : t.admin.swapped}</Badge></td>
                                 <td className="px-4 py-3"><Button size="sm" variant="danger" onClick={() => setDeleteTarget(book)}>{t.books.delete}</Button></td>
                             </tr>
                         );
                     })}</tbody>
                 </table>
-                {books.length === 0 && <p className="text-center py-10 text-[var(--color-text-muted)]">No books found.</p>}
+                {books.length === 0 && <p className="text-center py-10 text-[var(--color-text-muted)]">{t.common.noData}</p>}
             </div>
         </>
     );

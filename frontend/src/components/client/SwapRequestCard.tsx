@@ -3,6 +3,7 @@ import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { Avatar } from '@/components/ui/Avatar';
 import { formatRelativeDate } from '@/utils/formatDate';
+import { useLanguage } from '@/context/LanguageContext';
 
 interface SwapRequestCardProps {
   swap: SwapRequestPopulated;
@@ -19,6 +20,7 @@ const statusVariant: Record<string, 'warning' | 'success' | 'danger' | 'default'
 };
 
 export function SwapRequestCard({ swap, currentUserId, onAccept, onDecline }: SwapRequestCardProps) {
+  const { t } = useLanguage();
   const isOwner = swap.ownerId === currentUserId;
   const otherUser = isOwner ? swap.requester : swap.owner;
 
@@ -35,11 +37,11 @@ export function SwapRequestCard({ swap, currentUserId, onAccept, onDecline }: Sw
         </div>
 
         <p className="text-xs text-[var(--color-text-muted)] mb-2">
-          {isOwner ? 'Wants your' : 'You requested'}{' '}
+          {isOwner ? t.swaps.theyWant : t.swaps.youRequested}{' '}
           <span className="font-medium text-[var(--color-text)]">
             {swap.bookRequested.title}
           </span>{' '}
-          · offering{' '}
+          · {isOwner ? t.swaps.theyOffered : t.swaps.youOffered}{' '}
           <span className="font-medium text-[var(--color-text)]">
             {swap.bookOffered.title}
           </span>
@@ -49,14 +51,13 @@ export function SwapRequestCard({ swap, currentUserId, onAccept, onDecline }: Sw
           {formatRelativeDate(swap.createdAt)}
         </span>
 
-        {/* Actions for owner on pending requests */}
         {isOwner && swap.status === 'pending' && (
           <div className="flex gap-2 mt-3">
             <Button size="sm" variant="primary" onClick={() => onAccept?.(swap.id)}>
-              Accept
+              {t.swaps.accept}
             </Button>
             <Button size="sm" variant="secondary" onClick={() => onDecline?.(swap.id)}>
-              Decline
+              {t.swaps.decline}
             </Button>
           </div>
         )}

@@ -2,11 +2,13 @@ import { Link } from 'react-router-dom';
 import { useBooks } from '@/hooks/useBooks';
 import { BookCard } from '@/components/client/BookCard';
 import { Button } from '@/components/ui/Button';
+import { useAuth } from '@/context/AuthContext';
 import { useLanguage } from '@/context/LanguageContext';
 import type { Book } from '@/types';
 
 export function FeaturedBooks() {
     const { books, isLoading } = useBooks();
+    const { isAdmin } = useAuth();
     const { t, language } = useLanguage();
     const featured = [...books]
         .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
@@ -39,19 +41,21 @@ export function FeaturedBooks() {
                         : featured.map((book) => <BookCardWrapper key={book.id} book={book} />)
                     }
                 </div>
-                <div className="mt-12 rounded-[24px] overflow-hidden" style={{ background: 'var(--color-accent)' }}>
-                    <div className="flex flex-col sm:flex-row items-center justify-between gap-4 px-8 py-7">
-                        <div>
-                            <h3 className="font-['Playfair_Display'] text-2xl font-bold text-white">{dustTitle}</h3>
-                            <p className="text-white/80 text-sm mt-1">{dustDesc}</p>
+                {!isAdmin && (
+                    <div className="mt-12 rounded-[24px] overflow-hidden" style={{ background: 'var(--color-accent)' }}>
+                        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 px-8 py-7">
+                            <div>
+                                <h3 className="font-['Playfair_Display'] text-2xl font-bold text-white">{dustTitle}</h3>
+                                <p className="text-white/80 text-sm mt-1">{dustDesc}</p>
+                            </div>
+                            <Link to="/books/add">
+                                <button className="shrink-0 px-6 py-3 font-semibold text-sm hover:opacity-90 transition-all shadow-lg" style={{ background: 'white', color: 'var(--color-accent)', borderRadius: '18px' }}>
+                                    {shareBtn}
+                                </button>
+                            </Link>
                         </div>
-                        <Link to="/books/add">
-                            <button className="shrink-0 px-6 py-3 font-semibold text-sm hover:opacity-90 transition-all shadow-lg" style={{ background: 'white', color: 'var(--color-accent)', borderRadius: '18px' }}>
-                                {shareBtn}
-                            </button>
-                        </Link>
                     </div>
-                </div>
+                )}
             </div>
         </section>
     );

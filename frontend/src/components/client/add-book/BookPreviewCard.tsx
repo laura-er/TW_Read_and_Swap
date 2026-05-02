@@ -27,8 +27,8 @@ export function BookPreviewCard({ title, author, genre, condition, coverUrl, des
                     {coverUrl ? <img src={coverUrl} alt={title} className="w-full h-full object-cover" /> : <span className="text-3xl">📖</span>}
                 </div>
                 <div className="flex flex-col gap-1.5 min-w-0">
-                    <p className="font-bold text-sm text-[var(--color-text)] line-clamp-2 leading-snug">{title || 'Book title'}</p>
-                    <p className="text-xs text-[var(--color-text-muted)]">{author || 'Author name'}</p>
+                    <p className="font-bold text-sm text-[var(--color-text)] line-clamp-2 leading-snug">{title || t.addBook.bookTitle}</p>
+                    <p className="text-xs text-[var(--color-text-muted)]">{author || t.addBook.author}</p>
                     <div className="flex items-center gap-1.5 flex-wrap mt-1">
                         <Badge variant={conditionVariant[condition]}>{translatedCondition}</Badge>
                         <span className="text-xs font-semibold text-[var(--color-text-muted)] bg-[var(--color-surface-alt)] px-2 py-0.5 rounded-full">{translatedGenre}</span>

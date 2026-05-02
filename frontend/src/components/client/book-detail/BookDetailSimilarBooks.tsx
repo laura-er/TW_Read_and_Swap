@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import type { Book } from '@/types';
 import { useLanguage } from '@/context/LanguageContext';
 import { useAuth } from '@/context/AuthContext';
+import { genreLabel } from '@/utils/bookLabels';
 import { Avatar } from '@/components/ui/Avatar';
 import axiosInstance from '@/api/axiosInstance';
 
@@ -58,7 +59,7 @@ export function BookDetailSimilarBooks({ currentBook, allBooks }: { currentBook:
     return (
         <div className="mt-8">
             <h2 className="text-lg font-bold text-(--color-text) mb-4">
-                {t.books.moreIn}{' '}<span className="text-(--color-accent) capitalize">{currentBook.genre}</span>
+                {t.books.moreIn}{' '}<span className="text-(--color-accent)">{genreLabel(currentBook.genre, t)}</span>
             </h2>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
                 {visible.map(book => <SimilarBookCard key={book.id} book={book} />)}
@@ -75,4 +76,3 @@ export function BookDetailSimilarBooks({ currentBook, allBooks }: { currentBook:
         </div>
     );
 }
-

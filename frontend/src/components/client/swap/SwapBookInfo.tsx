@@ -1,6 +1,7 @@
 ﻿import type { Book } from '@/types';
 import { Badge } from '@/components/ui/Badge';
 import { useLanguage } from '@/context/LanguageContext';
+import { genreLabel, conditionLabel } from '@/utils/bookLabels';
 
 const conditionVariant: Record<Book['condition'], 'success' | 'info' | 'warning' | 'danger'> = { new: 'success', good: 'info', fair: 'warning', worn: 'danger' };
 
@@ -13,8 +14,8 @@ export function SwapBookInfo({ book }: { book: Book }) {
             <h3 className="font-bold text-[var(--color-text)]">{book.title}</h3>
             <p className="text-sm text-[var(--color-text-muted)] mb-3">{book.author}</p>
             <div className="flex flex-col gap-2 text-sm border-t border-[var(--color-border)] pt-3">
-                <div className="flex justify-between items-center"><span className="text-[var(--color-text-muted)]">{t.books.condition}</span><Badge variant={conditionVariant[book.condition]}>{book.condition}</Badge></div>
-                <div className="flex justify-between"><span className="text-[var(--color-text-muted)]">{t.books.genre}</span><span className="text-[var(--color-text)] font-medium capitalize">{book.genre}</span></div>
+                <div className="flex justify-between items-center"><span className="text-[var(--color-text-muted)]">{t.books.condition}</span><Badge variant={conditionVariant[book.condition]}>{conditionLabel(book.condition, t)}</Badge></div>
+                <div className="flex justify-between"><span className="text-[var(--color-text-muted)]">{t.books.genre}</span><span className="text-[var(--color-text)] font-medium">{genreLabel(book.genre, t)}</span></div>
             </div>
         </div>
     );

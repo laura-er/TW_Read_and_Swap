@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { useAuth } from '@/context/AuthContext';
 
 interface BookCoverImageProps {
     id: string;
@@ -13,6 +14,8 @@ interface BookCoverImageProps {
 export function BookCoverImage({
                                    id, title, coverUrl, isAvailable, isFavorite, onFavoriteToggle, isOwner = false,
                                }: BookCoverImageProps) {
+    const { isAdmin } = useAuth();
+
     return (
         <div className="relative w-full h-full">
             <Link to={`/books/${id}`} className="block w-full h-full">
@@ -29,8 +32,8 @@ export function BookCoverImage({
                 )}
             </Link>
 
-            {/* Favorite button — ascuns dacă ești proprietarul */}
-            {!isOwner && (
+            {/* Favorite button — ascuns dacă ești proprietarul sau admin */}
+            {!isOwner && !isAdmin && (
             <button
                 onClick={onFavoriteToggle}
                 className="absolute top-2 left-2 bg-(--color-surface)/90 backdrop-blur-sm p-1.5 rounded-full shadow-md hover:scale-110 transition-transform z-10"

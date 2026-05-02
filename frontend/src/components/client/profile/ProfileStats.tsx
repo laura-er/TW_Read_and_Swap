@@ -6,9 +6,9 @@ interface ProfileStatsProps { favoritesCount: number; swapsCount: number; booksC
 export function ProfileStats({ favoritesCount, swapsCount, booksCount }: ProfileStatsProps) {
     const { t } = useLanguage();
     const stats = [
-        { icon: <BookOpen size={16} />, value: booksCount,      label: 'Books Listed', color: 'var(--color-accent)' },
-        { icon: <ArrowLeftRight size={16} />, value: swapsCount, label: 'Swaps Done',   color: '#40916c' },
-        { icon: <Heart size={16} />, value: favoritesCount,     label: t.profile.favorites, color: '#c0392b' },
+        { icon: <BookOpen size={16} />, value: booksCount,      label: t.profile.booksListed, color: 'var(--color-accent)' },
+        { icon: <ArrowLeftRight size={16} />, value: swapsCount, label: t.profile.swapsDone,   color: '#40916c' },
+        { icon: <Heart size={16} />, value: favoritesCount,      label: t.profile.favorites,   color: '#c0392b' },
     ];
     return (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px' }}>

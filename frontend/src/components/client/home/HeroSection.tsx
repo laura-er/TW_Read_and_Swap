@@ -5,7 +5,7 @@ import { useAuth } from '@/context/AuthContext';
 import { useLanguage } from '@/context/LanguageContext';
 
 export function HeroSection() {
-    const { isAuthenticated } = useAuth();
+    const { isAuthenticated, isAdmin } = useAuth();
     const { t } = useLanguage();
 
     useEffect(() => {
@@ -50,7 +50,9 @@ export function HeroSection() {
                         {isAuthenticated ? (
                             <>
                                 <Link to="/books"><Button size="lg">{t.hero.browseBooks}</Button></Link>
-                                <Link to="/books/add"><Button size="lg" variant="secondary">{t.hero.addBook}</Button></Link>
+                                {!isAdmin && (
+                                    <Link to="/books/add"><Button size="lg" variant="secondary">{t.hero.addBook}</Button></Link>
+                                )}
                             </>
                         ) : (
                             <>

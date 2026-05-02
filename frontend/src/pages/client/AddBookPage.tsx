@@ -13,20 +13,8 @@ import type { AddBookFields, AddBookErrors } from '@/components/client/add-book/
 
 const DEFAULT_FIELDS: AddBookFields = { title: '', author: '', genre: 'fiction', condition: 'good', description: '', coverUrl: '' };
 
-function validate(fields: AddBookFields): AddBookErrors {
-    const errors: AddBookErrors = {};
-    if (!fields.title.trim()) errors.title = 'Title is required.';
-    else if (fields.title.trim().length < 2) errors.title = 'Title must be at least 2 characters.';
-    else if (fields.title.trim().length > 200) errors.title = 'Title cannot exceed 200 characters.';
-    if (!fields.author.trim()) errors.author = 'Author is required.';
-    else if (fields.author.trim().length < 2) errors.author = 'Author must be at least 2 characters.';
-    else if (fields.author.trim().length > 100) errors.author = 'Author cannot exceed 100 characters.';
-    if (fields.description && fields.description.length > 1000) errors.description = 'Description cannot exceed 1000 characters.';
-    return errors;
-}
-
 export function AddBookPage() {
-    const { user } = useAuth();
+    const { user, isAdmin } = useAuth();
     const { t } = useLanguage();
     const { isUserBanned } = useBan();
     const navigate = useNavigate();
@@ -37,6 +25,18 @@ export function AddBookPage() {
 
     const banned = user ? isUserBanned(user.id) : false;
 
+    function validate(fields: AddBookFields): AddBookErrors {
+        const errors: AddBookErrors = {};
+        if (!fields.title.trim()) errors.title = t.validation.titleRequired;
+        else if (fields.title.trim().length < 2) errors.title = t.validation.titleMin;
+        else if (fields.title.trim().length > 200) errors.title = t.validation.titleMax;
+        if (!fields.author.trim()) errors.author = t.validation.authorRequired;
+        else if (fields.author.trim().length < 2) errors.author = t.validation.authorMin;
+        else if (fields.author.trim().length > 100) errors.author = t.validation.authorMax;
+        if (fields.description && fields.description.length > 1000) errors.description = t.validation.descMax;
+        return errors;
+    }
+
     const handleChange = (updated: Partial<AddBookFields>) => {
         setFields(prev => ({ ...prev, ...updated }));
         const clearedErrors = { ...errors };
@@ -46,7 +46,7 @@ export function AddBookPage() {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (banned) return;
+        if (banned || isAdmin) return;
         const validationErrors = validate(fields);
         if (Object.keys(validationErrors).length > 0) { setErrors(validationErrors); return; }
         if (!user) return;
@@ -56,7 +56,7 @@ export function AddBookPage() {
             navigate('/profile');
         } catch (err: any) {
             const msg = err?.response?.data;
-            setServerError(typeof msg === 'string' && msg.length < 200 ? msg : 'Failed to add book. Please try again.');
+            setServerError(typeof msg === 'string' && msg.length < 200 ? msg : t.validation.failedAdd);
         } finally { setIsLoading(false); }
     };
 
@@ -68,7 +68,13 @@ export function AddBookPage() {
 
             {banned && <BannedBanner />}
 
-            {banned ? (
+            {isAdmin ? (
+                <div className="rounded-2xl p-8 text-center" style={{ background: 'rgba(220,150,50,0.05)', border: '1px solid rgba(220,150,50,0.2)' }}>
+                    <p style={{ fontSize: '32px', marginBottom: '12px' }}>🔒</p>
+                    <h2 style={{ fontSize: '18px', fontWeight: 700, color: 'var(--color-text)', marginBottom: '8px' }}>Acțiune indisponibilă</h2>
+                    <p style={{ fontSize: '14px', color: 'var(--color-text-muted)' }}>Conturile de administrator nu pot adăuga cărți.</p>
+                </div>
+            ) : banned ? (
                 <div className="rounded-2xl p-8 text-center" style={{ background: 'rgba(220,50,50,0.05)', border: '1px solid rgba(220,50,50,0.2)' }}>
                     <p style={{ fontSize: '32px', marginBottom: '12px' }}>🚫</p>
                     <h2 style={{ fontSize: '18px', fontWeight: 700, color: 'var(--color-text)', marginBottom: '8px' }}>Acțiune indisponibilă</h2>
@@ -93,14 +99,7 @@ export function AddBookPage() {
                             </div>
                         </div>
                         <div className="lg:col-span-1">
-                            <BookPreviewCard
-                                title={fields.title}
-                                author={fields.author}
-                                genre={fields.genre}
-                                condition={fields.condition}
-                                coverUrl={fields.coverUrl}
-                                description={fields.description}
-                            />
+                            <BookPreviewCard title={fields.title} author={fields.author} genre={fields.genre} condition={fields.condition} coverUrl={fields.coverUrl} description={fields.description} />
                         </div>
                     </div>
                 </form>

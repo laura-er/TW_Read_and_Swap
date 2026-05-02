@@ -4,10 +4,12 @@ import { MapPin, Calendar, Edit, Flag } from 'lucide-react';
 import { Avatar } from '@/components/ui/Avatar';
 import { ReportModal } from '@/components/shared/ReportModal';
 import { useLanguage } from '@/context/LanguageContext';
+import { useAuth } from '@/context/AuthContext';
 import type { User } from '@/types';
 
 export function ProfileBanner({ user, isOwnProfile }: { user: User; isOwnProfile: boolean }) {
     const { t } = useLanguage();
+    const { isAdmin } = useAuth();
     const [showReport, setShowReport] = useState(false);
     return (
         <>
@@ -23,7 +25,7 @@ export function ProfileBanner({ user, isOwnProfile }: { user: User; isOwnProfile
                             {user.bio && <p style={{ marginTop: '4px', fontSize: '12px', color: 'var(--lib-text-muted)', maxWidth: '360px' }}>{user.bio}</p>}
                             <div style={{ marginTop: '4px', display: 'flex', flexWrap: 'wrap', gap: '12px' }}>
                                 {user.location && <span style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '12px', color: 'var(--lib-text-faint)' }}><MapPin size={12} /> {user.location}</span>}
-                                <span style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '12px', color: 'var(--lib-text-faint)' }}><Calendar size={12} />Joined {new Date(user.joinedAt).toLocaleDateString('en-GB', { month: 'long', year: 'numeric' })}</span>
+                                <span style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '12px', color: 'var(--lib-text-faint)' }}><Calendar size={12} />{t.share.joinedDate} {new Date(user.joinedAt).toLocaleDateString('ro-RO', { month: 'long', year: 'numeric' })}</span>
                             </div>
                         </div>
                     </div>
@@ -31,10 +33,12 @@ export function ProfileBanner({ user, isOwnProfile }: { user: User; isOwnProfile
                         {isOwnProfile ? (
                             <>
                                 <Link to="/profile/edit" style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '7px 14px', borderRadius: '14px', border: '1px solid var(--lib-border)', background: 'transparent', color: 'var(--lib-text-muted)', fontSize: '12px', fontWeight: 500, textDecoration: 'none', transition: 'opacity 0.15s' }}><Edit size={13} /> {t.profile.editProfile}</Link>
-                                <Link to="/profile/share" style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '7px 14px', borderRadius: '14px', background: 'var(--color-accent)', color: 'white', fontSize: '12px', fontWeight: 500, textDecoration: 'none' }}>Share</Link>
+                                {!isAdmin && (
+                                    <Link to="/profile/share" style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '7px 14px', borderRadius: '14px', background: 'var(--color-accent)', color: 'white', fontSize: '12px', fontWeight: 500, textDecoration: 'none' }}>{t.profile.shareProfile}</Link>
+                                )}
                             </>
                         ) : (
-                            <button onClick={() => setShowReport(true)} style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '7px 14px', borderRadius: '14px', border: '1px solid rgba(192,57,43,0.3)', background: 'transparent', color: '#c0392b', fontSize: '12px', fontWeight: 500, cursor: 'pointer' }}><Flag size={13} /> Report</button>
+                            <button onClick={() => setShowReport(true)} style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '7px 14px', borderRadius: '14px', border: '1px solid rgba(192,57,43,0.3)', background: 'transparent', color: '#c0392b', fontSize: '12px', fontWeight: 500, cursor: 'pointer' }}><Flag size={13} /> {t.report.reportUser}</button>
                         )}
                     </div>
                 </div>
