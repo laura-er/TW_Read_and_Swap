@@ -7,7 +7,7 @@ export interface SwapRequest {
   ownerId: string;
   bookOfferedId: string;
   bookRequestedId: string;
-  status: 'pending' | 'accepted' | 'declined' | 'completed';
+  status: 'pending' | 'accepted' | 'rejected' | 'cancelled';
   message?: string;
   createdAt: string;
   updatedAt: string;
@@ -21,3 +21,4 @@ export interface SwapRequestPopulated extends SwapRequest {
 }
 
 export type SwapStatus = SwapRequest['status'];
+

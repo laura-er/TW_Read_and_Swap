@@ -6,11 +6,16 @@ export interface User {
   avatarUrl: string;
   bio: string;
   location: string;
+  city?: string;
+  latitude?: number | null;
+  longitude?: number | null;
   joinedAt: string;
   role: 'user' | 'admin';
+  token?: string;
   booksCount?: number;
   swapsCompleted?: number;
   favoritesCount?: number;
+  phone?: string; 
 }
 
 export interface Review {

@@ -1,55 +1,60 @@
 ﻿import { useParams, Link } from 'react-router-dom';
-import { mockBooks } from '@/data/mockBooks';
+import { useBook } from '@/hooks/useBooks';
+import { useLanguage } from '@/context/LanguageContext';
+import { useAuth } from '@/context/AuthContext';
+import { useBan } from '@/context/BanContext';
 import { SwapBookInfo } from '@/components/client/swap/SwapBookInfo';
 import { SwapForm } from '@/components/client/swap/SwapForm';
 import { SwapNotAvailableView } from '@/components/client/swap/SwapNotAvailableView';
+import { BannedBanner } from '@/components/shared/BannedBanner';
 
 export function RequestSwapPage() {
     const { id } = useParams<{ id: string }>();
-    const book = mockBooks.find((b) => b.id === id);
+    const { book, isLoading } = useBook(id!);
+    const { t } = useLanguage();
+    const { user } = useAuth();
+    const { isUserBanned } = useBan();
 
-    if (!book) {
-        return (
-            <div className="min-h-[60vh] flex items-center justify-center text-center">
-                <div>
-                    <h1 className="font-['Playfair_Display'] text-2xl font-bold text-[var(--color-text)] mb-4">
-                        Book Not Found
-                    </h1>
-                    <Link
-                        to="/books"
-                        className="inline-flex items-center justify-center rounded-lg bg-[var(--color-accent)] px-4 py-2 text-sm font-medium text-white hover:bg-[var(--color-accent-hover)] transition-all"
-                    >
-                        Browse Books
-                    </Link>
-                </div>
+    const banned = user ? isUserBanned(user.id) : false;
+
+    if (isLoading) return (
+        <div className="min-h-[60vh] flex items-center justify-center">
+            <p className="text-[var(--color-text-muted)]">{t.common.loading}</p>
+        </div>
+    );
+
+    if (!book) return (
+        <div className="min-h-[60vh] flex items-center justify-center text-center">
+            <div>
+                <h1 className="font-['Playfair_Display'] text-2xl font-bold text-[var(--color-text)] mb-4">{t.books.bookNotFound}</h1>
+                <Link to="/books" className="inline-flex items-center justify-center rounded-lg bg-[var(--color-accent)] px-4 py-2 text-sm font-medium text-white hover:bg-[var(--color-accent-hover)] transition-all">{t.nav.browseBooks}</Link>
             </div>
-        );
-    }
+        </div>
+    );
 
-    if (!book.isAvailable) {
-        return <SwapNotAvailableView bookId={book.id} />;
-    }
+    if (!book.isAvailable) return <SwapNotAvailableView bookId={book.id} />;
 
     return (
         <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6">
-            <Link
-                to={`/books/${id}`}
-                className="inline-flex items-center gap-2 text-(--color-text) hover:text-(--color-accent) mb-8 px-4 py-3 bg-(--color-surface) backdrop-blur-xl rounded-xl shadow-lg hover:shadow-xl border border-(--color-border) transition-all duration-300 hover:-translate-y-0.5 group"
-            >
-                <svg className="w-4 h-4 group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-                </svg>
-                <span className="font-semibold">Back to Book Details</span>
+            <Link to={`/books/${id}`} className="inline-flex items-center gap-1.5 text-sm text-(--color-text-muted) hover:text-(--color-text) mb-8 transition-colors group">
+                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
+                <span>{t.books.backToBookDetails}</span>
             </Link>
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                <div className="lg:col-span-1">
-                    <SwapBookInfo book={book} />
+            {banned && <BannedBanner />}
+
+            {banned ? (
+                <div className="rounded-2xl p-8 text-center" style={{ background: 'rgba(220,50,50,0.05)', border: '1px solid rgba(220,50,50,0.2)' }}>
+                    <p style={{ fontSize: '32px', marginBottom: '12px' }}>🚫</p>
+                    <h2 style={{ fontSize: '18px', fontWeight: 700, color: 'var(--color-text)', marginBottom: '8px' }}>Acțiune indisponibilă</h2>
+                    <p style={{ fontSize: '14px', color: 'var(--color-text-muted)' }}>Nu poți trimite cereri de schimb cât timp contul tău este suspendat.</p>
                 </div>
-                <div className="lg:col-span-2">
-                    <SwapForm book={book} />
+            ) : (
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <div className="lg:col-span-1"><SwapBookInfo book={book} /></div>
+                    <div className="lg:col-span-2"><SwapForm book={book} /></div>
                 </div>
-            </div>
+            )}
         </div>
     );
 }

@@ -1,27 +1,71 @@
-﻿import { createContext, useContext, useState } from 'react';
+﻿import { createContext, useContext, useState, useEffect } from 'react';
 import type { ReactNode } from 'react';
-import type { SwapRequestPopulated, SwapStatus } from '@/types';
-import { mockSwapRequests } from '@/data/mockSwapRequests';
+import type { SwapRequest, SwapStatus } from '@/types';
+import axiosInstance from '@/api/axiosInstance';
+import { useAuth } from '@/context/AuthContext';
 
 interface SwapContextValue {
-    swaps: SwapRequestPopulated[];
-    updateStatus: (id: string, status: SwapStatus) => void;
-    removeSwap: (id: string) => void;
+    incoming: SwapRequest[];
+    outgoing: SwapRequest[];
+    isLoading: boolean;
+    updateStatus: (id: string, status: SwapStatus) => Promise<void>;
+    removeSwap: (id: string) => Promise<void>;
+    refresh: () => void;
 }
 
 const SwapContext = createContext<SwapContextValue | null>(null);
 
 export function SwapProvider({ children }: { children: ReactNode }) {
-    const [swaps, setSwaps] = useState<SwapRequestPopulated[]>(mockSwapRequests);
+    const { user } = useAuth();
+    const [incoming, setIncoming] = useState<SwapRequest[]>([]);
+    const [outgoing, setOutgoing] = useState<SwapRequest[]>([]);
+    const [isLoading, setIsLoading] = useState(false);
+    const [tick, setTick] = useState(0);
 
-    const updateStatus = (id: string, status: SwapStatus) =>
-        setSwaps((prev) => prev.map((s) => (s.id === id ? { ...s, status: status === 'accepted' ? 'completed' : status } : s)));
+    const refresh = () => setTick(t => t + 1);
 
-    const removeSwap = (id: string) =>
-        setSwaps((prev) => prev.filter((s) => s.id !== id));
+    useEffect(() => {
+        if (!user) {
+            setIncoming([]);
+            setOutgoing([]);
+            setIsLoading(false);
+            return;
+        }
+        setIsLoading(true);
+        const userId = Number(user.id);
+
+        const ownerPromise = axiosInstance.get(`/api/swaps/owner/${userId}`)
+            .then(res => res.data.map((s: any) => ({ ...s, id: String(s.id) })))
+            .catch(() => []);
+
+        const requesterPromise = axiosInstance.get(`/api/swaps/requester/${userId}`)
+            .then(res => res.data.map((s: any) => ({ ...s, id: String(s.id) })))
+            .catch(() => []);
+
+        Promise.all([ownerPromise, requesterPromise])
+            .then(([ownData, reqData]) => {
+                setIncoming(ownData);
+                setOutgoing(reqData);
+            })
+            .catch(() => {
+                setIncoming([]);
+                setOutgoing([]);
+            })
+            .finally(() => setIsLoading(false));
+    }, [user, tick]);
+
+    const updateStatus = async (id: string, status: SwapStatus) => {
+        await axiosInstance.put(`/api/swaps/${id}/status`, { status });
+        refresh();
+    };
+
+    const removeSwap = async (id: string) => {
+        await axiosInstance.delete(`/api/swaps/${id}`);
+        refresh();
+    };
 
     return (
-        <SwapContext.Provider value={{ swaps, updateStatus, removeSwap }}>
+        <SwapContext.Provider value={{ incoming, outgoing, isLoading, updateStatus, removeSwap, refresh }}>
             {children}
         </SwapContext.Provider>
     );

@@ -1,6 +1,32 @@
-# Backend 
-bin/ 
-obj/ 
-.idea/ 
-*.user 
-appsettings.json 
+﻿# Backend build
+backend/bin/
+backend/obj/
+backend/.idea/
+backend/**/.idea/
+backend/**/bin/
+backend/**/obj/
+
+# Frontend
+frontend/node_modules/
+frontend/dist/
+frontend/.idea/
+
+# Environment
+.env
+.env.local
+backend/**/appsettings.Development.json
+backend/**/appsettings.Production.json
+
+# IDE
+.idea/
+.vscode/
+*.user
+*.suo
+
+# Logs
+*.log
+
+# Misc
+.DS_Store
+*.tsbuildinfo
+package-lock.json

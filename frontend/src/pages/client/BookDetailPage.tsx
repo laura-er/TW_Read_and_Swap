@@ -1,8 +1,10 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useBook } from '@/hooks/useBooks';
 import { useAuth } from '@/context/AuthContext';
+import { useLanguage } from '@/context/LanguageContext';
 import type { Review } from '@/types';
+import axiosInstance from '@/api/axiosInstance';
 import { BookDetailSimilarBooks } from '@/components/client/book-detail/BookDetailSimilarBooks';
 import { useBooks } from '@/hooks/useBooks';
 import { BookDetailCover } from '@/components/client/book-detail/BookDetailCover';
@@ -13,113 +15,101 @@ import { BookDetailAddReview } from '@/components/client/book-detail/BookDetailA
 import { BookDetailNotFound } from '@/components/client/book-detail/BookDetailNotFound';
 
 export function BookDetailPage() {
-  const { id } = useParams<{ id: string }>();
-  const { book } = useBook(id ?? '');
-  const { books } = useBooks();
-  const { isAuthenticated } = useAuth();
-  const [reviews, setReviews] = useState<Review[]>([]);
-  const [showReviewForm, setShowReviewForm] = useState(false);
+    const { id } = useParams<{ id: string }>();
+    const { book, isLoading } = useBook(id ?? '');
+    const { books } = useBooks();
+    const { isAuthenticated, user, isAdmin } = useAuth();
+    const { t } = useLanguage();
+    const [reviews, setReviews] = useState<Review[]>([]);
+    const [showReviewForm, setShowReviewForm] = useState(false);
 
-  function handleAddReview(rating: number, comment: string) {
-    if (!book) return;
-    const newReview: Review = {
-      id: crypto.randomUUID(),
-      bookId: book.id,
-      userId: 'currentUser',
-      author: {
-        id: 'currentUser',
-        name: 'You',
-        username: 'you',
-        email: '',
-        avatarUrl: '',
-        bio: '',
-        location: '',
-        joinedAt: new Date().toISOString(),
-        role: 'user',
-      },
-      rating,
-      comment,
-      createdAt: new Date().toISOString(),
-    };
-    setReviews((prev) => [newReview, ...prev]);
-    setShowReviewForm(false);
-  }
+    useEffect(() => {
+        if (!id) return;
+        axiosInstance.get(`/api/reviews/book/${id}`).then(async res => {
+            const rawReviews = res.data;
+            const uniqueUserIds = [...new Set(rawReviews.map((r: any) => r.userId))] as number[];
+            const userMap: Record<number, { firstName: string; lastName: string; username: string }> = {};
+            await Promise.all(uniqueUserIds.map(uid =>
+                axiosInstance.get(`/api/users/${uid}`)
+                    .then(u => { userMap[uid] = { firstName: u.data.firstName, lastName: u.data.lastName, username: u.data.username }; })
+                    .catch(() => { userMap[uid] = { firstName: 'User', lastName: `#${uid}`, username: '' }; })
+            ));
+            const mapped = rawReviews.map((r: any) => {
+                const u = userMap[r.userId];
+                const fullName = u ? `${u.firstName} ${u.lastName}`.trim() : `User #${r.userId}`;
+                return { id: String(r.id), bookId: String(r.bookId), userId: String(r.userId), rating: r.rating, comment: r.comment, createdAt: r.createdAt, author: { id: String(r.userId), name: fullName, username: u?.username ?? '', email: '', avatarUrl: '', bio: '', location: '', joinedAt: '', role: 'user' as const } };
+            });
+            setReviews(mapped);
+        }).catch(() => {});
+    }, [id]);
 
-  if (!book) {
-    return <BookDetailNotFound />;
-  }
+    async function handleAddReview(rating: number, comment: string) {
+        if (!book || !user) return;
+        try {
+            await axiosInstance.post('/api/reviews', { bookId: Number(book.id), rating, comment });
+            const res = await axiosInstance.get(`/api/reviews/book/${book.id}`);
+            const rawReviews = res.data;
+            const uniqueUserIds = [...new Set(rawReviews.map((r: any) => r.userId))] as number[];
+            const userMap: Record<number, { firstName: string; lastName: string; username: string }> = {};
+            await Promise.all(uniqueUserIds.map(uid =>
+                axiosInstance.get(`/api/users/${uid}`)
+                    .then(u => { userMap[uid] = { firstName: u.data.firstName, lastName: u.data.lastName, username: u.data.username }; })
+                    .catch(() => { userMap[uid] = { firstName: 'User', lastName: `#${uid}`, username: '' }; })
+            ));
+            const mapped = rawReviews.map((r: any) => {
+                const u = userMap[r.userId];
+                const fullName = u ? `${u.firstName} ${u.lastName}`.trim() : `User #${r.userId}`;
+                return { id: String(r.id), bookId: String(r.bookId), userId: String(r.userId), rating: r.rating, comment: r.comment, createdAt: r.createdAt, author: { id: String(r.userId), name: fullName, username: u?.username ?? '', email: '', avatarUrl: '', bio: '', location: '', joinedAt: '', role: 'user' as const } };
+            });
+            setReviews(mapped);
+            setShowReviewForm(false);
+        } catch {}
+    }
 
-  const averageRating = reviews.length > 0
-      ? (reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length).toFixed(1)
-      : book.rating?.toFixed(1) ?? 'N/A';
-
-  const reviewCount = reviews.length + (book.reviewCount ?? 0);
-
-  return (
-      <div className="bg-(--color-bg) min-h-screen">
-        <div className="container mx-auto px-4 sm:px-6 py-8 pt-24 md:pt-10">
-
-          <div className="flex items-center justify-between mb-8">
-            <Link
-                to="/books"
-                className="inline-flex items-center gap-2 text-(--color-text) hover:text-(--color-accent) px-4 py-3 bg-(--color-surface) backdrop-blur-xl rounded-xl shadow-lg hover:shadow-xl border border-(--color-border) transition-all duration-300 hover:-translate-y-0.5 group"
-            >
-              <svg className="w-4 h-4 group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-              </svg>
-              <span className="font-semibold">Back to Books</span>
-            </Link>
-
-          </div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
-            <BookDetailCover book={book} />
-
-            <div className="lg:col-span-2 space-y-6">
-              <BookDetailInfo
-                  book={book}
-                  averageRating={averageRating}
-                  reviewCount={reviewCount}
-              />
-              <BookDetailReviewStats
-                  reviews={reviews}
-                  baseRating={book.rating}
-                  baseReviewCount={book.reviewCount}
-              />
-              {isAuthenticated && (
-                  <div className="bg-(--color-surface) p-6 rounded-2xl shadow-xl border border-(--color-border)">
-                    <button
-                        onClick={() => setShowReviewForm(!showReviewForm)}
-                        className="w-full bg-(--color-accent) hover:bg-(--color-accent-hover) text-white py-2.5 px-4 rounded-lg text-sm font-semibold transition-all duration-200 flex items-center gap-2 justify-center"
-                    >
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
-                      </svg>
-                      {showReviewForm ? 'Cancel' : 'Add Review'}
-                    </button>
-                  </div>
-              )}
-
-              {showReviewForm && isAuthenticated && (
-                  <BookDetailAddReview onSubmit={handleAddReview} />
-              )}
-
-              <BookDetailReviewList reviews={reviews} />
-
-              {!isAuthenticated && (
-                  <div className="bg-(--color-surface) rounded-2xl border border-dashed border-(--color-border) p-5 text-center">
-                    <p className="text-sm text-(--color-text-muted)">
-                      <Link to="/sign-in" className="font-semibold text-(--color-accent) hover:underline">
-                        Sign in
-                      </Link>
-                      {' '}to leave a review
-                    </p>
-                  </div>
-              )}
-            </div>
-          </div>
-          <BookDetailSimilarBooks currentBook={book} allBooks={books} />
+    if (isLoading) return (
+        <div className="min-h-screen flex items-center justify-center">
+            <div className="w-8 h-8 rounded-full border-2 border-(--color-accent) border-t-transparent animate-spin" />
         </div>
-      </div>
-  );
+    );
+    if (!book) return <BookDetailNotFound />;
+
+    const isOwner = !!user && String(user.id) === String(book.ownerId);
+    const averageRating = reviews.length > 0 ? (reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length).toFixed(1) : book.rating?.toFixed(1) ?? 'N/A';
+    const reviewCount = reviews.length;
+
+    return (
+        <div className="min-h-screen">
+            <div className="container mx-auto px-4 sm:px-6 py-8 pt-24 md:pt-10">
+                <div className="flex items-center justify-between mb-8">
+                    <Link to="/books" className="inline-flex items-center gap-1.5 text-sm text-(--color-text-muted) hover:text-(--color-text) transition-colors group">
+                        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
+                        <span>{t.books.backToBooks}</span>
+                    </Link>
+                </div>
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
+                    <BookDetailCover book={book} />
+                    <div className="lg:col-span-2 space-y-6">
+                        <BookDetailInfo book={book} averageRating={averageRating} reviewCount={reviewCount} isOwner={isOwner} />
+                        <BookDetailReviewStats reviews={reviews} baseRating={book.rating} baseReviewCount={book.reviewCount} />
+                        {isAuthenticated && !isOwner && !isAdmin && (
+                            <div className="bg-(--color-surface) p-6 rounded-2xl shadow-xl border border-(--color-border)">
+                                <button onClick={() => setShowReviewForm(!showReviewForm)} className="w-full bg-(--color-accent) hover:bg-(--color-accent-hover) text-white py-2.5 px-4 rounded-lg text-sm font-semibold transition-all duration-200 flex items-center gap-2 justify-center">
+                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" /></svg>
+                                    {showReviewForm ? t.books.cancel : t.books.addReview}
+                                </button>
+                            </div>
+                        )}
+                        {showReviewForm && isAuthenticated && !isOwner && !isAdmin && <BookDetailAddReview onSubmit={handleAddReview} />}
+                        <BookDetailReviewList reviews={reviews} />
+                        {!isAuthenticated && (
+                            <div className="bg-(--color-surface) rounded-2xl border border-dashed border-(--color-border) p-5 text-center">
+                                <p className="text-sm text-(--color-text-muted)"><Link to="/sign-in" className="font-semibold text-(--color-accent) hover:underline">{t.auth.signIn}</Link>{' '}{t.books.signInToReview}</p>
+                            </div>
+                        )}
+                    </div>
+                </div>
+                <BookDetailSimilarBooks currentBook={book} allBooks={books} />
+            </div>
+        </div>
+    );
 }

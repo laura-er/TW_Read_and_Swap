@@ -10,14 +10,16 @@ import { Pagination } from '@/components/client/Pagination';
 const PAGE_SIZE = 9;
 
 export function BookCatalogPage() {
-  const { books } = useBooks();
+  const { books, isLoading } = useBooks();
   const [page, setPage] = useState(0);
+
+  const sortedBooks = [...books].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 
   const {
     searchTerm, selectedGenre, selectedCondition, availableOnly,
     filteredBooks, setSearchTerm, setSelectedGenre, setSelectedCondition,
     toggleAvailableOnly, clearFilters,
-  } = useBooksFilter(books);
+  } = useBooksFilter(sortedBooks);
 
   useEffect(() => { setPage(0); }, [searchTerm, selectedGenre, selectedCondition, availableOnly]);
 
@@ -36,7 +38,7 @@ export function BookCatalogPage() {
               onClearFilters={() => { clearFilters(); setPage(0); }}
           />
           <CatalogResultsBar filtered={filteredBooks.length} total={books.length} allBooks={books} />
-          <BooksGrid books={paginatedBooks} onClearFilters={() => { clearFilters(); setPage(0); }} />
+          <BooksGrid books={paginatedBooks} onClearFilters={() => { clearFilters(); setPage(0); }} isLoading={isLoading} />
           <Pagination currentPage={page} totalPages={totalPages} onPageChange={setPage} />
         </div>
       </main>
