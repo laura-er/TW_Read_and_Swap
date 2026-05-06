@@ -21,23 +21,17 @@ interface NotificationsContextType {
 }
 
 const STORAGE_KEY = 'app_notifications';
-
 const NotificationsContext = createContext<NotificationsContextType | null>(null);
 
 export function NotificationsProvider({ children }: { children: ReactNode }) {
     const [notifications, setNotifications] = useState<Notification[]>(() => {
         try {
             const stored = localStorage.getItem(STORAGE_KEY);
-            const parsed = stored ? (JSON.parse(stored) as Notification[]) : [];
-            console.log('[Notifications] Loaded from localStorage:', parsed);
-            return parsed;
-        } catch {
-            return [];
-        }
+            return stored ? (JSON.parse(stored) as Notification[]) : [];
+        } catch { return []; }
     });
 
     useEffect(() => {
-        console.log('[Notifications] Saving to localStorage:', notifications);
         localStorage.setItem(STORAGE_KEY, JSON.stringify(notifications));
     }, [notifications]);
 
@@ -48,20 +42,15 @@ export function NotificationsProvider({ children }: { children: ReactNode }) {
             createdAt: new Date().toISOString(),
             isRead: false,
         };
-        console.log('[Notifications] Adding notification:', newNotification);
         setNotifications((prev) => [newNotification, ...prev]);
     }
 
     function markAsRead(id: string) {
-        setNotifications((prev) =>
-            prev.map((n) => (n.id === id ? { ...n, isRead: true } : n)),
-        );
+        setNotifications((prev) => prev.map((n) => (n.id === id ? { ...n, isRead: true } : n)));
     }
 
     function markAllAsRead(userId: string) {
-        setNotifications((prev) =>
-            prev.map((n) => (n.userId === userId ? { ...n, isRead: true } : n)),
-        );
+        setNotifications((prev) => prev.map((n) => (n.userId === userId ? { ...n, isRead: true } : n)));
     }
 
     function getUnreadCount(userId: string) {
@@ -69,7 +58,6 @@ export function NotificationsProvider({ children }: { children: ReactNode }) {
     }
 
     function getUserNotifications(userId: string) {
-        console.log('[Notifications] Getting for userId:', userId, 'all:', notifications);
         return notifications.filter((n) => n.userId === userId);
     }
 
