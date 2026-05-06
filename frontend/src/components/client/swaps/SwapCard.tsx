@@ -5,7 +5,7 @@ import type { SwapRequest } from '@/types';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { ReportModal } from '@/components/shared/ReportModal';
-import { formatRelativeDate } from '@/utils/formatDate';
+import { useFormatDate } from '@/utils/useFormatDate';
 import { useLanguage } from '@/context/LanguageContext';
 import axiosInstance from '@/api/axiosInstance';
 
@@ -16,6 +16,7 @@ interface SwapCardProps { swap: SwapRequest; currentUserId: string; onAccept?: (
 
 export function SwapCard({ swap, currentUserId, onAccept, onDecline, onCancel }: SwapCardProps) {
     const { t } = useLanguage();
+    const { formatRelative } = useFormatDate();
     const isOwner = String(swap.ownerId) === String(currentUserId);
     const otherUserId = isOwner ? swap.requesterId : swap.ownerId;
     const [otherUsername, setOtherUsername] = useState<string>(`User #${otherUserId}`);
@@ -40,16 +41,13 @@ export function SwapCard({ swap, currentUserId, onAccept, onDecline, onCancel }:
                 <div>
                     <p style={{ fontSize: '13px', fontWeight: 600, color: 'var(--navbar-text)' }}>
                         {isOwner ? t.swaps.from : t.swaps.to}{' '}
-                        <Link
-                            to={`/profile/${otherUsername}`}
-                            style={{ color: 'var(--color-accent)', textDecoration: 'none' }}
+                        <Link to={`/profile/${otherUsername}`} style={{ color: 'var(--color-accent)', textDecoration: 'none' }}
                             onMouseEnter={e => (e.currentTarget.style.textDecoration = 'underline')}
-                            onMouseLeave={e => (e.currentTarget.style.textDecoration = 'none')}
-                        >
+                            onMouseLeave={e => (e.currentTarget.style.textDecoration = 'none')}>
                             {otherUsername}
                         </Link>
                     </p>
-                    <p style={{ fontSize: '11px', color: 'var(--navbar-text-muted)' }}>{formatRelativeDate(swap.createdAt)}</p>
+                    <p style={{ fontSize: '11px', color: 'var(--navbar-text-muted)' }}>{formatRelative(swap.createdAt)}</p>
                 </div>
                 <Badge variant={statusVariant[swap.status] ?? 'default'}>{statusLabel[swap.status] ?? swap.status}</Badge>
             </div>

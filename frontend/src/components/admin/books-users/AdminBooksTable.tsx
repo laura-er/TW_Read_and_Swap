@@ -30,10 +30,10 @@ export function AdminBooksTable({ books, users, onDelete }: { books: Book[]; use
                 <table className="w-full text-sm">
                     <thead className="bg-[var(--color-surface-alt)]"><tr>
                         <th className="text-left px-4 py-3 text-xs font-medium text-[var(--color-text-muted)] uppercase tracking-wide">{t.admin.bookCol}</th>
-                        <th className="text-left px-4 py-3 text-xs font-medium text-[var(--color-text-muted)] uppercase tracking-wide">Proprietar</th>
+                        <th className="text-left px-4 py-3 text-xs font-medium text-[var(--color-text-muted)] uppercase tracking-wide">{t.admin.ownerHeader}</th>
                         <th className="text-left px-4 py-3 text-xs font-medium text-[var(--color-text-muted)] uppercase tracking-wide">{t.admin.genreCol}</th>
                         <th className="text-left px-4 py-3 text-xs font-medium text-[var(--color-text-muted)] uppercase tracking-wide">{t.admin.conditionCol}</th>
-                        <th className="text-left px-4 py-3 text-xs font-medium text-[var(--color-text-muted)] uppercase tracking-wide">Status</th>
+                        <th className="text-left px-4 py-3 text-xs font-medium text-[var(--color-text-muted)] uppercase tracking-wide">{t.admin.statusHeader}</th>
                         <th className="px-4 py-3"></th>
                     </tr></thead>
                     <tbody>{books.map(book => {

@@ -5,6 +5,7 @@ import { useLanguage } from '@/context/LanguageContext';
 import axiosInstance from '@/api/axiosInstance';
 import { TermsModal } from './TermsModal';
 import { PrivacyModal } from './PrivacyModal';
+import { LocationPickerMap, type LocationValue } from '@/components/shared/LocationPickerMap';
 
 type USignupData = { firstName: string; lastName: string; username: string; email: string; phone: string; password: string; confirm: string; };
 type FieldProps = { label: string; name: keyof USignupData; value: string; onChange: (e: React.ChangeEvent<HTMLInputElement>) => void; type?: string; ph: string; toggle?: boolean; show?: boolean; onToggle?: () => void; isDark: boolean; hasError?: boolean; };
@@ -30,8 +31,9 @@ export function SignUpForm() {
     const { t } = useLanguage();
     const navigate = useNavigate();
     const [form, setForm] = useState<USignupData>({ firstName: '', lastName: '', username: '', email: '', phone: '', password: '', confirm: '' });
+    const [location, setLocation] = useState<LocationValue>({ city: '', lat: null, lon: null });
     const [error, setError] = useState('');
-    const [errorField, setErrorField] = useState<keyof USignupData | 'server' | ''>('');
+    const [errorField, setErrorField] = useState<keyof USignupData | 'server' | 'location' | ''>('');
     const [isLoading, setIsLoading] = useState(false);
     const [showPass, setShowPass] = useState(false);
     const [showConfirm, setShowConfirm] = useState(false);
@@ -51,11 +53,16 @@ export function SignUpForm() {
         if (form.username.length < 2 || form.username.length > 30) { setErrorField('username'); return setError('Username must be between 2 and 30 characters.'); }
         if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) { setErrorField('email'); return setError('Please enter a valid email address.'); }
         if (form.phone && (form.phone.length < 7 || form.phone.length > 12)) { setErrorField('phone'); return setError('Phone number must be between 7 and 12 digits.'); }
+        if (!location.city || !location.lat) { setErrorField('location'); return setError('Va rugam selectati locatia pe harta.'); }
         if (form.password.length < 8) { setErrorField('password'); return setError('Password must be at least 8 characters.'); }
         if (form.password !== form.confirm) { setErrorField('confirm'); return setError('Passwords do not match.'); }
         setIsLoading(true);
         try {
-            await axiosInstance.post('/api/users/register', { firstName: form.firstName, lastName: form.lastName, username: form.username, email: form.email, phone: form.phone, password: form.password });
+            await axiosInstance.post('/api/users/register', {
+                firstName: form.firstName, lastName: form.lastName, username: form.username,
+                email: form.email, phone: form.phone, password: form.password,
+                city: location.city, latitude: location.lat, longitude: location.lon,
+            });
             navigate('/sign-in');
         } catch (err: any) {
             const msg = err?.response?.data;
@@ -70,7 +77,6 @@ export function SignUpForm() {
         <>
             <TermsModal isOpen={showTerms} onClose={() => setShowTerms(false)} />
             <PrivacyModal isOpen={showPrivacy} onClose={() => setShowPrivacy(false)} />
-
             <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '11px' }}>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
                     <Field label={t.auth.firstName} name="firstName" value={form.firstName} onChange={handleChange} ph="Jane" isDark={isDark} hasError={errorField === 'firstName'} />
@@ -79,6 +85,7 @@ export function SignUpForm() {
                 <Field label={t.auth.username} name="username" value={form.username} onChange={handleChange} ph="janedoe" isDark={isDark} hasError={errorField === 'username'} />
                 <Field label={t.auth.email}    name="email"    value={form.email}    onChange={handleChange} type="email" ph="you@example.com" isDark={isDark} hasError={errorField === 'email'} />
                 <Field label={t.auth.phone}    name="phone"    value={form.phone}    onChange={handleChange} ph="069123456" isDark={isDark} hasError={errorField === 'phone'} />
+                <LocationPickerMap value={location} onChange={(v) => { setLocation(v); if (errorField === 'location') { setError(''); setErrorField(''); } }} required hasError={errorField === 'location'} />
                 <Field label={t.auth.password} name="password" value={form.password} onChange={handleChange} ph="Min. 8 chars" toggle show={showPass} onToggle={() => setShowPass(p => !p)} isDark={isDark} hasError={errorField === 'password'} />
                 <Field label={t.auth.confirm}  name="confirm"  value={form.confirm}  onChange={handleChange} ph="Repeat password" toggle show={showConfirm} onToggle={() => setShowConfirm(p => !p)} isDark={isDark} hasError={errorField === 'confirm'} />
                 {error && <p style={{ fontSize: '11px', color: '#e05030', marginTop: '-2px' }}>⚠ {error}</p>}

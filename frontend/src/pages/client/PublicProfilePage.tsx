@@ -11,12 +11,14 @@ import type { Book } from '@/types';
 export function PublicProfilePage() {
     const { username } = useParams<{ username: string }>();
     const { user: currentUser, isAdmin } = useAuth();
-    const { t } = useLanguage();
+    const { t, language } = useLanguage();
     const [showReport, setShowReport] = useState(false);
     const [profileUser, setProfileUser] = useState<any>(null);
     const [userBooks, setUserBooks] = useState<Book[]>([]);
     const [notFound, setNotFound] = useState(false);
     const [loading, setLoading] = useState(true);
+
+    const locale = language === 'ro' ? 'ro-RO' : 'en-GB';
 
     useEffect(() => {
         if (!username) return;
@@ -28,14 +30,21 @@ export function PublicProfilePage() {
             .finally(() => setLoading(false));
     }, [username]);
 
-    if (loading) return <main className="min-h-screen flex items-center justify-center"><div className="text-center"><div className="w-12 h-12 rounded-full border-2 border-[var(--color-accent)] border-t-transparent animate-spin mx-auto mb-4" /><p className="text-sm text-[var(--color-text-muted)]">{t.common.loading}</p></div></main>;
+    if (loading) return (
+        <main className="min-h-screen flex items-center justify-center">
+            <div className="text-center">
+                <div className="w-12 h-12 rounded-full border-2 border-[var(--color-accent)] border-t-transparent animate-spin mx-auto mb-4" />
+                <p className="text-sm text-[var(--color-text-muted)]">{t.common.loading}</p>
+            </div>
+        </main>
+    );
 
     if (notFound || !profileUser) return (
         <main className="min-h-screen flex items-center justify-center">
             <div className="text-center max-w-sm px-4">
                 <div className="w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6" style={{ background: 'var(--color-surface-alt)', border: '1px solid var(--color-border)' }}><span className="text-3xl">👤</span></div>
-                <h1 className="font-['Playfair_Display'] text-2xl font-bold text-[var(--color-text)] mb-2">User not found</h1>
-                <p className="text-sm text-[var(--color-text-muted)] mb-6">This profile doesn't exist or has been removed.</p>
+                <h1 className="font-['Playfair_Display'] text-2xl font-bold text-[var(--color-text)] mb-2">{t.publicProfile.userNotFound}</h1>
+                <p className="text-sm text-[var(--color-text-muted)] mb-6">{t.publicProfile.userNotFoundDesc}</p>
                 <Link to="/books" className="inline-flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-medium text-white transition-all" style={{ background: 'var(--color-accent)' }}><ArrowLeft className="h-4 w-4" />{t.books.backToBooks}</Link>
             </div>
         </main>
@@ -45,8 +54,8 @@ export function PublicProfilePage() {
         <main className="min-h-screen flex items-center justify-center">
             <div className="text-center">
                 <p className="text-4xl mb-4">🪞</p>
-                <p className="text-[var(--color-text-muted)] text-sm mb-4">This is your own profile.</p>
-                <Link to="/profile" className="inline-flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-medium text-white" style={{ background: 'var(--color-accent)' }}>Go to your profile →</Link>
+                <p className="text-[var(--color-text-muted)] text-sm mb-4">{t.publicProfile.ownProfile}</p>
+                <Link to="/profile" className="inline-flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-medium text-white" style={{ background: 'var(--color-accent)' }}>{t.publicProfile.goToProfile}</Link>
             </div>
         </main>
     );
@@ -78,13 +87,17 @@ export function PublicProfilePage() {
                                 <h1 className="font-['Playfair_Display'] text-2xl font-bold text-[var(--color-text)]">{profileUser.firstName} {profileUser.lastName}</h1>
                                 <p className="text-sm font-semibold" style={{ color: 'var(--color-accent)' }}>@{profileUser.username}</p>
                                 <div className="mt-1 flex flex-wrap items-center gap-3 text-xs text-[var(--color-text-muted)]">
-                                    <span className="flex items-center gap-1"><Calendar className="h-3 w-3" />Joined {new Date(profileUser.createdAt).toLocaleDateString('en-GB', { month: 'long', year: 'numeric' })}</span>
+                                    <span className="flex items-center gap-1"><Calendar className="h-3 w-3" />{t.publicProfile.joined} {new Date(profileUser.createdAt).toLocaleDateString(locale, { month: 'long', year: 'numeric' })}</span>
                                 </div>
                             </div>
                         </div>
                         {!isAdmin && (
-                            <button onClick={() => setShowReport(true)} className="self-start sm:self-auto flex items-center gap-2 rounded-xl border px-3 py-2 text-xs font-medium transition-colors" style={{ borderColor: 'rgba(239,68,68,0.3)', color: '#ef4444' }} onMouseEnter={e => (e.currentTarget.style.background = 'rgba(239,68,68,0.05)')} onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}>
-                                <Flag className="h-3.5 w-3.5" /> Report User
+                            <button onClick={() => setShowReport(true)}
+                                className="self-start sm:self-auto flex items-center gap-2 rounded-xl border px-3 py-2 text-xs font-medium transition-colors"
+                                style={{ borderColor: 'rgba(239,68,68,0.3)', color: '#ef4444' }}
+                                onMouseEnter={e => (e.currentTarget.style.background = 'rgba(239,68,68,0.05)')}
+                                onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}>
+                                <Flag className="h-3.5 w-3.5" /> {t.publicProfile.reportUser ?? t.report.reportUser}
                             </button>
                         )}
                     </div>
@@ -92,7 +105,7 @@ export function PublicProfilePage() {
                         {[
                             { icon: <BookOpen className="h-4 w-4" />, value: userBooks.length, label: t.profile.booksListed },
                             { icon: <span className="text-sm">✅</span>, value: availableBooks, label: t.books.available },
-                            { icon: <Star className="h-4 w-4" />, value: avgRating, label: 'Avg Rating' },
+                            { icon: <Star className="h-4 w-4" />, value: avgRating, label: t.publicProfile.avgRating },
                         ].map(({ icon, value, label }) => (
                             <div key={label} className="rounded-2xl p-3 flex flex-col items-center gap-1 text-center" style={{ background: 'var(--color-surface-alt)', border: '1px solid var(--color-border)' }}>
                                 <div style={{ color: 'var(--color-accent)' }}>{icon}</div>
@@ -105,16 +118,26 @@ export function PublicProfilePage() {
             </div>
             <div className="flex items-center justify-between mb-5">
                 <div>
-                    <h2 className="font-['Playfair_Display'] text-xl font-bold text-[var(--color-text)]">Books by <span style={{ color: 'var(--color-accent)' }}>@{profileUser.username}</span></h2>
-                    <p className="text-xs text-[var(--color-text-muted)] mt-0.5">{userBooks.length === 0 ? 'No books listed yet' : `${userBooks.length} book${userBooks.length !== 1 ? 's' : ''} available for swapping`}</p>
+                    <h2 className="font-['Playfair_Display'] text-xl font-bold text-[var(--color-text)]">
+                        {t.publicProfile.booksBy} <span style={{ color: 'var(--color-accent)' }}>@{profileUser.username}</span>
+                    </h2>
+                    <p className="text-xs text-[var(--color-text-muted)] mt-0.5">
+                        {userBooks.length === 0
+                            ? t.publicProfile.noBooksListedYet
+                            : `${userBooks.length} ${userBooks.length !== 1 ? t.profile.booksListed : t.publicProfile.book} ${t.publicProfile.noBooksAvailable}`}
+                    </p>
                 </div>
-                {userBooks.length > 0 && <span className="text-xs font-medium px-3 py-1.5 rounded-full" style={{ background: 'var(--color-surface-alt)', border: '1px solid var(--color-border)', color: 'var(--color-text-muted)' }}>{availableBooks} {t.books.available.toLowerCase()}</span>}
+                {userBooks.length > 0 && (
+                    <span className="text-xs font-medium px-3 py-1.5 rounded-full" style={{ background: 'var(--color-surface-alt)', border: '1px solid var(--color-border)', color: 'var(--color-text-muted)' }}>
+                        {availableBooks} {t.books.available.toLowerCase()}
+                    </span>
+                )}
             </div>
             {userBooks.length === 0 ? (
                 <div className="rounded-3xl p-16 text-center" style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}>
                     <div className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4" style={{ background: 'var(--color-surface-alt)' }}><BookOpen className="h-8 w-8 text-[var(--color-text-muted)]" /></div>
-                    <p className="font-['Playfair_Display'] text-lg font-bold text-[var(--color-text)] mb-1">No books yet</p>
-                    <p className="text-sm text-[var(--color-text-muted)]">This user hasn't listed any books for swapping.</p>
+                    <p className="font-['Playfair_Display'] text-lg font-bold text-[var(--color-text)] mb-1">{t.publicProfile.noBooks}</p>
+                    <p className="text-sm text-[var(--color-text-muted)]">{t.publicProfile.noBooksDesc}</p>
                 </div>
             ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">{userBooks.map((book) => <BookCard key={book.id} book={book} />)}</div>

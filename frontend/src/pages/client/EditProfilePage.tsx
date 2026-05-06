@@ -6,13 +6,14 @@ import { EditProfileHeader } from '@/components/client/edit-profile/EditProfileH
 import { AvatarUpload } from '@/components/client/edit-profile/AvatarUpload';
 import { EditProfileForm } from '@/components/client/edit-profile/EditProfileForm';
 import { EditProfileActions } from '@/components/client/edit-profile/EditProfileActions';
+import { type LocationValue } from '@/components/shared/LocationPickerMap';
 import axiosInstance from '@/api/axiosInstance';
 import type { User } from '@/types';
 
-type FormFields = Pick<User, 'name' | 'username' | 'email' | 'bio' | 'location'>;
-type FormErrors = Partial<Record<keyof FormFields, string>>;
+type FormFields = Pick<User, 'name' | 'username' | 'email' | 'bio'>;
+type FormErrors = Partial<Record<keyof FormFields | 'location', string>>;
 
-function validate(fields: FormFields): FormErrors {
+function validate(fields: FormFields, location: LocationValue): FormErrors {
     const errors: FormErrors = {};
     if (!fields.name.trim()) errors.name = 'Full name is required.';
     else if (fields.name.trim().length < 2) errors.name = 'Full name must be at least 2 characters.';
@@ -24,6 +25,7 @@ function validate(fields: FormFields): FormErrors {
     if (!fields.email.trim()) errors.email = 'Email is required.';
     else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(fields.email)) errors.email = 'Enter a valid email address.';
     else if (fields.email.length > 100) errors.email = 'Email cannot exceed 100 characters.';
+    if (!location.city || !location.lat) errors.location = 'Locatia este obligatorie.';
     return errors;
 }
 
@@ -31,7 +33,12 @@ export function EditProfilePage() {
     const { user, login } = useAuth();
     const { t } = useLanguage();
     const navigate = useNavigate();
-    const [fields, setFields] = useState<FormFields>({ name: user?.name ?? '', username: user?.username ?? '', email: user?.email ?? '', bio: user?.bio ?? '', location: user?.location ?? '' });
+    const [fields, setFields] = useState<FormFields>({ name: user?.name ?? '', username: user?.username ?? '', email: user?.email ?? '', bio: user?.bio ?? '' });
+    const [location, setLocation] = useState<LocationValue>({
+        city: (user as any)?.city ?? user?.location ?? '',
+        lat: (user as any)?.latitude ?? null,
+        lon: (user as any)?.longitude ?? null,
+    });
     const [avatarUrl, setAvatarUrl] = useState(user?.avatarUrl ?? '');
     const [errors, setErrors] = useState<FormErrors>({});
     const [isLoading, setIsLoading] = useState(false);
@@ -44,15 +51,27 @@ export function EditProfilePage() {
         if (errors[updatedKey]) setErrors((prev) => ({ ...prev, [updatedKey]: undefined }));
     };
 
+    const handleLocationChange = (v: LocationValue) => {
+        setLocation(v);
+        if (errors.location) setErrors((prev) => ({ ...prev, location: undefined }));
+    };
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        const validationErrors = validate(fields);
+        const validationErrors = validate(fields, location);
         if (Object.keys(validationErrors).length > 0) { setErrors(validationErrors); return; }
         setErrors({});
         setIsLoading(true);
         try {
-            await axiosInstance.put(`/api/users/${user?.id}`, { firstName: fields.name, username: fields.username, phone: user?.phone ?? '' });
-            if (user) login({ ...user, ...fields, avatarUrl });
+            await axiosInstance.put(`/api/users/${user?.id}`, {
+                firstName: fields.name,
+                username: fields.username,
+                phone: user?.phone ?? '',
+                city: location.city,
+                latitude: location.lat,
+                longitude: location.lon,
+            });
+            if (user) login({ ...user, ...fields, avatarUrl, location: location.city });
             setSaved(true);
             setTimeout(() => navigate('/profile'), 1000);
         } catch { setErrors({ name: 'Failed to save. Please try again.' }); }
@@ -64,7 +83,7 @@ export function EditProfilePage() {
             <EditProfileHeader />
             <form onSubmit={handleSubmit} className="flex flex-col gap-5">
                 <AvatarUpload name={fields.name} avatarUrl={avatarUrl} onAvatarChange={setAvatarUrl} />
-                <EditProfileForm fields={fields} onChange={handleChange} errors={errors} />
+                <EditProfileForm fields={fields} location={location} onChange={handleChange} onLocationChange={handleLocationChange} errors={errors} />
                 <EditProfileActions isLoading={isLoading} saved={saved} />
             </form>
         </div>

@@ -36,16 +36,20 @@ function StatusDropdown({ value, options, onChange }: { value: string; options: 
     );
 }
 
-const DURATION_LABELS: Record<string, string> = {
-    '1d': '1 zi', '3d': '3 zile', '7d': '7 zile', '30d': '30 de zile', 'permanent': 'permanent',
-};
-
 export function AdminReportsPage() {
     const { reports, updateStatus } = useReports();
     const { addNotification } = useNotifications();
     const { banUser } = useBan();
     const { t } = useLanguage();
     const [statusFilter, setStatusFilter] = useState<ReportStatus | 'all'>('all');
+
+    const DURATION_LABELS: Record<string, string> = {
+        '1d': t.admin.dur1d,
+        '3d': t.admin.dur3d,
+        '7d': t.admin.dur7d,
+        '30d': t.admin.dur30d,
+        'permanent': t.admin.durPermanent,
+    };
 
     const openCount = reports.filter(r => r.status === 'open').length;
     const filtered = reports.filter(r => statusFilter === 'all' || r.status === statusFilter);
@@ -63,10 +67,10 @@ export function AdminReportsPage() {
             addNotification({
                 userId: report.targetId,
                 type: 'warning',
-                title: 'Ai primit un avertisment de la echipa Read & Swap',
+                title: t.admin.notifWarning,
                 message: note
-                    ? `Motiv: ${report.reason}. Mesaj de la administrator: ${note}`
-                    : `Motiv: ${report.reason}. Te rugăm să respecți regulile comunității pentru a evita suspendarea contului.`,
+                    ? t.admin.notifWarningWithNote.replace('{reason}', report.reason).replace('{note}', note)
+                    : t.admin.notifWarningNoNote.replace('{reason}', report.reason),
             });
         }
 
@@ -74,12 +78,12 @@ export function AdminReportsPage() {
             banUser(report.targetId, banDetails.duration, banDetails.reason, banDetails.message);
             const durationLabel = DURATION_LABELS[banDetails.duration] ?? banDetails.duration;
             const notifMessage = banDetails.message.trim()
-                ? `Motiv: ${banDetails.reason}. ${banDetails.message.trim()}`
-                : `Motiv: ${banDetails.reason}.`;
+                ? `${t.admin.notifBannedMsg.replace('{reason}', banDetails.reason)} ${banDetails.message.trim()}`
+                : t.admin.notifBannedMsg.replace('{reason}', banDetails.reason);
             addNotification({
                 userId: report.targetId,
                 type: 'ban',
-                title: `Contul tău a fost suspendat pentru ${durationLabel}`,
+                title: t.admin.notifBanned.replace('{duration}', durationLabel),
                 message: notifMessage,
             });
         }

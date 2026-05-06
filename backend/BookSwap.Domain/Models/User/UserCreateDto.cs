@@ -24,6 +24,13 @@ public class UserCreateDto
     [StringLength(12, MinimumLength = 7)]
     public string Phone { get; set; } = string.Empty;
 
+    [StringLength(100)]
+    public string City { get; set; } = string.Empty;
+
+    public double? Latitude { get; set; }
+
+    public double? Longitude { get; set; }
+
     [Required]
     [StringLength(100)]
     public string Password { get; set; } = string.Empty;

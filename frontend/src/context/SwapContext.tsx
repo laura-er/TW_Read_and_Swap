@@ -28,19 +28,29 @@ export function SwapProvider({ children }: { children: ReactNode }) {
         if (!user) {
             setIncoming([]);
             setOutgoing([]);
+            setIsLoading(false);
             return;
         }
         setIsLoading(true);
         const userId = Number(user.id);
-        Promise.all([
-            axiosInstance.get(`/api/swaps/owner/${userId}`),
-            axiosInstance.get(`/api/swaps/requester/${userId}`),
-        ])
-            .then(([ownRes, reqRes]) => {
-                setIncoming(ownRes.data.map((s: any) => ({ ...s, id: String(s.id) })));
-                setOutgoing(reqRes.data.map((s: any) => ({ ...s, id: String(s.id) })));
+
+        const ownerPromise = axiosInstance.get(`/api/swaps/owner/${userId}`)
+            .then(res => res.data.map((s: any) => ({ ...s, id: String(s.id) })))
+            .catch(() => []);
+
+        const requesterPromise = axiosInstance.get(`/api/swaps/requester/${userId}`)
+            .then(res => res.data.map((s: any) => ({ ...s, id: String(s.id) })))
+            .catch(() => []);
+
+        Promise.all([ownerPromise, requesterPromise])
+            .then(([ownData, reqData]) => {
+                setIncoming(ownData);
+                setOutgoing(reqData);
             })
-            .catch(() => {})
+            .catch(() => {
+                setIncoming([]);
+                setOutgoing([]);
+            })
             .finally(() => setIsLoading(false));
     }, [user, tick]);
 

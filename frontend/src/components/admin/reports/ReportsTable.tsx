@@ -2,7 +2,7 @@ import { useState } from 'react';
 import type { ReportedIssue, ReportStatus } from '@/types/admin';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
-import { formatDate } from '@/utils/formatDate';
+import { useFormatDate } from '@/utils/useFormatDate';
 import { useLanguage } from '@/context/LanguageContext';
 import { ResolveIssueModal } from '@/components/admin/reports/ResolveIssueModal';
 import { BanUserModal } from '@/components/admin/books-users/BanUserModal';
@@ -21,6 +21,7 @@ interface ReportsTableProps {
 
 export function ReportsTable({ reports, onResolve, onDismiss }: ReportsTableProps) {
     const { t } = useLanguage();
+    const { formatFull } = useFormatDate();
     const [resolving, setResolving] = useState<ReportedIssue | null>(null);
     const [banTarget, setBanTarget] = useState<ReportedIssue | null>(null);
 
@@ -35,14 +36,8 @@ export function ReportsTable({ reports, onResolve, onDismiss }: ReportsTableProp
             {resolving && (
                 <ResolveIssueModal
                     report={resolving}
-                    onConfirm={(id, note, action) => {
-                        onResolve(id, note, action);
-                        setResolving(null);
-                    }}
-                    onRequestBan={(report) => {
-                        setResolving(null);
-                        setBanTarget(report);
-                    }}
+                    onConfirm={(id, note, action) => { onResolve(id, note, action); setResolving(null); }}
+                    onRequestBan={(report) => { setResolving(null); setBanTarget(report); }}
                     onClose={() => setResolving(null)}
                 />
             )}
@@ -50,14 +45,11 @@ export function ReportsTable({ reports, onResolve, onDismiss }: ReportsTableProp
                 isOpen={!!banTarget}
                 userName={banTarget?.targetName ?? ''}
                 onConfirm={(duration, reason, message) => {
-                    if (banTarget) {
-                        onResolve(banTarget.id, reason, 'ban_user', { duration, reason, message });
-                    }
+                    if (banTarget) onResolve(banTarget.id, reason, 'ban_user', { duration, reason, message });
                     setBanTarget(null);
                 }}
                 onClose={() => setBanTarget(null)}
             />
-
             <div className="rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] overflow-hidden">
                 <table className="w-full text-sm">
                     <thead className="bg-[var(--color-surface-alt)]">
@@ -74,13 +66,11 @@ export function ReportsTable({ reports, onResolve, onDismiss }: ReportsTableProp
                     <tbody>
                         {reports.map((r) => (
                             <tr key={r.id} className="border-t border-[var(--color-border)] hover:bg-[var(--color-surface-alt)]/50 transition-colors">
-                                <td className="px-4 py-3">
-                                    <Badge variant="accent" className="capitalize">{t.admin.users.slice(0, -1)}</Badge>
-                                </td>
+                                <td className="px-4 py-3"><Badge variant="accent" className="capitalize">{t.admin.users.slice(0, -1)}</Badge></td>
                                 <td className="px-4 py-3 font-medium text-[var(--color-text)]">{r.targetName}</td>
                                 <td className="px-4 py-3 text-[var(--color-text-muted)] max-w-xs"><span className="line-clamp-2">{r.reason}</span></td>
                                 <td className="px-4 py-3 text-[var(--color-text-muted)]">@{r.reportedBy}</td>
-                                <td className="px-4 py-3 text-[var(--color-text-muted)] whitespace-nowrap">{formatDate(r.createdAt)}</td>
+                                <td className="px-4 py-3 text-[var(--color-text-muted)] whitespace-nowrap">{formatFull(r.createdAt)}</td>
                                 <td className="px-4 py-3">
                                     <div className="flex flex-col gap-1">
                                         <Badge variant={statusVariant[r.status]} className="capitalize">{statusLabel[r.status]}</Badge>

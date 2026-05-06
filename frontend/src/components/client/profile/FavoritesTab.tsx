@@ -4,6 +4,7 @@ import type { Book } from '@/types';
 import { FavoritesSearch } from './FavoritesSearch';
 import { FavoritesTable } from './FavoritesTable';
 import { ProfileEmptyState } from './ProfileEmptyState';
+import { useLanguage } from '@/context/LanguageContext';
 
 interface FavoritesTabProps {
     favorites: Book[];
@@ -11,6 +12,7 @@ interface FavoritesTabProps {
 }
 
 export function FavoritesTab({ favorites, onRemove }: FavoritesTabProps) {
+    const { t } = useLanguage();
     const [search, setSearch] = useState('');
 
     const filtered = favorites.filter(
@@ -29,16 +31,11 @@ export function FavoritesTab({ favorites, onRemove }: FavoritesTabProps) {
                 availableCount={availableCount}
                 totalCount={favorites.length}
             />
-
             {filtered.length === 0 ? (
                 <ProfileEmptyState
                     icon={<Heart className="h-12 w-12" />}
-                    title="No favorites found"
-                    description={
-                        search
-                            ? 'Try a different search term'
-                            : 'Browse books and add some to your favorites!'
-                    }
+                    title={t.profile.noFavsFound}
+                    description={search ? t.profile.noFavsSearch : t.profile.noFavsBrowse}
                 />
             ) : (
                 <FavoritesTable books={filtered} onRemove={onRemove} />

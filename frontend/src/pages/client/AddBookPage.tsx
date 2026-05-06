@@ -71,14 +71,14 @@ export function AddBookPage() {
             {isAdmin ? (
                 <div className="rounded-2xl p-8 text-center" style={{ background: 'rgba(220,150,50,0.05)', border: '1px solid rgba(220,150,50,0.2)' }}>
                     <p style={{ fontSize: '32px', marginBottom: '12px' }}>🔒</p>
-                    <h2 style={{ fontSize: '18px', fontWeight: 700, color: 'var(--color-text)', marginBottom: '8px' }}>Acțiune indisponibilă</h2>
-                    <p style={{ fontSize: '14px', color: 'var(--color-text-muted)' }}>Conturile de administrator nu pot adăuga cărți.</p>
+                    <h2 style={{ fontSize: '18px', fontWeight: 700, color: 'var(--color-text)', marginBottom: '8px' }}>{t.addBook.actionUnavailable}</h2>
+                    <p style={{ fontSize: '14px', color: 'var(--color-text-muted)' }}>{t.addBook.adminCannotAddBooks}</p>
                 </div>
             ) : banned ? (
                 <div className="rounded-2xl p-8 text-center" style={{ background: 'rgba(220,50,50,0.05)', border: '1px solid rgba(220,50,50,0.2)' }}>
                     <p style={{ fontSize: '32px', marginBottom: '12px' }}>🚫</p>
-                    <h2 style={{ fontSize: '18px', fontWeight: 700, color: 'var(--color-text)', marginBottom: '8px' }}>Acțiune indisponibilă</h2>
-                    <p style={{ fontSize: '14px', color: 'var(--color-text-muted)' }}>Nu poți adăuga cărți cât timp contul tău este suspendat.</p>
+                    <h2 style={{ fontSize: '18px', fontWeight: 700, color: 'var(--color-text)', marginBottom: '8px' }}>{t.addBook.actionUnavailable}</h2>
+                    <p style={{ fontSize: '14px', color: 'var(--color-text-muted)' }}>{t.addBook.bannedCannotAddBooks}</p>
                 </div>
             ) : (
                 <form onSubmit={handleSubmit}>

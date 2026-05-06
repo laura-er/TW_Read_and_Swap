@@ -27,6 +27,9 @@ public class UserActions
             Username     = dto.Username,
             Email        = dto.Email,
             Phone        = dto.Phone,
+            City         = dto.City,
+            Latitude     = dto.Latitude,
+            Longitude    = dto.Longitude,
             PasswordHash = BCrypt.Net.BCrypt.HashPassword(dto.Password),
             Role         = UserRole.User,
             CreatedAt    = DateTime.UtcNow
@@ -131,6 +134,9 @@ public class UserActions
         user.FirstName = dto.FirstName;
         user.Username  = dto.Username;
         user.Phone     = dto.Phone;
+        user.City      = dto.City;
+        user.Latitude  = dto.Latitude;
+        user.Longitude = dto.Longitude;
         try { db.SaveChanges(); }
         catch (Exception) { return new ServiceResponse { IsSuccess = false, Message = "Update failed" }; }
         return new ServiceResponse { IsSuccess = true, Message = "User updated" };

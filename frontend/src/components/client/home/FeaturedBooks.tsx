@@ -9,15 +9,11 @@ import type { Book } from '@/types';
 export function FeaturedBooks() {
     const { books, isLoading } = useBooks();
     const { isAdmin } = useAuth();
-    const { t, language } = useLanguage();
+    const { t } = useLanguage();
     const featured = [...books]
         .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
         .filter((b) => b.isAvailable)
         .slice(0, 4);
-
-    const dustTitle = language === 'ro' ? 'Ai cărți care adună praf?' : 'Have books gathering dust?';
-    const dustDesc = language === 'ro' ? 'Listează-le gratuit și lasă pe altcineva să se bucure de ele' : 'List them for free and let someone else enjoy them';
-    const shareBtn = language === 'ro' ? 'Adaugă o Carte →' : 'Share a Book →';
 
     return (
         <section className="py-20" style={{ background: 'var(--lib-featured)', backdropFilter: 'blur(12px)', borderTop: '1px solid var(--lib-border)' }}>
@@ -26,7 +22,7 @@ export function FeaturedBooks() {
                     <div>
                         <div className="flex items-center gap-2 mb-2">
                             <div className="w-8 h-px" style={{ background: 'var(--color-accent)' }} />
-                            <span className="text-xs font-semibold tracking-widest uppercase" style={{ color: 'var(--color-accent)' }}>Fresh Picks</span>
+                            <span className="text-xs font-semibold tracking-widest uppercase" style={{ color: 'var(--color-accent)' }}>{t.featured.recentlyAdded}</span>
                         </div>
                         <h2 className="font-['Playfair_Display'] text-3xl md:text-4xl font-bold" style={{ color: 'var(--lib-text)' }}>{t.featured.recentlyAdded}</h2>
                         <p className="text-sm mt-1" style={{ color: 'var(--lib-text-muted)' }}>{t.featured.freshBooks}</p>
@@ -45,12 +41,12 @@ export function FeaturedBooks() {
                     <div className="mt-12 rounded-[24px] overflow-hidden" style={{ background: 'var(--color-accent)' }}>
                         <div className="flex flex-col sm:flex-row items-center justify-between gap-4 px-8 py-7">
                             <div>
-                                <h3 className="font-['Playfair_Display'] text-2xl font-bold text-white">{dustTitle}</h3>
-                                <p className="text-white/80 text-sm mt-1">{dustDesc}</p>
+                                <h3 className="font-['Playfair_Display'] text-2xl font-bold text-white">{t.featured.dustTitle}</h3>
+                                <p className="text-white/80 text-sm mt-1">{t.featured.dustDesc}</p>
                             </div>
                             <Link to="/books/add">
                                 <button className="shrink-0 px-6 py-3 font-semibold text-sm hover:opacity-90 transition-all shadow-lg" style={{ background: 'white', color: 'var(--color-accent)', borderRadius: '18px' }}>
-                                    {shareBtn}
+                                    {t.featured.shareBtn}
                                 </button>
                             </Link>
                         </div>

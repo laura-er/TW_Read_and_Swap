@@ -2,7 +2,7 @@
 import { Link } from 'react-router-dom';
 import { Flag } from 'lucide-react';
 import type { SwapRequest } from '@/types';
-import { formatRelativeDate } from '@/utils/formatDate';
+import { useFormatDate } from '@/utils/useFormatDate';
 import { useLanguage } from '@/context/LanguageContext';
 import { ReportModal } from '@/components/shared/ReportModal';
 import axiosInstance from '@/api/axiosInstance';
@@ -11,6 +11,7 @@ interface SwapHistoryTabProps { swaps: SwapRequest[]; currentUserId: string; }
 
 function SwapHistoryCard({ swap, currentUserId }: { swap: SwapRequest; currentUserId: string }) {
     const { t } = useLanguage();
+    const { formatRelative } = useFormatDate();
     const isOwner = String(swap.ownerId) === String(currentUserId);
     const otherUserId = isOwner ? swap.requesterId : swap.ownerId;
     const [otherUsername, setOtherUsername] = useState<string>(`User #${otherUserId}`);
@@ -30,9 +31,9 @@ function SwapHistoryCard({ swap, currentUserId }: { swap: SwapRequest; currentUs
             <div className="flex items-center justify-between mb-4">
                 <div>
                     <p className="text-sm font-semibold text-[var(--color-text)]">{t.profile.with} {otherUsername}</p>
-                    <p className="text-xs text-[var(--color-text-muted)]">{formatRelativeDate(swap.updatedAt)}</p>
+                    <p className="text-xs text-[var(--color-text-muted)]">{formatRelative(swap.updatedAt)}</p>
                 </div>
-                <span className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium bg-[var(--color-accent)] text-white">Completed</span>
+                <span className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium bg-[var(--color-accent)] text-white">{t.swaps.accepted}</span>
             </div>
             <div className="flex items-center gap-3">
                 <Link to={`/books/${swap.bookRequestedId}`} className="flex-1 flex items-center gap-3 p-3 rounded-xl border border-transparent hover:border-[var(--color-accent)] transition-all" style={{ background: 'var(--lib-stats)' }}>

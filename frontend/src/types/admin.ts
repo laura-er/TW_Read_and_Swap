@@ -9,7 +9,7 @@ export interface AdminStats {
 
 export interface ActivityItem {
     id: string;
-    type: 'book_added' | 'swap_completed' | 'user_joined' | 'report_filed' | 'user_banned';
+    type: 'book_added' | 'swap_completed' | 'swap_requested' | 'user_joined' | 'report_filed' | 'user_banned';
     description: string;
     user: string;
     timestamp: string;

@@ -10,21 +10,21 @@ interface ResolveIssueModalProps {
     onClose: () => void;
 }
 
-const ACTIONS = [
-    { value: 'warning',   label: '⚠️ Trimite avertisment utilizatorului' },
-    { value: 'ban_user',  label: '🚫 Banează utilizatorul raportat' },
-    { value: 'no_action', label: '✅ Nicio acțiune necesară' },
-];
-
 export function ResolveIssueModal({ report, onConfirm, onRequestBan, onClose }: ResolveIssueModalProps) {
     const { t } = useLanguage();
     const [note, setNote] = useState('');
     const [action, setAction] = useState('');
     const [error, setError] = useState('');
 
+    const ACTIONS = [
+        { value: 'warning',   label: t.admin.resolveActionSendWarning },
+        { value: 'ban_user',  label: t.admin.resolveActionBanUser },
+        { value: 'no_action', label: t.admin.resolveActionNoAction },
+    ];
+
     function handleConfirm() {
-        if (!action) { setError('Te rugăm să selectezi o acțiune.'); return; }
-        if (action === 'warning' && !note.trim()) { setError('Te rugăm să adaugi motivul avertismentului.'); return; }
+        if (!action) { setError(t.admin.resolveErrorSelectAction); return; }
+        if (action === 'warning' && !note.trim()) { setError(t.admin.resolveErrorAddNote); return; }
         if (action === 'ban_user') {
             onClose();
             onRequestBan(report);
@@ -83,7 +83,7 @@ export function ResolveIssueModal({ report, onConfirm, onRequestBan, onClose }: 
                         <textarea
                             value={note}
                             onChange={(e) => { setNote(e.target.value); setError(''); }}
-                            placeholder="Descrie motivul avertismentului trimis utilizatorului..."
+                            placeholder={t.admin.resolveWarningPlaceholder}
                             rows={3}
                             className="w-full rounded-lg border border-[var(--color-border)] bg-[var(--color-surface-alt)] px-3 py-2 text-sm text-[var(--color-text)] resize-none focus:outline-none focus:ring-2 focus:ring-[var(--color-accent)]/40"
                         />
@@ -92,7 +92,7 @@ export function ResolveIssueModal({ report, onConfirm, onRequestBan, onClose }: 
 
                 {action === 'ban_user' && (
                     <p className="text-sm text-[var(--color-text-muted)] italic">
-                        Se va deschide formularul de ban unde poți specifica durata și motivul.
+                        {t.admin.resolveBanNote}
                     </p>
                 )}
 

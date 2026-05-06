@@ -34,6 +34,13 @@ namespace BookSwap.Domain.Entities.User
         [StringLength(12)]
         public string Phone { get; set; } = string.Empty;
 
+        [StringLength(100)]
+        public string City { get; set; } = string.Empty;
+
+        public double? Latitude { get; set; }
+
+        public double? Longitude { get; set; }
+
         [Required]
         [StringLength(60)]
         public string PasswordHash { get; set; } = string.Empty;

@@ -8,9 +8,12 @@ import { useAuth } from '@/context/AuthContext';
 import type { User } from '@/types';
 
 export function ProfileBanner({ user, isOwnProfile }: { user: User; isOwnProfile: boolean }) {
-    const { t } = useLanguage();
+    const { t, language } = useLanguage();
     const { isAdmin } = useAuth();
     const [showReport, setShowReport] = useState(false);
+
+    const locale = language === 'ro' ? 'ro-RO' : 'en-GB';
+
     return (
         <>
             {showReport && <ReportModal targetId={user.id} targetName={user.username} onClose={() => setShowReport(false)} />}
@@ -18,14 +21,20 @@ export function ProfileBanner({ user, isOwnProfile }: { user: User; isOwnProfile
             <div style={{ padding: '16px 24px 20px', background: 'var(--lib-card)', borderRadius: '0 0 24px 24px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '16px' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-                        <div style={{ marginTop: '-10px', flexShrink: 0 }}><div style={{ borderRadius: '50%', padding: '4px', background: 'var(--lib-card)', display: 'inline-block' }}><Avatar src={user.avatarUrl} name={user.name} size="xl" /></div></div>
+                        <div style={{ marginTop: '-10px', flexShrink: 0 }}>
+                            <div style={{ borderRadius: '50%', padding: '4px', background: 'var(--lib-card)', display: 'inline-block' }}>
+                                <Avatar src={user.avatarUrl} name={user.name} size="xl" />
+                            </div>
+                        </div>
                         <div>
                             <h1 className="font-['Playfair_Display'] text-xl font-bold" style={{ color: 'var(--lib-text)' }}>{user.name}</h1>
                             <p style={{ fontSize: '12px', color: 'var(--lib-text-muted)' }}>@{user.username}</p>
                             {user.bio && <p style={{ marginTop: '4px', fontSize: '12px', color: 'var(--lib-text-muted)', maxWidth: '360px' }}>{user.bio}</p>}
                             <div style={{ marginTop: '4px', display: 'flex', flexWrap: 'wrap', gap: '12px' }}>
                                 {user.location && <span style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '12px', color: 'var(--lib-text-faint)' }}><MapPin size={12} /> {user.location}</span>}
-                                <span style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '12px', color: 'var(--lib-text-faint)' }}><Calendar size={12} />{t.share.joinedDate} {new Date(user.joinedAt).toLocaleDateString('ro-RO', { month: 'long', year: 'numeric' })}</span>
+                                <span style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '12px', color: 'var(--lib-text-faint)' }}>
+                                    <Calendar size={12} />{t.share.joinedDate} {new Date(user.joinedAt).toLocaleDateString(locale, { month: 'long', year: 'numeric' })}
+                                </span>
                             </div>
                         </div>
                     </div>

@@ -4,7 +4,9 @@ import { useLanguage } from '@/context/LanguageContext';
 import type { User } from '@/types';
 
 export function ShareProfilePreview({ user }: { user: User }) {
-    const { t } = useLanguage();
+    const { t, language } = useLanguage();
+    const locale = language === 'ro' ? 'ro-RO' : 'en-GB';
+
     return (
         <div className="flex flex-col gap-4 p-6 rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)]">
             <h2 className="font-semibold text-[var(--color-text)]">{t.share.publicPreview}</h2>
@@ -18,7 +20,9 @@ export function ShareProfilePreview({ user }: { user: User }) {
                     {user.bio && <p className="text-sm text-[var(--color-text-muted)] mt-2">{user.bio}</p>}
                     <div className="flex flex-wrap gap-4 mt-3 text-xs text-[var(--color-text-muted)]">
                         {user.location && <span className="flex items-center gap-1"><MapPin className="h-3 w-3" /> {user.location}</span>}
-                        <span className="flex items-center gap-1"><Calendar className="h-3 w-3" /> {t.share.joinedDate} {new Date(user.joinedAt).toLocaleDateString('ro-RO', { month: 'long', year: 'numeric' })}</span>
+                        <span className="flex items-center gap-1">
+                            <Calendar className="h-3 w-3" /> {t.share.joinedDate} {new Date(user.joinedAt).toLocaleDateString(locale, { month: 'long', year: 'numeric' })}
+                        </span>
                     </div>
                     <div className="flex gap-4 mt-4 text-sm">
                         <span className="flex items-center gap-1.5 text-[var(--color-text-muted)]"><BookOpen className="h-4 w-4 text-[var(--color-accent)]" />{user.booksCount ?? 0} {t.share.books}</span>

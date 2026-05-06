@@ -1,6 +1,7 @@
-import { useState } from 'react';
-import { Modal } from '@/components/ui/Modal';
+import { useState, useRef, useEffect, useCallback } from 'react';
+import ReactDOM from 'react-dom';
 import { Button } from '@/components/ui/Button';
+import { useLanguage } from '@/context/LanguageContext';
 
 interface Props {
     isOpen: boolean;
@@ -9,49 +10,79 @@ interface Props {
     onClose: () => void;
 }
 
-const DURATIONS = [
-    { value: '1d', label: '1 zi' },
-    { value: '3d', label: '3 zile' },
-    { value: '7d', label: '7 zile' },
-    { value: '30d', label: '30 zile' },
-    { value: 'permanent', label: 'Permanent' },
-];
+function CustomSelect({ value, options, onChange }: { value: string; options: string[]; onChange: (v: string) => void }) {
+    const [open, setOpen] = useState(false);
+    const [menuPos, setMenuPos] = useState({ top: 0, left: 0, width: 0 });
+    const buttonRef = useRef<HTMLButtonElement>(null);
+    const menuRef = useRef<HTMLDivElement>(null);
 
-const REASONS = [
-    'Comportament abuziv față de alți utilizatori',
-    'Listare de conținut fals sau înșelător',
-    'Spam sau activitate suspectă',
-    'Încălcarea repetată a regulilor platformei',
-    'Fraudă sau tentativă de fraudă',
-    'Alt motiv',
-];
+    const updatePos = useCallback(() => {
+        if (buttonRef.current) {
+            const rect = buttonRef.current.getBoundingClientRect();
+            setMenuPos({ top: rect.bottom + window.scrollY + 4, left: rect.left + window.scrollX, width: rect.width });
+        }
+    }, []);
 
-const inputStyle: React.CSSProperties = {
-    width: '100%',
-    boxSizing: 'border-box',
-    padding: '8px 12px',
-    fontSize: '13px',
-    borderRadius: '10px',
-    background: 'var(--color-surface-alt)',
-    border: '1px solid var(--color-border)',
-    color: 'var(--color-text)',
-    outline: 'none',
-};
+    useEffect(() => {
+        if (!open) return;
+        function handleClick(e: MouseEvent) {
+            if (menuRef.current && !menuRef.current.contains(e.target as Node) &&
+                buttonRef.current && !buttonRef.current.contains(e.target as Node)) {
+                setOpen(false);
+            }
+        }
+        document.addEventListener('mousedown', handleClick);
+        return () => document.removeEventListener('mousedown', handleClick);
+    }, [open]);
 
-const labelStyle: React.CSSProperties = {
-    fontSize: '11px',
-    fontWeight: 600,
-    letterSpacing: '0.08em',
-    textTransform: 'uppercase' as const,
-    color: 'var(--color-text-muted)',
-    marginBottom: '4px',
-    display: 'block',
-};
+    const menu = open ? ReactDOM.createPortal(
+        <div ref={menuRef} style={{ position: 'absolute', top: menuPos.top, left: menuPos.left, width: menuPos.width, background: 'var(--color-surface)', border: '1px solid var(--color-border)', borderRadius: '12px', boxShadow: '0 4px 20px rgba(0,0,0,0.12)', zIndex: 99999, padding: '4px', fontFamily: 'inherit' }}>
+            {options.map(opt => (
+                <button key={opt} type="button" onMouseDown={e => { e.preventDefault(); onChange(opt); setOpen(false); }}
+                    style={{ display: 'block', width: '100%', textAlign: 'left', padding: '7px 10px', fontSize: '13px', fontFamily: 'inherit', color: 'var(--color-text)', background: opt === value ? 'var(--color-surface-alt)' : 'transparent', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: opt === value ? 600 : 400 }}>
+                    {opt}
+                </button>
+            ))}
+        </div>, document.body
+    ) : null;
+
+    return (
+        <div style={{ position: 'relative' }}>
+            <button ref={buttonRef} type="button" onClick={() => { updatePos(); setOpen(o => !o); }}
+                style={{ display: 'flex', alignItems: 'center', gap: '8px', width: '100%', background: 'var(--color-surface-alt)', border: '1px solid var(--color-border)', borderRadius: '10px', padding: '7px 10px', fontSize: '13px', fontFamily: 'inherit', color: 'var(--color-text)', outline: 'none', cursor: 'pointer', textAlign: 'left' }}>
+                <span style={{ flex: 1 }}>{value}</span>
+                <svg width="11" height="11" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ transform: open ? 'rotate(180deg)' : 'none', transition: 'transform 0.15s', color: 'var(--color-text-muted)', flexShrink: 0 }}>
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+            </button>
+            {menu}
+        </div>
+    );
+}
 
 export function BanUserModal({ isOpen, userName, onConfirm, onClose }: Props) {
+    const { t } = useLanguage();
     const [duration, setDuration] = useState('7d');
-    const [reason, setReason] = useState(REASONS[0]);
     const [customMessage, setCustomMessage] = useState('');
+
+    const DURATIONS = [
+        { value: '1d',        label: t.admin.dur1d },
+        { value: '3d',        label: t.admin.dur3d },
+        { value: '7d',        label: t.admin.dur7d },
+        { value: '30d',       label: t.admin.dur30d },
+        { value: 'permanent', label: t.admin.durPermanent },
+    ];
+
+    const REASONS = [
+        t.admin.reasonAbusive,
+        t.admin.reasonFalseContent,
+        t.admin.reasonSpam,
+        t.admin.reasonRepeatedViolations,
+        t.admin.reasonFraud,
+        t.admin.reasonOther,
+    ];
+
+    const [reason, setReason] = useState(REASONS[0]);
 
     const handleConfirm = () => {
         onConfirm(duration, reason, customMessage);
@@ -61,62 +92,50 @@ export function BanUserModal({ isOpen, userName, onConfirm, onClose }: Props) {
         setCustomMessage('');
     };
 
-    return (
-        <Modal isOpen={isOpen} onClose={onClose} title="Banează utilizatorul" size="md">
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-                <p style={{ fontSize: '13px', color: 'var(--color-text-muted)', marginTop: '-8px' }}>
-                    Completează detaliile pentru banarea lui <strong style={{ color: 'var(--color-text)' }}>{userName}</strong>.
-                </p>
+    if (!isOpen) return null;
 
-                <div>
-                    <label style={labelStyle}>Durată ban</label>
-                    <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+    return (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+            <div className="bg-[var(--color-surface)] rounded-2xl shadow-xl w-full max-w-md mx-4 p-6 flex flex-col gap-4">
+                <div className="flex items-center justify-between">
+                    <h2 className="text-lg font-bold text-[var(--color-text)]">{t.admin.banUser}</h2>
+                    <button onClick={onClose} className="text-[var(--color-text-muted)] hover:text-[var(--color-text)] transition-colors">✕</button>
+                </div>
+                <p className="text-sm text-[var(--color-text-muted)] mt-[-8px]">
+                    {t.admin.banUserDesc} <strong className="text-[var(--color-text)]">{userName}</strong>.
+                </p>
+                <div className="h-px bg-[var(--color-border)]" />
+                <div className="flex flex-col gap-2">
+                    <label className="text-sm font-medium text-[var(--color-text)]">{t.admin.banDuration}</label>
+                    <div className="flex gap-2 flex-wrap">
                         {DURATIONS.map(d => (
-                            <button
-                                key={d.value}
-                                type="button"
-                                onClick={() => setDuration(d.value)}
-                                style={{
-                                    padding: '5px 12px',
-                                    borderRadius: '20px',
-                                    fontSize: '12px',
-                                    fontWeight: 500,
-                                    cursor: 'pointer',
-                                    border: duration === d.value ? '1.5px solid var(--color-accent)' : '1px solid var(--color-border)',
-                                    background: duration === d.value ? 'var(--color-accent)' : 'var(--color-surface-alt)',
-                                    color: duration === d.value ? 'white' : 'var(--color-text)',
-                                    transition: 'all 0.15s',
-                                }}
-                            >
+                            <button key={d.value} type="button" onClick={() => setDuration(d.value)}
+                                className="px-3 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer"
+                                style={{ border: duration === d.value ? '1.5px solid var(--color-accent)' : '1px solid var(--color-border)', background: duration === d.value ? 'var(--color-accent)' : 'var(--color-surface-alt)', color: duration === d.value ? 'white' : 'var(--color-text)' }}>
                                 {d.label}
                             </button>
                         ))}
                     </div>
                 </div>
-
-                <div>
-                    <label style={labelStyle}>Motiv</label>
-                    <select value={reason} onChange={e => setReason(e.target.value)} style={{ ...inputStyle, cursor: 'pointer' }}>
-                        {REASONS.map(r => <option key={r} value={r}>{r}</option>)}
-                    </select>
+                <div className="flex flex-col gap-2">
+                    <label className="text-sm font-medium text-[var(--color-text)]">{t.admin.banReason}</label>
+                    <CustomSelect value={reason} options={REASONS} onChange={setReason} />
                 </div>
-
-                <div>
-                    <label style={labelStyle}>Mesaj pentru utilizator <span style={{ fontWeight: 400, textTransform: 'none', letterSpacing: 0 }}>(opțional)</span></label>
-                    <textarea
-                        value={customMessage}
-                        onChange={e => setCustomMessage(e.target.value)}
-                        placeholder="Adaugă un mesaj personalizat care va fi vizibil utilizatorului..."
-                        rows={3}
-                        style={{ ...inputStyle, resize: 'vertical', fontFamily: 'inherit', lineHeight: 1.5 }}
-                    />
+                <div className="flex flex-col gap-2">
+                    <label className="text-sm font-medium text-[var(--color-text)]">
+                        {t.admin.banMessage}{' '}
+                        <span className="font-normal text-[var(--color-text-muted)]">{t.admin.banMessageOptional}</span>
+                    </label>
+                    <textarea value={customMessage} onChange={e => setCustomMessage(e.target.value)}
+                        placeholder={t.admin.banMessagePlaceholder} rows={3}
+                        className="w-full rounded-xl border border-[var(--color-border)] bg-[var(--color-surface-alt)] px-3 py-2 text-sm text-[var(--color-text)] resize-none focus:outline-none focus:ring-2 focus:ring-[var(--color-accent)]/40"
+                        style={{ fontFamily: 'inherit', lineHeight: 1.5 }} />
                 </div>
-
-                <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end', marginTop: '4px' }}>
-                    <Button variant="secondary" size="sm" onClick={onClose}>Anulează</Button>
-                    <Button variant="danger" size="sm" onClick={handleConfirm}>Aplică Ban</Button>
+                <div className="flex gap-2 justify-end">
+                    <Button variant="ghost" size="sm" onClick={onClose}>{t.common.cancel}</Button>
+                    <Button variant="danger" size="sm" onClick={handleConfirm}>{t.admin.applyBan}</Button>
                 </div>
             </div>
-        </Modal>
+        </div>
     );
 }

@@ -24,15 +24,19 @@ function exportToCsv(filename: string, rows: string[][]): void {
     URL.revokeObjectURL(url);
 }
 
-const DURATION_LABELS: Record<string, string> = {
-    '1d': '1 zi', '3d': '3 zile', '7d': '7 zile', '30d': '30 de zile', 'permanent': 'permanent',
-};
-
 export function AdminBooksUsersPage() {
     const [searchParams] = useSearchParams();
     const { t } = useLanguage();
     const { addNotification } = useNotifications();
     const { banUser, unbanUser, isUserBanned } = useBan();
+
+    const DURATION_LABELS: Record<string, string> = {
+        '1d': t.admin.dur1d,
+        '3d': t.admin.dur3d,
+        '7d': t.admin.dur7d,
+        '30d': t.admin.dur30d,
+        'permanent': t.admin.durPermanent,
+    };
 
     const [activeTab, setActiveTab] = useState<ActiveTab>(
         searchParams.get('tab') === 'users' ? 'users' : 'books'
@@ -100,8 +104,8 @@ export function AdminBooksUsersPage() {
                 addNotification({
                     userId: ownerId,
                     type: 'warning',
-                    title: `Cartea ta „${bookTitle}" a fost ștearsă`,
-                    message: `Motiv: ${reason}. Dacă crezi că această decizie este greșită, contactează echipa de suport.`,
+                    title: t.admin.notifBookDeleted.replace('{title}', bookTitle),
+                    message: t.admin.notifBookDeletedMsg.replace('{reason}', reason),
                 });
             })
             .catch(() => console.error('Failed to delete book'));
@@ -118,12 +122,12 @@ export function AdminBooksUsersPage() {
         setUsers(prev => prev.map(u => u.id === id ? { ...u, isBanned: true } : u));
         const durationLabel = DURATION_LABELS[duration] ?? duration;
         const notifMessage = customMessage.trim()
-            ? `Motiv: ${reason}. ${customMessage.trim()}`
-            : `Motiv: ${reason}.`;
+            ? `${t.admin.notifBannedMsg.replace('{reason}', reason)} ${customMessage.trim()}`
+            : t.admin.notifBannedMsg.replace('{reason}', reason);
         addNotification({
             userId: id,
             type: 'ban',
-            title: `Contul tău a fost suspendat pentru ${durationLabel}`,
+            title: t.admin.notifBanned.replace('{duration}', durationLabel),
             message: notifMessage,
         });
     }
@@ -134,8 +138,8 @@ export function AdminBooksUsersPage() {
         addNotification({
             userId: id,
             type: 'info',
-            title: 'Suspendarea contului tău a fost ridicată',
-            message: 'Contul tău este din nou activ. Poți folosi platforma în mod normal. Te rugăm să respecți regulile comunității.',
+            title: t.admin.notifUnbanned,
+            message: t.admin.notifUnbannedMsg,
         });
     }
 
