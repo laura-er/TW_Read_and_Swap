@@ -2,12 +2,14 @@ using BookSwap.BusinessLayer;
 using BookSwap.BusinessLayer.Interfaces;
 using BookSwap.Domain.Entities.User;
 using BookSwap.Domain.Models.User;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BookSwap.Api.Controllers;
 
 [ApiController]
 [Route("api/users")]
+[Authorize]
 public class UserController : ControllerBase
 {
     private readonly IUserLogic _userLogic;
@@ -19,6 +21,7 @@ public class UserController : ControllerBase
     }
 
     [HttpPost("register")]
+    [AllowAnonymous]
     public IActionResult Register([FromBody] UserCreateDto dto)
     {
         var response = _userLogic.Register(dto);
@@ -28,6 +31,7 @@ public class UserController : ControllerBase
     }
 
     [HttpPost("login")]
+    [AllowAnonymous]
     public IActionResult Login([FromBody] LoginDto dto)
     {
         var response = _userLogic.Login(dto);
@@ -37,6 +41,7 @@ public class UserController : ControllerBase
     }
 
     [HttpPost("logout")]
+    [Authorize]
     public IActionResult Logout()
     {
         var currentUser = HttpContext.Items["CurrentUser"] as UserEntity;
@@ -47,6 +52,7 @@ public class UserController : ControllerBase
     }
 
     [HttpGet("list")]
+    [Authorize(Roles = "Admin")]
     public IActionResult GetUserList()
     {
         var currentUser = HttpContext.Items["CurrentUser"] as UserEntity;
@@ -58,8 +64,8 @@ public class UserController : ControllerBase
         return Ok(response.Data);
     }
 
-    // Endpoint PUBLIC pentru găsire user după username — folosit de PublicProfilePage
     [HttpGet("by-username/{username}")]
+    [AllowAnonymous]
     public IActionResult GetByUsername([FromRoute] string username)
     {
         var response = _userLogic.GetUserByUsername(username);
@@ -68,8 +74,8 @@ public class UserController : ControllerBase
         return Ok(response.Data);
     }
 
-    // Endpoint PUBLIC pentru numărul total de useri — folosit de StatsBar
     [HttpGet("count")]
+    [AllowAnonymous]
     public IActionResult GetUserCount()
     {
         var response = _userLogic.GetUserList();
@@ -80,6 +86,7 @@ public class UserController : ControllerBase
     }
 
     [HttpGet("{id}")]
+    [AllowAnonymous]
     public IActionResult GetUser([FromRoute] int id)
     {
         var response = _userLogic.GetUserById(id);
@@ -89,6 +96,7 @@ public class UserController : ControllerBase
     }
 
     [HttpPut("{id}")]
+    [Authorize]
     public IActionResult UpdateUser([FromRoute] int id, [FromBody] UserUpdateDto dto)
     {
         var currentUser = HttpContext.Items["CurrentUser"] as UserEntity;
@@ -103,6 +111,7 @@ public class UserController : ControllerBase
     }
 
     [HttpDelete("{id}")]
+    [Authorize(Roles = "Admin")]
     public IActionResult DeleteUser([FromRoute] int id)
     {
         var currentUser = HttpContext.Items["CurrentUser"] as UserEntity;
@@ -119,6 +128,7 @@ public class UserController : ControllerBase
     }
 
     [HttpPut("{id}/role")]
+    [Authorize(Roles = "Admin")]
     public IActionResult ChangeRole([FromRoute] int id, [FromBody] ChangeRoleDto dto)
     {
         var currentUser = HttpContext.Items["CurrentUser"] as UserEntity;
@@ -130,3 +140,8 @@ public class UserController : ControllerBase
         return Ok(response.Message);
     }
 }
+
+
+
+
+

@@ -5,6 +5,7 @@ using BookSwap.DataAccessLayer;
 using BookSwap.DataAccessLayer.Context;
 using BookSwap.Domain.Entities.Swap;
 using BookSwap.Domain.Entities.User;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -12,22 +13,19 @@ namespace BookSwap.Api.Controllers;
 
 [ApiController]
 [Route("api/admin/activity")]
+[Authorize(Roles = "Admin")]
 public class AdminActivityController : ControllerBase
 {
     [HttpGet]
     public IActionResult GetActivity([FromQuery] int limit = 20)
     {
         var currentUser = HttpContext.Items["CurrentUser"] as UserEntity;
-        if (currentUser == null)
-            return Unauthorized("Not authenticated");
-        if (currentUser.Role != UserRole.Admin)
-            return StatusCode(403, "Access denied");
+        if (currentUser == null) return Unauthorized("Not authenticated");
+        if (currentUser.Role != UserRole.Admin) return StatusCode(403, "Access denied");
 
         using var db = new BookSwapDbContext(DbSession.GetOptions());
-
         var activities = new List<object>();
 
-        // New books added
         var newBooks = db.Books
             .Include(b => b.Owner)
             .OrderByDescending(b => b.CreatedAt)
@@ -41,7 +39,6 @@ public class AdminActivityController : ControllerBase
             }).ToList();
         activities.AddRange(newBooks);
 
-        // New users registered
         var newUsers = db.Users
             .Where(u => u.Role == UserRole.User)
             .OrderByDescending(u => u.CreatedAt)
@@ -55,7 +52,6 @@ public class AdminActivityController : ControllerBase
             }).ToList();
         activities.AddRange(newUsers);
 
-        // New swap requests (pending)
         var pendingSwaps = db.SwapRequests
             .Include(s => s.Requester)
             .Include(s => s.BookRequested)
@@ -71,7 +67,6 @@ public class AdminActivityController : ControllerBase
             }).ToList();
         activities.AddRange(pendingSwaps);
 
-        // Completed swaps
         var completedSwaps = db.SwapRequests
             .Include(s => s.Requester)
             .Include(s => s.BookRequested)
@@ -87,7 +82,6 @@ public class AdminActivityController : ControllerBase
             }).ToList();
         activities.AddRange(completedSwaps);
 
-        // New reports
         var reports = db.Reports
             .Include(r => r.Reporter)
             .OrderByDescending(r => r.CreatedAt)
@@ -101,7 +95,6 @@ public class AdminActivityController : ControllerBase
             }).ToList();
         activities.AddRange(reports);
 
-        // Sort all by date and take the first `limit` entries
         var sorted = activities
             .OrderByDescending(a => (DateTime)a.GetType().GetProperty("timestamp")!.GetValue(a)!)
             .Take(limit)
