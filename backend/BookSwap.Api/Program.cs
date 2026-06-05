@@ -1,9 +1,12 @@
 using System.Security.Claims;
+using System.Text;
 using BookSwap.BusinessLayer;
 using BookSwap.BusinessLayer.Structure;
 using BookSwap.DataAccessLayer;
 using BookSwap.DataAccessLayer.Context;
 using BookSwap.Domain.Entities.User;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -19,7 +22,7 @@ builder.Services.AddSwaggerGen(c =>
         Name = "Authorization",
         Type = SecuritySchemeType.ApiKey,
         In = ParameterLocation.Header,
-        Description = "Scrie: Bearer {sessionId}"
+        Description = "Scrie: Bearer {token}"
     });
     c.AddSecurityRequirement(new OpenApiSecurityRequirement
     {
@@ -39,6 +42,29 @@ builder.Services.AddSwaggerGen(c =>
 
 builder.Services.AddControllers();
 
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+.AddJwtBearer(options =>
+{
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuer = true,
+        ValidIssuer = "BookSwapApi",
+        ValidateAudience = true,
+        ValidAudience = "BookSwapClient",
+        ValidateIssuerSigningKey = true,
+        IssuerSigningKey = new SymmetricSecurityKey(
+            Encoding.UTF8.GetBytes("BookSwapSuperSecretKey2026!XyZ#abc")),
+        ValidateLifetime = true,
+        ClockSkew = TimeSpan.Zero
+    };
+});
+
+builder.Services.AddAuthorization();
+
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("FrontendPolicy", policy =>
@@ -57,7 +83,6 @@ var app = builder.Build();
 
 using (var db = new BookSwapDbContext(DbSession.GetOptions()))
 {
-    // Seed admin
     var adminExists = db.Users.Any(u => u.Role == UserRole.Admin);
     if (!adminExists)
     {
@@ -75,7 +100,6 @@ using (var db = new BookSwapDbContext(DbSession.GetOptions()))
         db.SaveChanges();
     }
 
-    // Seed date de test
     DbInitializer.Seed(db);
 }
 
@@ -87,7 +111,9 @@ if (app.Environment.IsDevelopment())
 
 app.UseCors("FrontendPolicy");
 
-// Auth middleware inline
+app.UseAuthentication();
+app.UseAuthorization();
+
 app.Use(async (context, next) =>
 {
     var authHeader = context.Request.Headers["Authorization"].FirstOrDefault();
@@ -116,3 +142,4 @@ app.Use(async (context, next) =>
 app.MapControllers();
 
 app.Run();
+

@@ -4,12 +4,14 @@ using BookSwap.DataAccessLayer;
 using BookSwap.DataAccessLayer.Context;
 using BookSwap.Domain.Entities.User;
 using BookSwap.Domain.Models.Book;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BookSwap.Api.Controllers;
 
 [ApiController]
 [Route("api/books")]
+[Authorize]
 public class BookController : ControllerBase
 {
     private readonly IBookLogic _bookLogic;
@@ -21,6 +23,7 @@ public class BookController : ControllerBase
     }
 
     [HttpGet]
+    [AllowAnonymous]
     public IActionResult GetAllBooks()
     {
         var response = _bookLogic.GetAllBooks();
@@ -30,6 +33,7 @@ public class BookController : ControllerBase
     }
 
     [HttpGet("search")]
+    [AllowAnonymous]
     public IActionResult SearchBooks(
         [FromQuery] string? search,
         [FromQuery] string? genre,
@@ -45,6 +49,7 @@ public class BookController : ControllerBase
     }
 
     [HttpGet("owner/{ownerId}")]
+    [AllowAnonymous]
     public IActionResult GetBooksByOwner([FromRoute] int ownerId)
     {
         var response = _bookLogic.GetBooksByOwner(ownerId);
@@ -54,6 +59,7 @@ public class BookController : ControllerBase
     }
 
     [HttpGet("{id}")]
+    [AllowAnonymous]
     public IActionResult GetBook([FromRoute] int id)
     {
         var response = _bookLogic.GetBookById(id);
@@ -63,6 +69,7 @@ public class BookController : ControllerBase
     }
 
     [HttpPost]
+    [Authorize]
     public IActionResult CreateBook([FromBody] BookCreateDto dto)
     {
         var currentUser = HttpContext.Items["CurrentUser"] as UserEntity;
@@ -78,20 +85,19 @@ public class BookController : ControllerBase
     }
 
     [HttpPut("{id}")]
+    [Authorize]
     public IActionResult UpdateBook([FromRoute] int id, [FromBody] BookUpdateDto dto)
     {
         var currentUser = HttpContext.Items["CurrentUser"] as UserEntity;
         if (currentUser == null)
             return Unauthorized("Not authenticated");
 
-        // Admin poate edita orice carte direct
         if (currentUser.Role == UserRole.Admin)
         {
             var response = _bookLogic.UpdateBook(id, dto);
             return response.IsSuccess ? Ok(response.Message) : NotFound(response.Message);
         }
 
-        // User normal — verifică ownership direct din DB
         using var db = new BookSwapDbContext(DbSession.GetOptions());
         var book = db.Books.Find(id);
         if (book == null)
@@ -104,20 +110,19 @@ public class BookController : ControllerBase
     }
 
     [HttpDelete("{id}")]
+    [Authorize(Roles = "Admin")]
     public IActionResult DeleteBook([FromRoute] int id)
     {
         var currentUser = HttpContext.Items["CurrentUser"] as UserEntity;
         if (currentUser == null)
             return Unauthorized("Not authenticated");
 
-        // Admin poate șterge orice carte direct
         if (currentUser.Role == UserRole.Admin)
         {
             var response = _bookLogic.DeleteBook(id);
             return response.IsSuccess ? NoContent() : NotFound(response.Message);
         }
 
-        // User normal — verifică ownership direct din DB
         using var db = new BookSwapDbContext(DbSession.GetOptions());
         var book = db.Books.Find(id);
         if (book == null)
