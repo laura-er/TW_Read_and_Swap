@@ -46,8 +46,8 @@ export function BookCardActions({ book, isOwner, onDelete, onUpdate, showOwnerAc
             {showDeleteConfirm && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
                     <div className="w-full max-w-sm rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)] p-6 flex flex-col gap-4">
-                        <h2 className="text-lg font-bold text-[var(--color-text)]">{t.books.delete} Book</h2>
-                        <p className="text-sm text-[var(--color-text-muted)]">Are you sure you want to delete <span className="font-semibold text-[var(--color-text)]">{book.title}</span>? This action cannot be undone.</p>
+                        <h2 className="text-lg font-bold text-[var(--color-text)]">{t.books.deleteBookTitle}</h2>
+                        <p className="text-sm text-[var(--color-text-muted)]">{t.books.deleteBookConfirm} <span className="font-semibold text-[var(--color-text)]">{book.title}</span>? {t.books.deleteBookUndo}</p>
                         <div className="flex gap-2">
                             <Button variant="secondary" size="sm" className="flex-1 justify-center" onClick={() => setShowDeleteConfirm(false)}>{t.common.cancel}</Button>
                             <button onClick={() => { onDelete?.(book.id); setShowDeleteConfirm(false); }} className="flex-1 py-2 px-3 rounded-lg bg-red-600 hover:bg-red-700 text-white text-sm font-semibold transition-all duration-200">{t.books.delete}</button>

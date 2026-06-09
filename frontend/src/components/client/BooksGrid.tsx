@@ -24,7 +24,7 @@ export function BooksGrid({ books, onClearFilters, isLoading = false }: BooksGri
                 <div className="text-7xl mb-5">📚</div>
                 <h3 className="text-2xl font-bold text-(--color-text) mb-3">{t.books.noResults}</h3>
                 <p className="text-(--color-text-muted) mb-8 max-w-sm mx-auto">{t.books.noResultsDesc}</p>
-                <Button onClick={onClearFilters} size="lg">Clear All Filters</Button>
+                <Button onClick={onClearFilters} size="lg">{t.books.clearAllFilters}</Button>
             </div>
         );
     }

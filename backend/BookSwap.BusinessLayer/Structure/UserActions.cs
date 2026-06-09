@@ -1,4 +1,3 @@
-using BCrypt.Net;
 using BookSwap.DataAccessLayer;
 using BookSwap.DataAccessLayer.Context;
 using BookSwap.Domain.Entities.User;
@@ -9,7 +8,6 @@ namespace BookSwap.BusinessLayer.Structure;
 
 public class UserActions
 {
-    public UserActions() { }
 
     protected ServiceResponse RegisterAction(UserCreateDto dto)
     {
@@ -30,7 +28,7 @@ public class UserActions
             City         = dto.City,
             Latitude     = dto.Latitude,
             Longitude    = dto.Longitude,
-            PasswordHash = BCrypt.Net.BCrypt.HashPassword(dto.Password),
+            PasswordHash = PasswordHasher.Hash(dto.Password),
             Role         = UserRole.User,
             CreatedAt    = DateTime.UtcNow
         };
@@ -44,7 +42,7 @@ public class UserActions
         using var db = new BookSwapDbContext(DbSession.GetOptions());
         var user = db.Users.FirstOrDefault(u =>
             u.Email == dto.EmailOrUsername || u.Username == dto.EmailOrUsername);
-        if (user == null || !BCrypt.Net.BCrypt.Verify(dto.Password, user.PasswordHash))
+        if (user == null || !PasswordHasher.Verify(dto.Password, user.PasswordHash))
             return new ServiceResponse { IsSuccess = false, Message = "Invalid credentials" };
         var tokenService = new TokenService();
         var token = tokenService.GenerateToken(user);
@@ -151,32 +149,26 @@ public class UserActions
 
         try
         {
-            // 1. Șterge swap-urile unde userul e requester sau owner
             var swaps = db.SwapRequests
                 .Where(s => s.RequesterId == id || s.OwnerId == id)
                 .ToList();
             db.SwapRequests.RemoveRange(swaps);
 
-            // 2. Șterge favoritele userului
             var favorites = db.Favorites
                 .Where(f => f.UserId == id)
                 .ToList();
             db.Favorites.RemoveRange(favorites);
 
-            // 3. Șterge review-urile userului
             var reviews = db.Reviews
                 .Where(r => r.UserId == id)
                 .ToList();
             db.Reviews.RemoveRange(reviews);
 
-            // 4. Șterge rapoartele făcute de user
             var reports = db.Reports
                 .Where(r => r.ReportedByUserId == id)
                 .ToList();
             db.Reports.RemoveRange(reports);
 
-            // 5. Șterge cărțile userului
-            // Mai întâi swap-urile asociate cărților userului
             var bookIds = db.Books.Where(b => b.OwnerId == id).Select(b => b.Id).ToList();
             if (bookIds.Any())
             {
@@ -199,7 +191,6 @@ public class UserActions
                 db.Books.RemoveRange(books);
             }
 
-            // 6. Șterge userul
             db.Users.Remove(user);
             db.SaveChanges();
         }

@@ -42,13 +42,13 @@ export function BookCard({ book, onDelete, onUpdate, showOwnerActions = false }:
                     <span className="text-xs font-semibold px-2 py-0.5 rounded-full" style={{ color: 'var(--navbar-text-muted)', background: 'var(--color-surface-alt)' }}>{genreLabel(book.genre, t)}</span>
                 </div>
                 {isAuthenticated && !isOwner && <BookCardOwner ownerId={book.ownerId} />}
-                {!isAuthenticated && <p className="text-xs text-(--color-text-muted) italic">Sign in to see more details</p>}
+                {!isAuthenticated && <p className="text-xs text-(--color-text-muted) italic">{t.books.signInToSeeMore}</p>}
                 <div className="mt-auto">
                     {isAuthenticated ? (
                         <BookCardActions book={book} isOwner={isOwner} onDelete={onDelete} onUpdate={onUpdate} showOwnerActions={showOwnerActions} />
                     ) : (
                         <button onClick={() => navigate('/sign-in')} className="w-full text-center py-2 px-3 rounded-[14px] bg-[var(--color-accent)] hover:bg-[var(--color-accent-hover)] text-white text-sm font-semibold transition-all duration-200">
-                            Sign in to view
+                            {t.books.signInToView}
                         </button>
                     )}
                 </div>

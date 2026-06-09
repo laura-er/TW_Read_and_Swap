@@ -72,6 +72,14 @@ export const en = {
     genreBiography: 'Biography', genreHistory: 'History', genreSelfHelp: 'Self-help', genreOther: 'Other',
     moreIn: 'More in', by: 'by', noReviews: 'No reviews yet', availableOnly: 'Only', clearFilters: 'Clear filters',
     ratingPoor: 'Poor', ratingFair: 'Fair', ratingGood: 'Good', ratingVeryGood: 'Very Good', ratingExcellent: 'Excellent',
+    signInToSeeMore: 'Sign in to see more details',
+    signInToView: 'Sign in to view',
+    clearAllFilters: 'Clear All Filters',
+    browseLabel: 'Browse',
+    deleteBookTitle: 'Delete Book',
+    deleteBookConfirm: 'Are you sure you want to delete',
+    deleteBookUndo: 'This action cannot be undone.',
+    bookNotFoundDesc: "The book you're looking for doesn't exist or has been removed.",
   },
   addBook: {
     title: 'Share a Book', subtitle: 'List a book you want to swap with the community',
@@ -266,6 +274,16 @@ export const en = {
     emailInvalid: 'Please enter a valid email address.',
     failedSwap: 'Failed to send swap request. Please try again.',
   },
+  location: {
+  label: 'LOCATION',
+  searchPlaceholder: 'Search for a city (e.g. Chisinau)',
+  searchBtn: 'Search',
+  notFound: 'Location not found. Try another name.',
+  searchError: 'Search error.',
+  loading: 'Loading map...',
+  clickHint: '👆 Click on the map or search for a city',
+  required: 'Location is required.',
+},
 };
 
 export type Translations = typeof en;

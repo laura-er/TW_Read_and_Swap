@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useTheme } from '@/context/ThemeContext';
+import { useLanguage } from '@/context/LanguageContext';
 
 declare global { interface Window { L: any; } }
 
@@ -18,6 +19,7 @@ interface Props {
 
 export function LocationPickerMap({ value, onChange, required, hasError }: Props) {
     const { isDark } = useTheme();
+    const { t } = useLanguage();
     const mapRef = useRef<HTMLDivElement>(null);
     const leafletMap = useRef<any>(null);
     const markerRef = useRef<any>(null);
@@ -85,12 +87,12 @@ export function LocationPickerMap({ value, onChange, required, hasError }: Props
         try {
             const res = await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(searchText)}&format=json&limit=1`);
             const data = await res.json();
-            if (!data.length) { setSearchError('Locatia nu a fost gasita. Incearca alt nume.'); return; }
+            if (!data.length) { setSearchError(t.location.notFound); return; }
             const latN = parseFloat(data[0].lat), lonN = parseFloat(data[0].lon);
             const city = data[0].display_name.split(',')[0];
             onChange({ city, lat: latN, lon: lonN });
             if (leafletMap.current) { leafletMap.current.setView([latN, lonN], 12); placeMarker(latN, lonN); }
-        } catch { setSearchError('Eroare la cautare.'); }
+        } catch { setSearchError(t.location.searchError); }
         finally { setSearching(false); }
     };
 
@@ -116,21 +118,21 @@ export function LocationPickerMap({ value, onChange, required, hasError }: Props
     return (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
             <label style={{ fontSize: '10px', fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', color: hasError ? '#e05030' : mutedColor }}>
-                LOCATIE{required && <span style={{ color: '#e05030', marginLeft: '3px' }}>*</span>}
+                {t.location.label}{required && <span style={{ color: '#e05030', marginLeft: '3px' }}>*</span>}
             </label>
             <div style={{ display: 'flex', gap: '6px' }}>
                 <input
                     value={searchText}
                     onChange={e => setSearchText(e.target.value)}
                     onKeyDown={e => e.key === 'Enter' && (e.preventDefault(), handleSearch())}
-                    placeholder="Cauta un oras (ex: Chisinau)"
+                    placeholder={t.location.searchPlaceholder}
                     style={{ flex: 1, padding: '9px 12px', fontSize: '12px', borderRadius: '10px', background: bg, border, color: textColor, outline: 'none', boxSizing: 'border-box' as const }}
                 />
                 <button type="button" onClick={handleSearch} disabled={searching}
                     style={{ padding: '9px 12px', borderRadius: '10px', border: 'none', background: accentColor, color: 'white', fontSize: '11px', fontWeight: 600, cursor: 'pointer', whiteSpace: 'nowrap' as const }}>
-                    {searching ? '...' : 'Cauta'}
+                    {searching ? '...' : t.location.searchBtn}
                 </button>
-                <button type="button" onClick={handleGps} disabled={gpsLoading} title="Foloseste locatia mea"
+                <button type="button" onClick={handleGps} disabled={gpsLoading} title={t.location.label}
                     style={{ padding: '9px 10px', borderRadius: '10px', border, background: bg, color: textColor, fontSize: '14px', cursor: 'pointer' }}>
                     {gpsLoading ? '...' : '📍'}
                 </button>
@@ -139,14 +141,14 @@ export function LocationPickerMap({ value, onChange, required, hasError }: Props
             <div style={{ position: 'relative', borderRadius: '12px', overflow: 'hidden', border }}>
                 {!leafletReady && (
                     <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: bg, zIndex: 10, fontSize: '12px', color: mutedColor }}>
-                        Se incarca harta...
+                        {t.location.loading}
                     </div>
                 )}
                 <div ref={mapRef} style={{ height: '200px', width: '100%' }} />
                 {!value.lat && leafletReady && (
                     <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', pointerEvents: 'none', zIndex: 5 }}>
                         <div style={{ background: isDark ? 'rgba(40,26,10,0.85)' : 'rgba(255,248,230,0.85)', padding: '8px 14px', borderRadius: '20px', fontSize: '11px', color: mutedColor, backdropFilter: 'blur(4px)' }}>
-                            👆 Click pe harta sau cauta un oras
+                            {t.location.clickHint}
                         </div>
                     </div>
                 )}
@@ -159,7 +161,7 @@ export function LocationPickerMap({ value, onChange, required, hasError }: Props
                         style={{ marginLeft: 'auto', background: 'none', border: 'none', cursor: 'pointer', color: mutedColor, fontSize: '12px' }}>✕</button>
                 </div>
             )}
-            {hasError && <p style={{ fontSize: '11px', color: '#e05030', margin: 0 }}>⚠ Locatia este obligatorie.</p>}
+            {hasError && <p style={{ fontSize: '11px', color: '#e05030', margin: 0 }}>⚠ {t.location.required}</p>}
         </div>
     );
 }

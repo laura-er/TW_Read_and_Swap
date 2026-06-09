@@ -52,12 +52,12 @@ builder.Services.AddAuthentication(options =>
     options.TokenValidationParameters = new TokenValidationParameters
     {
         ValidateIssuer = true,
-        ValidIssuer = "BookSwapApi",
+        ValidIssuer = JwtSettings.Issuer,
         ValidateAudience = true,
-        ValidAudience = "BookSwapClient",
+        ValidAudience = JwtSettings.Audience,
         ValidateIssuerSigningKey = true,
         IssuerSigningKey = new SymmetricSecurityKey(
-            Encoding.UTF8.GetBytes("BookSwapSuperSecretKey2026!XyZ#abc")),
+            Encoding.UTF8.GetBytes(JwtSettings.SecretKey)),
         ValidateLifetime = true,
         ClockSkew = TimeSpan.Zero
     };
@@ -142,4 +142,3 @@ app.Use(async (context, next) =>
 app.MapControllers();
 
 app.Run();
-
